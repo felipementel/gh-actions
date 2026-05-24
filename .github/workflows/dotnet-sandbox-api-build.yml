@@ -197,7 +197,6 @@ jobs:
       #     solutionFileName: ${{ inputs.solutionFileName }}
 
       - name: 🐋 Docker setup
-        if: ${{ inputs.dockerSetup == 'true' }}
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🧪 Dotnet Test & Coverage
