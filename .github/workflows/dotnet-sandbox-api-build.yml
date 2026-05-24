@@ -19,11 +19,6 @@ on:
         description: 'The main test folder'
         required: false
         default: ''
-      msgCanalDeploy:
-        type: string
-        description: 'Message to be displayed in the summary'
-        required: true
-        default: 'Canal DEPLOY - O melhor canal sobre .NET, Azure, DevOps e IA'
       #build config
       dotnetVersion:
         type: string
@@ -330,7 +325,7 @@ jobs:
           | versao | data | 
           |--|--|
           | ${{ steps.get-version.outputs.tag }} | ${{ steps.get-env.outputs.now }} | \n
-          Mensagem: ${{ inputs.msgCanalDeploy }}\n'
+          \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   check-image:
@@ -402,7 +397,7 @@ jobs:
           | versao | data | 
           |--|--|
           | ${{ needs.build.outputs.tag-version }} | ${{ needs.build.outputs.now }} | \n
-          Mensagem: ${{ inputs.msgCanalDeploy }}\n'
+          \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   notify-image-exists:
