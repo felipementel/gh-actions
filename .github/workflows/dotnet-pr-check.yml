@@ -106,6 +106,7 @@ jobs:
           sparse-checkout: |
             src
             tests
+            docker
           sparse-checkout-cone-mode: false
 
       - name: 🔍 Get-Version from csproj
