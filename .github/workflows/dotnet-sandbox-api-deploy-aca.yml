@@ -27,11 +27,6 @@ on:
         description: 'Registry username. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
         default: ''
-      msgCanalDeploy:
-        type: string
-        description: 'Message to display in the deployment summary'
-        required: false
-        default: ''
       azureRgBase:
         type: string
         description: 'Base Azure Resource Group name (env suffix appended for non-prd)'
@@ -112,4 +107,3 @@ jobs:
           rg-name: ${{ steps.naming.outputs.AZURE_RG_NAME }}
           fqdn: ${{ steps.deploy.outputs.FQDN }}
           state: ${{ steps.deploy.outputs.STATE }}
-          msg: ${{ inputs.msgCanalDeploy }}
