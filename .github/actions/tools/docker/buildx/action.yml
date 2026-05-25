@@ -67,6 +67,7 @@ runs:
           -f ${{ inputs.dockerfile }} \
           -t ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:${{ inputs.tag-version }} \
           --output=type=docker,dest=${{ inputs.output-tar }} \
+          --load
           ${{ inputs.context }}
 
     - name: 📊 Summary
