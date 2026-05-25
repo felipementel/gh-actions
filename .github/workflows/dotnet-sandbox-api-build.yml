@@ -239,7 +239,7 @@ jobs:
       - name: 🍵 Snyk Security Scan
         uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
         with:
-          snyk-token: ${{ secrets.SNYK_TOKEN }}
+          snyk-token: ${{ secrets.SNYK_API_KEY }}
           projectBaseDir: ${{ inputs.projectBaseDir }}
           mainProject: ${{ inputs.mainProject }}
           solutionFileName: ${{ inputs.solutionFileName }}
