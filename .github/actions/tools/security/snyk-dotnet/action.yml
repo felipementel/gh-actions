@@ -66,6 +66,7 @@ runs:
         SNYK_TOKEN: ${{ inputs.snyk-token }}
       run: |
         snyk test \
+          --app-vulns \
           --sarif-file-output=snykDotNet.sarif \
           --file=${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj
 
