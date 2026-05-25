@@ -55,7 +55,9 @@ runs:
       env:
         SNYK_TOKEN: ${{ inputs.snyk-token }}
       run: |
-        snyk container monitor ${{ inputs.imageName }} \
+        snyk container monitor \
+          ${{ inputs.imageName }} \
+          --app-vulns \
           --exclude-base-image-vulns \
           --file=${{ inputs.docker-file-full-path }}
 
