@@ -43,6 +43,11 @@ on:
         description: 'Message to be displayed in the unit test report title'
         required: true
         default: 'Canal DEPLOY'
+      openAPIFolder:
+        type: string
+        description: ''
+        required: true
+        default: ""
       #build use
       sonarExclusions:
         type: string
@@ -65,11 +70,16 @@ on:
         description: 'Image name to publish at github packages'
         required: true
         default: ""
-      openAPIFolder:
+      registry:
         type: string
-        description: ''
-        required: true
-        default: ""
+        description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
+        required: false
+        default: 'ghcr.io'
+      registryUsername:
+        type: string
+        description: 'Registry username. Defaults to github.actor when empty (suitable for ghcr.io)'
+        required: false
+        default: ''
     secrets:
       SONAR_PROJECT_KEY:
         required: true
@@ -197,7 +207,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
-          image-name: deploy.${{ inputs.imageName }}
+          image-name: ${{ inputs.imageName }}
           tag-version: ${{ steps.get-version.outputs.TAG }}
           dockerfile: ${{ inputs.dockerFileFullPath }}
           context: ${{ inputs.dockerBuildContext }}
