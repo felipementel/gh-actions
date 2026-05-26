@@ -230,7 +230,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
-          image-name: deploy.${{ inputs.imageName }}
+          image-name: ${{ inputs.imageName }}
           tag-version: ${{ steps.get-version.outputs.TAG }}
           dockerfile: ${{ inputs.dockerFileFullPath }}
           context: ${{ inputs.dockerBuildContext }}
