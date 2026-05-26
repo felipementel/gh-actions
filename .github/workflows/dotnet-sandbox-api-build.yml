@@ -236,18 +236,18 @@ jobs:
           platforms: 'linux/amd64'
           push: 'false'
 
-      - name: 🍵 Snyk Security Scan
-        uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
-        with:
-          snyk-token: ${{ secrets.SNYK_API_KEY }}
-          projectBaseDir: ${{ inputs.projectBaseDir }}
-          mainProject: ${{ inputs.mainProject }}
-          solutionFileName: ${{ inputs.solutionFileName }}
-          imageName: ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/deploy.${{ inputs.imageName }}:${{ steps.get-version.outputs.TAG }}
-          docker-file-full-path: ${{ inputs.dockerFileFullPath }}
-          docker-build-context: ${{ inputs.dockerBuildContext }}
+      # - name: 🍵 Snyk Security Scan
+      #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
+      #   with:
+      #     snyk-token: ${{ secrets.SNYK_API_KEY }}
+      #     projectBaseDir: ${{ inputs.projectBaseDir }}
+      #     mainProject: ${{ inputs.mainProject }}
+      #     solutionFileName: ${{ inputs.solutionFileName }}
+      #     imageName: ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/deploy.${{ inputs.imageName }}:${{ steps.get-version.outputs.TAG }}
+      #     docker-file-full-path: ${{ inputs.dockerFileFullPath }}
+      #     docker-build-context: ${{ inputs.dockerBuildContext }}
 
-      - name: Safety Python Dependency Check
+      - name: 🍵 Safety Python Dependency Check
         uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
         with:
           api-key: ${{ secrets.SAFETY_API_KEY }}
