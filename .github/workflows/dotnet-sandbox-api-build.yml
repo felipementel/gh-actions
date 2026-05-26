@@ -306,6 +306,23 @@ jobs:
             --no-restore \
             --output ./output_build
 
+      - name: 🔍 Check OpenAPI files
+        if: ${{ inputs.openAPIFolder != '' }}
+        shell: bash
+        run: |
+          if ls ./output_build/${{ inputs.openAPIFolder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in output_build/${{ inputs.openAPIFolder }}."
+          else
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in output_build/${{ inputs.openAPIFolder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+          fi
+
+      - name: Upload OpenAPI artifacts
+        if: ${{ inputs.openAPIFolder != '' }}
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        with:
+          name: OpenAPI-Specs
+          path: ./output_build/${{ inputs.openAPIFolder }}/*.{json,yaml,yml}
+
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openAPIFolder != '' }}
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
