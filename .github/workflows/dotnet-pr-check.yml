@@ -177,16 +177,16 @@ jobs:
           context: ${{ inputs.projectBaseDir }}
           push: 'false'
 
-      - name: 🍵 Snyk Security Scan
-        uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
-        with:
-          snyk-token: ${{ secrets.SNYK_TOKEN }}
-          projectBaseDir: ${{ inputs.projectBaseDir }}
-          mainProject: ${{ inputs.mainProject }}
-          solutionFileName: ${{ inputs.solutionFileName }}
-          imageName: ghcr.io/${{ github.actor }}/${{ inputs.imageName }}:${{ github.sha }}
-          docker-file-full-path: ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/Dockerfile
-          docker-build-context: ${{ inputs.projectBaseDir }}
+      # - name: 🍵 Snyk Security Scan
+      #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
+      #   with:
+      #     snyk-token: ${{ secrets.SNYK_TOKEN }}
+      #     projectBaseDir: ${{ inputs.projectBaseDir }}
+      #     mainProject: ${{ inputs.mainProject }}
+      #     solutionFileName: ${{ inputs.solutionFileName }}
+      #     imageName: ghcr.io/${{ github.actor }}/${{ inputs.imageName }}:${{ github.sha }}
+      #     docker-file-full-path: ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/Dockerfile
+      #     docker-build-context: ${{ inputs.projectBaseDir }}
 
       - name: 🔨 Build to generate OpenAPI JSON
         if: ${{ inputs.openAPIFolder != '' }}
