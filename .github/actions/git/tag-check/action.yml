@@ -32,7 +32,7 @@ runs:
       id: check-tag
       shell: bash
       run: |
-        TAG="v${{ inputs.tag }}"
+        TAG="${{ inputs.tag }}"
         if git ls-remote --tags origin "refs/tags/${TAG}" | grep -q "${TAG}"; then
           echo -e "❌ ${RED}A tag ${TAG} já existe no repositório remoto!${RESET}"
           echo -e "${RED}Atualize a versão no ${{ inputs.version_file }}.${RESET}"
