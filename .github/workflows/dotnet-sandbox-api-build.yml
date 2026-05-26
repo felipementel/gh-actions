@@ -235,6 +235,7 @@ jobs:
           context: ${{ inputs.dockerBuildContext }}
           platforms: 'linux/amd64'
           push: 'false'
+          load: 'true'
 
       # - name: 🍵 Snyk Security Scan
       #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main

@@ -30,6 +30,10 @@ inputs:
     description: 'Whether to push the image after build'
     required: false
     default: 'true'
+  load:
+    description: 'Load is a shorthand for --output=type=docker (loads image into local Docker daemon)'
+    required: false
+    default: 'false'
   output-tar:
     description: 'Path to export the image as a tar file (e.g., ./my-image.tar). When set, runs docker buildx build --output=type=docker,dest=<path>'
     required: false
@@ -54,6 +58,7 @@ runs:
         file: ${{ inputs.dockerfile }}
         platforms: ${{ inputs.platforms }}
         push: ${{ inputs.push }}
+        load: ${{ inputs.load }}
         tags: |
           ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:latest
           ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:${{ inputs.tag-version }}
