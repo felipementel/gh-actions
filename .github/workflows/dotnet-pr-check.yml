@@ -49,6 +49,16 @@ on:
         description: 'Path to exclusion from sonar, like migrations. Use comma separation'
         required: true
         default: ""
+      dockerFileFullPath:
+        type: string
+        description: 'Full path to the Dockerfile to be used in the container scan (e.g. src/Project/Project/Dockerfile)'
+        required: false
+        default: ''
+      dockerBuildContext:
+        type: string
+        description: 'Docker build context (e.g. src/Project/Project or .)'
+        required: false
+        default: ''
       #push-image
       imageName:
         type: string
@@ -182,16 +192,18 @@ jobs:
           java-version: ${{ env.javaVersion }}
           java-distro: ${{ env.javaDistro }}
 
-      - name: 🐳 Docker Build (local, for Snyk scan)
+      - name: 🐳 Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
-          registry: ghcr.io
-          registry-username: ${{ github.actor }}
-          image-name: ${{ inputs.imageName }}
-          tag-version: ${{ github.sha }}
-          dockerfile: ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/Dockerfile
-          context: ${{ inputs.projectBaseDir }}
+          registry: ${{ inputs.registry }}
+          registry-username: ${{ inputs.registryUsername || github.actor }}
+          image-name: deploy.${{ inputs.imageName }}
+          tag-version: ${{ steps.get-version.outputs.TAG }}
+          dockerfile: ${{ inputs.dockerFileFullPath }}
+          context: ${{ inputs.dockerBuildContext }}
+          platforms: 'linux/amd64'
           push: 'false'
+          load: 'true'
 
       # - name: 🍵 Snyk Security Scan
       #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
