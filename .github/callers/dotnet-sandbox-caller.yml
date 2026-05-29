@@ -32,7 +32,7 @@ on:
       environment:
         description: "Selecione o ambiente de implantação"
         required: true
-        default: 'DEV'
+        default: 'developement'
         type: environment
 
 jobs:
