@@ -1,17 +1,11 @@
+# {
+#  "apiVersio": apps/v1
+#  "kind": "ci-cd"
+#  "stack: "dotnet"
+# }
+
 name: .NET API — Build & Deploy (Caller Example)
 run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
-
-# ---------------------------------------------------------------------------
-# EXEMPLO de caller para os workflows:
-#   - felipementel/gh-actions/.github/workflows/dotnet-sandbox-api-build.yml
-#   - felipementel/gh-actions/.github/workflows/dotnet-sandbox-api-deploy-aca.yml
-#
-# Pré-requisitos no repositório caller:
-#   Secrets: SONAR_PROJECT_KEY, GITLEAKS_LICENSE, SNYK_TOKEN, SONAR_TOKEN,
-#             SAFETY_API_KEY, AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
-#   Environments: DEV, HML, PRD (Settings → Environments)
-#   Variables (por Environment): AZURE_RG, AZURE_ACAE_BASE
-# ---------------------------------------------------------------------------
 
 on:
   push:
@@ -53,10 +47,7 @@ jobs:
       openAPIFolder: 'open-api'
       dockerFileFullPath: 'docker/Dockerfile'
       dockerBuildContext: '.'
-      registry: 'ghcr.io'
-      # novos
-      # msgCanalDeploy: 'test'
-      # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
+      registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:
       security-events: write
       contents: write
