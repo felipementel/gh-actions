@@ -1,3 +1,10 @@
+# {
+#  "apiVersion": apps/v1
+#  "kind": "pr-check"
+#  "stack: "dotnet"
+# }
+
+
 name: .NET API - PR Check (Caller)
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
