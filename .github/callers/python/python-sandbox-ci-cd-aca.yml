@@ -1,18 +1,6 @@
 name: Python API — Build & Deploy (Caller Example)
 run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
 
-# ---------------------------------------------------------------------------
-# EXEMPLO de caller para os workflows:
-#   - felipementel/gh-actions/.github/workflows/python-sandbox-api-build.yml
-#   - felipementel/gh-actions/.github/workflows/python-sandbox-api-deploy-aca.yml
-
-# Pré-requisitos no repositório caller:
-#   Secrets: GITLEAKS_LICENSE, GH_PACKAGES_TOKEN, AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
-#   Secrets opcionais: CODECOV_TOKEN, BADGE_GIST_TOKEN
-#   Environments: DEV, HML, PRD (Settings → Environments)
-#   Variables (por Environment): AZURE_RG, AZURE_ACAE_BASE, BADGE_GIST_ID
-# ---------------------------------------------------------------------------
-
 on:
   push:
     branches: [main]
@@ -77,7 +65,7 @@ jobs:
 
   deploy:
     name: Deploy to ACA
-    if: >
+    if: >-
       github.event_name == 'workflow_dispatch' &&
       inputs.buildMode == 'Build + Push + Deploy' &&
       needs.build.outputs.image-exists == 'false'
@@ -87,7 +75,7 @@ jobs:
       environment: ${{ inputs.environment || 'DEV' }}
       tagVersion: ${{ needs.build.outputs.tag-version }}
       imageName: 'my-python-api'
-      registry: 'ghcr.io'
+      registry: ${{ var.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
       azureRgBase: ${{ vars.AZURE_RG }}
       acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}

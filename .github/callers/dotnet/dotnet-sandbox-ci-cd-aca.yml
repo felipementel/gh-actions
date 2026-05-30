@@ -63,7 +63,7 @@ jobs:
 
   deploy:
     name: Deploy to ACA
-    if: >
+    if: >-
       github.event_name == 'workflow_dispatch' &&
       inputs.buildMode == 'Build + Tag Validation + Deploy' &&
       needs.build.outputs.image-exists == 'false'
