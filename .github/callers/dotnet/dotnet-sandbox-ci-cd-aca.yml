@@ -36,7 +36,7 @@ jobs:
     with:
       buildMode: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode || 'Build' }}
       environment: ${{ inputs.environment || 'DEV' }}
-      dotnetVersion: '10.x'
+      dotnetVersion: ${{ vars.BUILD_VERSION }}
       projectBaseDir: './src'
       solutionFileName: 'PortsAndAdapters.slnx'
       mainProject: 'Usuarios.Api'
