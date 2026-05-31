@@ -4,7 +4,7 @@
 #  "stack: "dotnet"
 # }
 
-name: .NET API — Build & Deploy (Caller Example)
+name: .NET API — Build & Deploy [Caller]
 run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
 
 on:
