@@ -73,6 +73,13 @@ jobs:
       packages: read
 
     steps:
+
+      - name: 🔐 Azure Login
+        uses: felipementel/gh-actions/.github/actions/azure/az-login@main
+        with:
+          azure-client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+
       - name: 🧾 Compute Azure Container App names
         id: naming
         uses: felipementel/gh-actions/.github/actions/azure/aca-naming@main
