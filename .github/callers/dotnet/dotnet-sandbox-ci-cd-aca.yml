@@ -73,7 +73,7 @@ jobs:
       environment: ${{ inputs.environment || 'DEV' }}
       tagVersion: ${{ needs.build.outputs.tag-version }}
       imageName: 'myproject-api'
-      registry: 'ghcr.io'
+      registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
       azureRgBase: ${{ vars.AZURE_RG }}
       acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}
