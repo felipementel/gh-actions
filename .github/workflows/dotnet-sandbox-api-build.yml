@@ -399,7 +399,7 @@ jobs:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
           image-name: ${{ inputs.imageName }}
-          tag-version: ${{ steps.get-version.outputs.TAG }}
+          tag-version: ${{ needs.build.outputs.tag-version }}
           dockerfile: ${{ inputs.dockerFileFullPath }}
           context: ${{ inputs.dockerBuildContext }}
           platforms: 'linux/amd64'
