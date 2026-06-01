@@ -104,6 +104,13 @@ on:
       # SNYK_TOKEN:
       #   required: true
       #   description: 'Snyk Token'
+    outputs:
+      tag-version:
+        description: 'Versão da tag gerada'
+        value: ${{ jobs.build.outputs.tag-version }}
+      image-exists:
+        description: 'Se a imagem já existe no registry'
+        value: ${{ jobs.check-image.outputs.image-exists }}
 
 env:
   RED: '\033[0;31m'
