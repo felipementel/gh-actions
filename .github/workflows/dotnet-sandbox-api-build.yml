@@ -121,7 +121,7 @@ env:
 
   javaVersion: 23
   javaDistro: zulu
-  nodeVersion: 22
+  nodeVersion: 24
 
 jobs:
   build:
