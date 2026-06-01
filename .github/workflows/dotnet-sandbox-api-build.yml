@@ -356,7 +356,7 @@ jobs:
 
   check-image:
     name: Check if image exists
-    if: ${{ inputs.buildMode == 'Build + Tag Validation' }}
+    if: ${{ inputs.buildMode == 'Build + Tag Validation' || inputs.buildMode == 'Build + Tag Validation + Deploy' }}
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     outputs:
