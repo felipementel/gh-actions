@@ -394,15 +394,28 @@ jobs:
           sparse-checkout-cone-mode: false
 
       - name: 🐳 Docker Build and Push
-        uses: felipementel/gh-actions/.github/actions/tools/docker/push@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
-          registry-password: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
           image-name: ${{ inputs.imageName }}
-          tag-version: ${{ needs.build.outputs.tag-version }}
+          tag-version: ${{ steps.get-version.outputs.TAG }}
           dockerfile: ${{ inputs.dockerFileFullPath }}
           context: ${{ inputs.dockerBuildContext }}
+          platforms: 'linux/amd64'
+          push: 'true'
+          load: 'false'
+
+      # - name: 🐳 Docker Build and Push
+      #   uses: felipementel/gh-actions/.github/actions/tools/docker/push@main
+      #   with:
+      #     registry: ${{ inputs.registry }}
+      #     registry-username: ${{ inputs.registryUsername || github.actor }}
+      #     registry-password: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+      #     image-name: ${{ inputs.imageName }}
+      #     tag-version: ${{ needs.build.outputs.tag-version }}
+      #     dockerfile: ${{ inputs.dockerFileFullPath }}
+      #     context: ${{ inputs.dockerBuildContext }}
 
       - name: 🔍 Trivy - Scan Docker image
         if: ${{ inputs.image_name != '' && env.IMAGE_BUILT == 'true' }}
