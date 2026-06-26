@@ -35,7 +35,7 @@ jobs:
     uses: felipementel/gh-actions/.github/workflows/dotnet-sandbox-api-build.yml@main
     with:
       buildMode: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode || 'Build' }}
-      environment: ${{ inputs.environment || 'DEV' }}
+      environment: ${{ inputs.environment || 'development' }}
       dotnetVersion: ${{ vars.BUILD_VERSION }}
       projectBaseDir: './src'
       solutionFileName: 'PortsAndAdapters.slnx'
@@ -71,12 +71,12 @@ jobs:
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/dotnet-sandbox-api-deploy-aca.yml@main
     with:
-      environment: ${{ inputs.environment || 'DEV' }}
+      environment: ${{ inputs.environment || 'development' }}
       tagVersion: ${{ needs.build.outputs.tag-version }}
       imageName: 'myproject-api'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-      azureRgBase: ${{ vars.AZURE_RG }}
+      azureRgBase: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
       acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}
       healthCheckPath: '/health/live'
       deployPollMaxAttempts: '20'
