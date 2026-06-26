@@ -103,7 +103,7 @@ on:
         description: 'Safety API Key'
       REGISTRY_PAT:
         required: false
-        description: 'PAT registry'
+        description: 'Registry PAT'
       # SNYK_TOKEN:
       #   required: true
       #   description: 'Snyk Token'
