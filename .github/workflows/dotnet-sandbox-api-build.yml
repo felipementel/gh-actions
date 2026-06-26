@@ -394,6 +394,13 @@ jobs:
             docker
           sparse-checkout-cone-mode: false
 
+      - name: 🐳 Docker login
+        uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
+        with:
+          registry: ${{ inputs.registry }}
+          registry-username: ${{ inputs.registryUsername || github.actor }}
+          password: ${{ inputs.registryPAT }}
+
       - name: 🐳 Docker Build and Push
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
