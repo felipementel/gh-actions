@@ -391,6 +391,7 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             src
+            docker
           sparse-checkout-cone-mode: false
 
       - name: 🐳 Docker Build and Push
