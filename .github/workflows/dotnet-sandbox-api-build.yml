@@ -402,7 +402,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
-          password: ${{ secrets.REGISTRY_PAT }}
+          registry-password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Docker Build and Push
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
