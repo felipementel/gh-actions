@@ -60,9 +60,6 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
         description: 'Azure Subscription ID for OIDC authentication'
-      REGISTRY_PAT:
-        required: false
-        description: 'Registry PAT'
 
 jobs:
   deploy-aca:
