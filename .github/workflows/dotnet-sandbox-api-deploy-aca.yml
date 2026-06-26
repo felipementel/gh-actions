@@ -97,7 +97,8 @@ jobs:
           azure-tenant-id: ${{ secrets.AZURE_TENANT_ID }}
           azure-subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
           aca-name: ${{ steps.naming.outputs.AZURE_ACA_NAME }}
-          rg-name: ${{ steps.naming.outputs.AZURE_RG_NAME }}
+          #rg-name: ${{ steps.naming.outputs.AZURE_RG_NAME }}
+          rg-name: ${{ inputs.azureRgBase }}
           image: ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/deploy.${{ inputs.imageName }}:${{ inputs.tagVersion }}
           health-check-path: ${{ inputs.healthCheckPath }}
           poll-max-attempts: ${{ inputs.deployPollMaxAttempts }}
