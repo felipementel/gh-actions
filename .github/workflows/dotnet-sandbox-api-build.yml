@@ -101,6 +101,9 @@ on:
       SAFETY_API_KEY:
         required: true
         description: 'Safety API Key'
+      REGISTRY_PAT:
+        required: false
+        description: 'PAT registry'
       # SNYK_TOKEN:
       #   required: true
       #   description: 'Snyk Token'
@@ -399,7 +402,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           registry-username: ${{ inputs.registryUsername || github.actor }}
-          password: ${{ inputs.registryPAT }}
+          password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Docker Build and Push
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
