@@ -106,7 +106,7 @@ jobs:
     outputs:
       tag-version: ${{ steps.get-version.outputs.TAG }}
       now: ${{ steps.get-env.outputs.NOW }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: read
@@ -326,7 +326,7 @@ jobs:
     name: Check if Docker image exists
     if: ${{ inputs.build_mode == 'Build + Deploy' }}
     environment: ${{ inputs.environment }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     needs: build
     outputs:
       image-exists: ${{ steps.check-image-and-tag.outputs.IMAGE_EXISTS }}
@@ -356,7 +356,7 @@ jobs:
     if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check-image.outputs.image-exists == 'false' }}
     environment: ${{ inputs.environment }}
     needs: [build, check-image]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       packages: write
       contents: write
@@ -465,7 +465,7 @@ jobs:
     if: ${{ inputs.build_mode == 'Build + Deploy' }}
     environment: ${{ inputs.environment }}
     needs: [build, push-image]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     outputs:
       azure-aca-name: ${{ steps.naming.outputs.AZURE_ACA_NAME }}
       azure-acae-name: ${{ steps.naming.outputs.AZURE_ACAE_NAME }}
@@ -747,7 +747,7 @@ jobs:
     if: ${{ inputs.build_mode == 'Build + Deploy' }}
     needs: [build, push-image, deploy-aca]
     environment: ${{ inputs.environment }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 📝 Final Summary
         run: |
@@ -793,7 +793,7 @@ jobs:
     if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check-image.outputs.image-exists == 'true'}}
     needs: [build, check-image]
     environment: ${{ inputs.environment }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 📝 Notify existing image
         run: |
@@ -820,7 +820,7 @@ jobs:
     name: Update CI/CD Badge
     if: ${{ always() && github.ref == 'refs/heads/main' }}
     needs: [build, publish, notify-image-exists]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout (pyproject.toml only)
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main

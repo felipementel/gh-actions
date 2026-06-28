@@ -83,7 +83,7 @@ jobs:
     concurrency:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
       contents: read
@@ -361,7 +361,7 @@ jobs:
     name: Update PR Badge
     if: always()
     needs: [build-and-test]
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - name: 🏷️ Update PR Badge Gist
         uses: felipementel/gh-actions/.github/actions/update-badge-gist@main

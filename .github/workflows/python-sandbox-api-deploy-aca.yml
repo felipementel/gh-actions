@@ -78,7 +78,7 @@ jobs:
   deploy-aca:
     name: Deploy to Azure Container Apps
     environment: ${{ inputs.environment }}
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       id-token: write
       contents: read
