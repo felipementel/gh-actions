@@ -1,0 +1,55 @@
+name: 'Vitest Test & Coverage'
+description: 'Checks for TypeScript/JavaScript test files, runs Vitest with coverage, and uploads artifacts.'
+
+inputs:
+  workingDirectory:
+    description: 'Working directory where package.json and vitest.config.ts are located'
+    required: false
+    default: '.'
+  testsFolder:
+    description: 'The main test folder (used to locate test files)'
+    required: false
+    default: 'tests'
+  reportTitle:
+    description: 'Title for the coverage report artifact'
+    required: false
+    default: 'Canal DEPLOY'
+  run-number:
+    description: 'The github.run_number value'
+    required: true
+  run-id:
+    description: 'The github.run_id value'
+    required: true
+
+outputs:
+  has-tests:
+    description: 'Whether test files were found (true/false)'
+    value: ${{ steps.check-tests.outputs.HAS_TESTS }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🔍 Verifica se existem arquivos de teste
+      id: check-tests
+      shell: bash
+      run: |
+        if find ${{ inputs.testsFolder }} -type f \( -name '*.test.ts' -o -name '*.spec.ts' -o -name '*.test.js' -o -name '*.spec.js' \) 2>/dev/null | grep -q .; then
+          echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
+          echo -e "\033[0;32m✅ Arquivos de teste encontrados."
+        else
+          echo "HAS_TESTS=false" >> "$GITHUB_OUTPUT"
+          echo -e "\033[0;33m⚠️ Nenhum arquivo de teste encontrado."
+        fi
+
+    - name: 🧪 Run Vitest with coverage
+      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.workingDirectory }}
+      run: npm run test
+
+    - name: 🧪📤 Upload coverage report artifact
+      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+      with:
+        name: Coverage-Report-${{ inputs.run-number }}-${{ inputs.run-id }}
+        path: ${{ inputs.workingDirectory }}/coverage/

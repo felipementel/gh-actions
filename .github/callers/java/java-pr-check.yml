@@ -1,11 +1,11 @@
 # {
-#  "apiVersion": apps/v1.0.1
+#  "apiVersion": apps/v1.0.0
 #  "kind": "pr-check"
-#  "stack: "dotnet"
+#  "stack": "java"
 # }
 
 
-name: .NET API - PR Check [Caller]
+name: Java API — PR Check [Caller]
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
 on:
@@ -27,14 +27,13 @@ on:
 jobs:
   pr-check:
     name: PR Check
-    uses: felipementel/gh-actions/.github/workflows/dotnet-pr-check.yml@main
+    uses: felipementel/gh-actions/.github/workflows/java-pr-check.yml@main
     with:
-      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'DEV' }}
-      testsFolder: 'tests'
-      dotnetVersion: ${{ vars.BUILD_VERSION }}
+      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'development' }}
+      javaVersion: ${{ vars.BUILD_VERSION }}
       projectBaseDir: './src'
-      solutionFileName: 'PortsAndAdapters.slnx'
-      mainProject: 'Usuarios.Api'
+      mainProject: 'myproject-api'
+      testsFolder: 'tests'
       reportTitle: 'My Project API - PR'
       sonarExclusions: ''
       imageName: ${{ github.event.repository.name }}
@@ -50,5 +49,4 @@ jobs:
       SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-      # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}

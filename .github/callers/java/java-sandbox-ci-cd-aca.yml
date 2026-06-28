@@ -1,10 +1,10 @@
 # {
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
-#  "stack": "python"
+#  "stack": "java"
 # }
 
-name: Python API — Build & Deploy [Caller]
+name: Java API — Build & Deploy [Caller]
 run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
 
 on:
@@ -32,26 +32,21 @@ on:
 jobs:
   build:
     name: Build
-    uses: felipementel/gh-actions/.github/workflows/python-sandbox-api-build.yml@main
+    uses: felipementel/gh-actions/.github/workflows/java-sandbox-api-build.yml@main
     with:
-      # Mapeia as opções do caller para o valor esperado pelo workflow reutilizável
-      buildMode: >-
-        ${{
-          github.event_name != 'workflow_dispatch' && 'Build' ||
-          startsWith(inputs.buildMode, 'Build + Tag Validation') && 'Build + Push' ||
-          'Build'
-        }}
+      buildMode: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode || 'Build' }}
       environment: ${{ inputs.environment || 'development' }}
-      pythonVersion: ${{ vars.BUILD_VERSION }}
-      projectName: ${{ github.event.repository.name }}
+      javaVersion: ${{ vars.BUILD_VERSION }}
+      projectBaseDir: './src'
+      mainProject: 'myproject-api'
+      testsFolder: 'tests'
+      reportTitle: 'My Project API'
+      sonarExclusions: ''
       imageName: ${{ github.event.repository.name }}
-      appDir: 'src'
-      mainFile: 'main.py'
-      sparseCheckout: 'src/'
-      coverageThreshold: 80
-      dockerfileFolder: 'docker'
+      openAPIFolder: 'open-api'
+      dockerFileFullPath: 'docker/Dockerfile'
+      dockerBuildContext: '.'
       registry: ${{ vars.CONTAINER_REGISTRY }}
-      # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
     permissions:
       security-events: write
       contents: write
@@ -62,7 +57,9 @@ jobs:
       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+      # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      # REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}  # Opcional — padrão: GITHUB_TOKEN
 
   deploy:
     name: Deploy to ACA
@@ -71,7 +68,7 @@ jobs:
       inputs.buildMode == 'Build + Tag Validation + Deploy' &&
       needs.build.outputs.image-exists == 'false'
     needs: [build]
-    uses: felipementel/gh-actions/.github/workflows/python-sandbox-api-deploy-aca.yml@main
+    uses: felipementel/gh-actions/.github/workflows/java-sandbox-api-deploy-aca.yml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
       tagVersion: ${{ needs.build.outputs.tag-version }}
@@ -80,9 +77,9 @@ jobs:
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
       azureRgBase: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
       acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}
-      healthCheckPath: '/health'
-      deployPollMaxAttempts: 20
-      deployPollIntervalSeconds: 15
+      healthCheckPath: '/health/live'
+      deployPollMaxAttempts: '20'
+      deployPollIntervalSeconds: '15'
     permissions:
       id-token: write
       contents: read

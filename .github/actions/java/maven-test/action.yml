@@ -1,0 +1,64 @@
+name: 'Maven Test & Coverage'
+description: 'Checks for Java test classes, runs Maven tests with JaCoCo coverage, generates reports, and uploads artifacts.'
+
+inputs:
+  projectBaseDir:
+    description: 'Path to the project base directory (containing pom.xml)'
+    required: false
+    default: './src'
+  testsFolder:
+    description: 'The main test folder (used to locate test classes)'
+    required: false
+    default: 'tests'
+  reportTitle:
+    description: 'Title for the coverage report'
+    required: false
+    default: 'Canal DEPLOY'
+  sonarExclusions:
+    description: 'Class filters for coverage report (comma separated)'
+    required: false
+    default: ''
+  run-number:
+    description: 'The github.run_number value'
+    required: true
+  run-id:
+    description: 'The github.run_id value'
+    required: true
+
+outputs:
+  has-tests:
+    description: 'Whether test classes were found (true/false)'
+    value: ${{ steps.check-tests.outputs.HAS_TESTS }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🔍 Verifica se existem classes de teste
+      id: check-tests
+      shell: bash
+      run: |
+        if find . -type f \( -name '*Test.java' -o -name '*Tests.java' -o -name '*IT.java' \) | grep -q .; then
+          echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
+          echo -e "\033[0;32m✅ Classes de teste encontradas."
+        else
+          echo "HAS_TESTS=false" >> "$GITHUB_OUTPUT"
+          echo -e "\033[0;33m⚠️ Nenhuma classe de teste encontrada."
+        fi
+
+    - name: 🧪 Run Maven tests with JaCoCo coverage
+      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      shell: bash
+      run: |
+        mvn test \
+          --file ${{ inputs.projectBaseDir }}/pom.xml \
+          --batch-mode \
+          -Dmaven.test.failure.ignore=false
+
+    - name: 🧪📤 Upload coverage report artifact
+      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+      with:
+        name: Coverage-Report-${{ inputs.run-number }}-${{ inputs.run-id }}
+        path: |
+          ${{ inputs.projectBaseDir }}/target/site/jacoco/
+          **/target/site/jacoco/

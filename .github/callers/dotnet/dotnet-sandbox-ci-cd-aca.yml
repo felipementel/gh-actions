@@ -1,7 +1,7 @@
 # {
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
-#  "stack: "dotnet"
+#  "stack": "dotnet"
 # }
 
 name: .NET API — Build & Deploy [Caller]
@@ -43,7 +43,7 @@ jobs:
       testsFolder: 'tests'
       reportTitle: 'My Project API'
       sonarExclusions: ''
-      imageName: 'myproject-api'
+      imageName: ${{ github.event.repository.name }}
       openAPIFolder: 'open-api'
       dockerFileFullPath: 'docker/Dockerfile'
       dockerBuildContext: '.'
@@ -73,7 +73,7 @@ jobs:
     with:
       environment: ${{ inputs.environment || 'development' }}
       tagVersion: ${{ needs.build.outputs.tag-version }}
-      imageName: 'myproject-api'
+      imageName: ${{ github.event.repository.name }}
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
       azureRgBase: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}

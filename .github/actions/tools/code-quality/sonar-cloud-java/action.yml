@@ -1,0 +1,75 @@
+name: 'SonarCloud Analysis - Java'
+description: 'Sets up and runs SonarCloud analysis for Java/Maven projects with or without test coverage.'
+
+inputs:
+  has-tests:
+    description: 'Whether tests were run and coverage should be included (true/false)'
+    required: true
+    default: 'false'
+  sonar-project-key:
+    description: 'SonarCloud project key'
+    required: true
+  sonar-organization:
+    description: 'SonarCloud organization'
+    required: true
+  sonar-token:
+    description: 'SonarCloud token'
+    required: true
+  github-token:
+    description: 'GitHub token'
+    required: true
+  sonar-exclusions:
+    description: 'Paths to exclude from Sonar analysis (comma separated)'
+    required: false
+    default: ''
+  projectBaseDir:
+    description: 'Path to project base directory (containing pom.xml)'
+    required: true
+  mainProject:
+    description: 'The main project/module name (e.g. myproject-api)'
+    required: true
+  java-version:
+    description: 'Java version for the scanner'
+    required: false
+    default: '21'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: 🛠️ Maven compile (ensures binaries exist for Sonar)
+      shell: bash
+      run: |
+        mvn compile \
+          --file ${{ inputs.projectBaseDir }}/pom.xml \
+          --batch-mode \
+          -q
+
+    - name: 📸 SonarCloud Analysis (Test ✅, Sonar ✅)
+      if: ${{ inputs.has-tests == 'true' }}
+      uses: felipementel/gh-actions/.github/actions/_wrapper/sonar/sonarcloud-github-action@main
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+      with:
+        args: >
+          -Dsonar.projectKey=${{ inputs.sonar-project-key }}
+          -Dsonar.organization=${{ inputs.sonar-organization }}
+          -Dsonar.sources=${{ inputs.projectBaseDir }}/src/main/java
+          -Dsonar.tests=${{ inputs.projectBaseDir }}/src/test/java
+          -Dsonar.java.binaries=${{ inputs.projectBaseDir }}/target/classes
+          -Dsonar.coverage.jacoco.xmlReportPaths=${{ inputs.projectBaseDir }}/target/site/jacoco/jacoco.xml
+          -Dsonar.exclusions=${{ inputs.sonar-exclusions }}
+
+    - name: 📸 SonarCloud Analysis (Test ⛔, Sonar ✅)
+      if: ${{ inputs.has-tests != 'true' }}
+      uses: felipementel/gh-actions/.github/actions/_wrapper/sonar/sonarcloud-github-action@main
+      env:
+        GITHUB_TOKEN: ${{ inputs.github-token }}
+        SONAR_TOKEN: ${{ inputs.sonar-token }}
+      with:
+        args: >
+          -Dsonar.projectKey=${{ inputs.sonar-project-key }}
+          -Dsonar.organization=${{ inputs.sonar-organization }}
+          -Dsonar.sources=${{ inputs.projectBaseDir }}/src/main/java
+          -Dsonar.java.binaries=${{ inputs.projectBaseDir }}/target/classes
+          -Dsonar.exclusions=${{ inputs.sonar-exclusions }}
