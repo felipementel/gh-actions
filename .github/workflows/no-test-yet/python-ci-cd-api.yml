@@ -114,15 +114,6 @@ jobs:
 
     steps:
 
-      - name: 🏷️ Set Badge to Running
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: cicd
-          build_status: running
-
       - name: 🧭 Get Environment
         id: get-env
         run: |
@@ -846,12 +837,3 @@ jobs:
           else
             echo "status=success" >> $GITHUB_OUTPUT
           fi
-
-      - name: 🏷️ Update Badge Gist
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: cicd
-          build_status: ${{ steps.result.outputs.status }}
-          version_file: pyproject.toml

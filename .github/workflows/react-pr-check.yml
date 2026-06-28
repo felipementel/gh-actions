@@ -101,15 +101,6 @@ jobs:
             ${{ inputs.sparse_checkout }}
           sparse-checkout-cone-mode: false
 
-      - name: 🏷️ Set Badge to Running
-        if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: pr
-          build_status: running
-
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/git-leaks@main
@@ -356,17 +347,3 @@ jobs:
           echo "- ✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Build output verified" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Trivy License Scan" >> $GITHUB_STEP_SUMMARY
-
-  update-pr-badge:
-    name: Update PR Badge
-    if: always()
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🏷️ Update PR Badge Gist
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: pr
-          build_status: ${{ needs.build-and-test.result }}

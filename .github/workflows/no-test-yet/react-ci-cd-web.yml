@@ -104,15 +104,6 @@ jobs:
             ${{ inputs.sparse_checkout }}
           sparse-checkout-cone-mode: false
 
-      - name: 🏷️ Set Badge to Running
-        if: ${{ github.ref == 'refs/heads/main' }}
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: cicd
-          build_status: running
-
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/git-leaks@main
@@ -503,12 +494,3 @@ jobs:
           else
             echo "status=success" >> $GITHUB_OUTPUT
           fi
-
-      - name: 🏷️ Update Badge Gist
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: cicd
-          build_status: ${{ steps.result.outputs.status }}
-          version_file: ${{ inputs.working_directory }}/package.json

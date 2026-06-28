@@ -100,15 +100,6 @@ jobs:
             pyproject.toml
           sparse-checkout-cone-mode: false
 
-      - name: 🏷️ Set Badge to Running
-        if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: pr
-          build_status: running
-
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
@@ -586,12 +577,3 @@ jobs:
           sparse-checkout: |
             pyproject.toml
           sparse-checkout-cone-mode: false
-
-      - name: 🏷️ Update PR Badge Gist
-        if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/update-badge-gist@main
-        with:
-          gist_id: ${{ vars.BADGE_GIST_ID }}
-          gist_token: ${{ secrets.BADGE_GIST_TOKEN }}
-          badge_type: pr
-          build_status: ${{ needs.test-unit.result }}
