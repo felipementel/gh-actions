@@ -806,34 +806,3 @@ jobs:
 
           Para forçar um novo build, altere a versão ou delete a imagem existente.'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
-
-  update-cicd-badge:
-    name: Update CI/CD Badge
-    if: ${{ always() && github.ref == 'refs/heads/main' }}
-    needs: [build, publish, notify-image-exists]
-    runs-on: ubuntu-latest
-    steps:
-      - name: 📥 Checkout (pyproject.toml only)
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
-        with:
-          sparse-checkout: |
-            pyproject.toml
-          sparse-checkout-cone-mode: false
-
-      - name: 🔍 Determine pipeline result
-        id: result
-        shell: bash
-        run: |
-          BUILD="${{ needs.build.result }}"
-          PUBLISH="${{ needs.publish.result }}"
-          NOTIFY="${{ needs.notify-image-exists.result }}"
-
-          echo "build=${BUILD} publish=${PUBLISH} notify=${NOTIFY}"
-
-          if [[ "$BUILD" == "failure" || "$PUBLISH" == "failure" || "$NOTIFY" == "failure" ]]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-          elif [[ "$BUILD" == "cancelled" || "$PUBLISH" == "cancelled" || "$NOTIFY" == "cancelled" ]]; then
-            echo "status=cancelled" >> $GITHUB_OUTPUT
-          else
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi

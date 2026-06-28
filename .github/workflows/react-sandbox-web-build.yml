@@ -341,37 +341,3 @@ jobs:
           echo "- ✅ Build completed successfully" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Build output verified" >> $GITHUB_STEP_SUMMARY
           echo "- ✅ Trivy License Scan" >> $GITHUB_STEP_SUMMARY
-
-  update-cicd-badge:
-    name: Update CI/CD Badge
-    if: ${{ always() && github.ref == 'refs/heads/main' }}
-    needs: [build-and-test]
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🔍 Checkout (package.json only)
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
-        with:
-          sparse-checkout: |
-            ${{ inputs.workingDirectory }}/package.json
-          sparse-checkout-cone-mode: false
-
-      - name: Setup Node ${{ inputs.nodeVersion }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
-        with:
-          node-version: ${{ inputs.nodeVersion }}
-
-      - name: 🔍 Determine pipeline result
-        id: result
-        shell: bash
-        run: |
-          BUILD="${{ needs.build-and-test.result }}"
-
-          echo "build=${BUILD}"
-
-          if [[ "$BUILD" == "failure" ]]; then
-            echo "status=failure" >> $GITHUB_OUTPUT
-          elif [[ "$BUILD" == "cancelled" ]]; then
-            echo "status=cancelled" >> $GITHUB_OUTPUT
-          else
-            echo "status=success" >> $GITHUB_OUTPUT
-          fi
