@@ -325,9 +325,9 @@ jobs:
       - name: 🔐 Log in to GHCR
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGES_TOKEN }}
+          password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🔍 Check if image exists
         id: check_image_and_tag
@@ -370,9 +370,9 @@ jobs:
       - name: 🔐 Log in to GHCR
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
-          password: ${{ secrets.GH_PACKAGES_TOKEN }}
+          password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🏷️ Extract metadata for Docker
         id: meta

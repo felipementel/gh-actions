@@ -27,12 +27,12 @@ outputs:
 runs:
   using: 'composite'
   steps:
-    # - name: 🔐 Log in to the Container registry
-    #   uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
-    #   with:
-    #     registry: ${{ inputs.registry }}
-    #     username: ${{ inputs.registry_username }}
-    #     password: ${{ inputs.registry_password }}
+    - name: 🔐 Log in to the Container registry
+      uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
+      with:
+        registry: ${{ inputs.registry }}
+        username: ${{ inputs.registry_username }}
+        password: ${{ inputs.registry_password }}
 
     - name: 🔍 Check if image exists
       id: check_image

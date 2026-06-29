@@ -124,6 +124,8 @@ env:
   BOLD_GREEN: '\033[1;32m'
   BOLD_YELLOW: '\033[1;33m'
 
+  node_version: 24
+
 jobs:
   build:
     name: Build Python FastAPI
@@ -332,7 +334,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./${{ inputs.openapi_folder }}
-          node_version: '22'
+          node_version: ${{ env.node_version }}
 
       - name: 🏷️ Create Tag
         id: github_tag
@@ -365,28 +367,18 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     outputs:
-      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
 
     steps:
-      - name: 🔐 Log in to registry
-        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
+      - name: 🔍 Check if image exists in registry
+        id: check_image
+        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ inputs.registry_username || github.actor }}
-          password: ${{ secrets.REGISTRY_PAT }}
-
-      - name: 🔍 Check if image exists
-        id: check_image_and_tag
-        run: |
-          IMAGE_TAG="${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
-          echo "Checking existence of $IMAGE_TAG..."
-          if docker manifest inspect "$IMAGE_TAG" > /dev/null 2>&1; then
-            echo -e "✅ ${GREEN} Image exists in registry"
-            echo "IMAGE_EXISTS=true" >> "$GITHUB_OUTPUT"
-          else
-            echo -e "🔍 ${RED} Image does not exist in registry"
-            echo "IMAGE_EXISTS=false" >> "$GITHUB_OUTPUT"
-          fi
+          registry_username: ${{ inputs.registry_username || github.actor }}
+          registry_password: ${{ secrets.REGISTRY_PAT }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
 
   push_image:
     name: Build and Push Docker Image

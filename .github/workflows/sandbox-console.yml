@@ -339,17 +339,17 @@ jobs:
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     outputs:
-      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
     needs: build
     steps:
       - name: 🔍 Check if image exists in registry
-        id: check_image_and_tag
+        id: check_image
         uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
-          image_name: deploy.${{ inputs.image_name }}
+          image_name: ${{ inputs.image_name }}
           tag_version: ${{ needs.build.outputs.tag_version }}
 
   push_image:
@@ -378,16 +378,16 @@ jobs:
       - name: 🐳 Docker Login
         uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
-          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          registry_password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Docker Build and Push
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
-          image_name: deploy.${{ inputs.image_name }}
+          image_name: ${{ inputs.image_name }}
           tag_version: ${{ needs.build.outputs.tag_version }}
           dockerfile: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/Dockerfile
           context: ${{ inputs.project_base_dir }}

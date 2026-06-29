@@ -56,14 +56,14 @@ jobs:
       - name: Log in to the Container registry
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check if image with same tag exists
         id: check_image_and_tag
         run: |
-          IMAGE_TAG="ghcr.io/${{ github.actor }}/deploy.${{ inputs.image_name }}:${{ inputs.image_tag }}"
+          IMAGE_TAG="${{ inputs.registry }}/${{ github.actor }}/${{ inputs.image_name }}:${{ inputs.image_tag }}"
           echo "Checking existence of $IMAGE_TAG..."
           if docker manifest inspect "$IMAGE_TAG" > /dev/null 2>&1; then
             echo -e "✅ ${GREEN} Image exists in registry"

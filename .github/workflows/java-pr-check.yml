@@ -298,15 +298,15 @@ jobs:
     name: Check if image exists
     runs-on: ubuntu-latest
     outputs:
-      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
     needs: build
 
     steps:
       - name: 🔍 Check if image exists in registry
-        id: check_image_and_tag
+        id: check_image
         uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
-          registry: ghcr.io
+          registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
           image_name: ${{ inputs.image_name }}
