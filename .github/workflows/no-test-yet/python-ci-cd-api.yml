@@ -332,7 +332,7 @@ jobs:
       - name: 🔍 Check if image exists
         id: check_image_and_tag
         run: |
-          IMAGE_TAG="${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}"
+          IMAGE_TAG="${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
           echo "Checking existence of $IMAGE_TAG..."
           if docker manifest inspect "$IMAGE_TAG" > /dev/null 2>&1; then
             echo -e "✅ ${GREEN} Image exists in registry"
@@ -344,7 +344,7 @@ jobs:
 
   push_image:
     name: Build and Push Docker Image
-    if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check_image.outputs.image-exists == 'false' }}
+    if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check_image.outputs.image_exists == 'false' }}
     environment: ${{ inputs.environment }}
     needs: [build, check_image]
     runs-on: ubuntu-latest
@@ -393,10 +393,10 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
           tags: |
-            ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}
+            ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.version=${{ needs.build.outputs.tag-version }}
+            org.opencontainers.image.version=${{ needs.build.outputs.tag_version }}
             org.opencontainers.image.revision=${{ github.sha }}
           cache_from: type=gha
           cache_to: type=gha,mode=max
@@ -404,7 +404,7 @@ jobs:
       - name: 🔍 Scan Docker image for vulnerabilities
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          image_ref: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}
+          image_ref: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           severity: 'CRITICAL,HIGH'
           format: 'sarif'
           output_file: 'trivy-results.sarif'
@@ -422,19 +422,19 @@ jobs:
           secrets: |
             GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
           tags: |
-            ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}
+            ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.version=${{ needs.build.outputs.tag-version }}
+            org.opencontainers.image.version=${{ needs.build.outputs.tag_version }}
             org.opencontainers.image.revision=${{ github.sha }}
           cache_from: type=gha
           cache_to: type=gha,mode=max
 
       - name: Generate git tag
         run: |
-          echo "TAG_NAME=v${{ needs.build.outputs.tag-version }}"
-          git tag -a v${{ needs.build.outputs.tag-version }} -m "Release v${{ needs.build.outputs.tag-version }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ needs.build.outputs.tag-version }}
+          echo "TAG_NAME=v${{ needs.build.outputs.tag_version }}"
+          git tag -a v${{ needs.build.outputs.tag_version }} -m "Release v${{ needs.build.outputs.tag_version }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push origin v${{ needs.build.outputs.tag_version }}
 
       - name: 📝 Write image summary
         run: |
@@ -444,7 +444,7 @@ jobs:
           | Campo | Valor |
           |-------|-------|
           | Image | ${{ env.registry }}/${{ inputs.image_name }} |
-          | Tag | ${{ needs.build.outputs.tag-version }} |
+          | Tag | ${{ needs.build.outputs.tag_version }} |
           | Registry | GitHub Container Registry (GHCR) |
           | Platforms | linux/amd64, linux/arm64 |
           | Security Scan | ✅ Passed (no CRITICAL/HIGH vulnerabilities) |
@@ -550,7 +550,7 @@ jobs:
       #     containerAppName: "${{ github.event.repository.name }}"
       #     containerAppEnvironment: ${{ env.AZURE_ACAE_NAME }}
       #     registryUrl: ghcr.io
-      #     imageToDeploy: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}
+      #     imageToDeploy: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
       #     resourceGroup: ${{ env.AZURE_RG_NAME }}
       #     registryUsername: ${{ env.registryUser }}
       #     registryPassword: ${{ secrets.GH_PACKAGES_TOKEN }}
@@ -573,19 +573,19 @@ jobs:
         run: |
           set -euo pipefail
           echo "Updating image for: ${{ steps.naming.outputs.AZURE_ACA_NAME }} in RG: ${{ steps.naming.outputs.AZURE_RG_NAME }}"
-          echo "Image: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}"
+          echo "Image: ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
 
           az containerapp update \
             --name "${{ steps.naming.outputs.AZURE_ACA_NAME }}" \
             --resource-group "${{ steps.naming.outputs.AZURE_RG_NAME }}" \
-            --image "${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}"
+            --image "${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
 
       - name: ⏱️ Wait for new revision with expected image
         shell: bash
         run: |
           set -euo pipefail
 
-          EXPECTED_IMAGE="${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}"
+          EXPECTED_IMAGE="${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
           MAX_ATTEMPTS=${{ inputs.deploy_poll_max_attempts }}
           INTERVAL=${{ inputs.deploy_poll_interval_seconds }}
 
@@ -711,7 +711,7 @@ jobs:
 
           | Campo | Valor |
           |-------|-------|
-          | Versão | ${{ needs.build.outputs.tag-version }} |
+          | Versão | ${{ needs.build.outputs.tag_version }} |
           | Data | ${{ needs.build.outputs.now }} |
           | Environment | ${{ inputs.environment }} |
           | Container App | ${{ steps.naming.outputs.AZURE_ACA_NAME }} |
@@ -748,11 +748,11 @@ jobs:
           ## 📋 Resumo da Execução
           | Campo | Valor |
           |-------|-------|
-          | 🏷️ Versão | ${{ needs.build.outputs.tag-version }} |
+          | 🏷️ Versão | ${{ needs.build.outputs.tag_version }} |
           | 📅 Data/Hora | ${{ needs.build.outputs.now }} |
           | 🌍 Environment | ${{ inputs.environment }} |
           | 📦 Serviço | ${{ needs.deploy_aca.outputs.azure-aca-name }} |
-          | 🐳 Imagem Docker | ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }} |
+          | 🐳 Imagem Docker | ${{ env.registry }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }} |
           | ☁️ Azure Container App | ${{ needs.deploy_aca.outputs.azure-aca-name }} |
           | ☁️ Container App Environment | ${{ needs.deploy_aca.outputs.azure-acae-name }} |
           | 🌐 Resource Group | ${{ needs.deploy_aca.outputs.azure-rg-name }} |
@@ -781,7 +781,7 @@ jobs:
 
   notify_image_exists:
     name: Notify Image Already Exists
-    if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check_image.outputs.image-exists == 'true'}}
+    if: ${{ inputs.build_mode == 'Build + Deploy' && needs.check_image.outputs.image_exists == 'true'}}
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
@@ -791,11 +791,11 @@ jobs:
           SUMMARY='
           # ⚠️ Imagem Já Existe
 
-          A imagem Docker com a tag **${{ needs.build.outputs.tag-version }}** já existe no registry.
+          A imagem Docker com a tag **${{ needs.build.outputs.tag_version }}** já existe no registry.
 
           | Campo | Valor |
           |-------|-------|
-          | Tag | ${{ needs.build.outputs.tag-version }} |
+          | Tag | ${{ needs.build.outputs.tag_version }} |
           | Registry | ${{ env.registry }}/${{ inputs.image_name }} |
           | Status | ⚠️ Imagem já existe |
 

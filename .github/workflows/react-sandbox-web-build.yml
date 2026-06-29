@@ -51,7 +51,7 @@ on:
     outputs:
       tag_version:
         description: 'The version tag extracted from package.json'
-        value: ${{ jobs.build_and_test.outputs.tag-version }}
+        value: ${{ jobs.build_and_test.outputs.tag_version }}
       app_name:
         description: 'The application name extracted from package.json'
         value: ${{ jobs.build_and_test.outputs.app-name }}

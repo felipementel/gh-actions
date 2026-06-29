@@ -108,10 +108,10 @@ on:
     outputs:
       tag_version:
         description: 'Versão da tag gerada'
-        value: ${{ jobs.build.outputs.tag-version }}
+        value: ${{ jobs.build.outputs.tag_version }}
       image_exists:
         description: 'Se a imagem já existe no registry'
-        value: ${{ jobs.check_image.outputs.image-exists }}
+        value: ${{ jobs.check_image.outputs.image_exists }}
 
 env:
   RED: '\033[0;31m'
@@ -334,6 +334,7 @@ jobs:
     outputs:
       image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
     needs: build
+
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
@@ -343,11 +344,11 @@ jobs:
           registry_username: ${{ inputs.registry_username || github.actor }}
           registry_password: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
           image_name: ${{ inputs.image_name }}
-          tag_version: ${{ needs.build.outputs.tag-version }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
 
   push_image:
     name: Push image to Registry
-    if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image-exists == 'false' }}
+    if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image_exists == 'false' }}
     environment: ${{ inputs.environment }}
     needs: [build, check_image]
     runs-on: ubuntu-latest
@@ -378,7 +379,7 @@ jobs:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
           image_name: ${{ inputs.image_name }}
-          tag_version: ${{ needs.build.outputs.tag-version }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
           dockerfile: ${{ inputs.docker_file_full_path }}
           context: ${{ inputs.docker_build_context }}
           platforms: 'linux/amd64'
@@ -391,17 +392,17 @@ jobs:
           # Image publicada\n
           | versao | data | 
           |--|--|
-          | ${{ needs.build.outputs.tag-version }} | ${{ needs.build.outputs.now }} | \n
+          | ${{ needs.build.outputs.tag_version }} | ${{ needs.build.outputs.now }} | \n
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   notify_image_exists:
     name: Notify when already image exists
-    if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image-exists == 'true' }}
+    if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image_exists == 'true' }}
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Write to workflow job summary
         run: |
-          echo "Image with tag ${{ needs.build.outputs.tag-version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "Image with tag ${{ needs.build.outputs.tag_version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY

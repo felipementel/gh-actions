@@ -300,6 +300,7 @@ jobs:
     outputs:
       image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
     needs: build
+
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image_and_tag
@@ -309,26 +310,26 @@ jobs:
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.GITHUB_TOKEN }}
           image_name: ${{ inputs.image_name }}
-          tag_version: ${{ needs.build.outputs.tag-version }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
 
   notify_image_not_exists:
     name: Notify when image not exists
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'false' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'false' }}
     steps:
       - name: 🧾 Write to workflow job summary
         run: |
-          echo "Image with tag ${{ needs.build.outputs.tag-version }} can be deployed. Push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "Image with tag ${{ needs.build.outputs.tag_version }} can be deployed. Push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
 
   notify_image_exists:
     name: Notify when already image exists
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'true' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'true' }}
     steps:
       - name: 🧾 Write to workflow job summary
         run: |
-          echo "Image with tag ${{ needs.build.outputs.tag-version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "Image with tag ${{ needs.build.outputs.tag_version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY

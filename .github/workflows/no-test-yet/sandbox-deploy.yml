@@ -79,7 +79,7 @@ jobs:
     # if: ${{ github.event.pull_request.merged && github.event.pull_request.state == 'closed' }}
     needs: [check_image]
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'true' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'true' }}
     permissions:
       packages: write
       contents: read
@@ -99,7 +99,7 @@ jobs:
     needs: [check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'false' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'false' }}
     steps:
       - name: Write to workflow job summary
         run: |

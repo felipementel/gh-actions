@@ -66,16 +66,16 @@ jobs:
     if: >-
       github.event_name == 'workflow_dispatch' &&
       inputs.build_mode == 'Build + Tag Validation + Deploy' &&
-      needs.build.outputs.image-exists == 'false'
+      needs.build.outputs.image_exists == 'false'
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/java-sandbox-api-deploy-aca.yml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
-      tag_version: ${{ needs.build.outputs.tag-version }}
+      tag_version: ${{ needs.build.outputs.tag_version }}
       image_name: ${{ github.event.repository.name }}
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-      azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
+      # azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
       acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
       health_check_path: '/health/live'
       deploy_poll_max_attempts: '20'

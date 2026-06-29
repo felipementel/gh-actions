@@ -306,7 +306,7 @@ jobs:
       - name: Check if image with same tag exists
         id: check_image_and_tag
         run: |
-          IMAGE_TAG="ghcr.io/${{ github.actor }}/deploy.${{ inputs.image_name }}:${{ needs.build.outputs.tag-version }}"
+          IMAGE_TAG="ghcr.io/${{ github.actor }}/deploy.${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
           echo "Checking existence of $IMAGE_TAG..."
           if docker manifest inspect "$IMAGE_TAG" > /dev/null 2>&1; then
             echo -e "✅ ${GREEN} Image exists in registry"
@@ -321,19 +321,19 @@ jobs:
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'true' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'true' }}
     steps:
       - name: Write to workflow job summary
         run: |
-          echo "⛔ Image with tag ${{ needs.build.outputs.tag-version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "⛔ Image with tag ${{ needs.build.outputs.tag_version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
 
   notify_not_image_exists:
     name: Notify when already image exists
     needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check_image.outputs.image-exists == 'false' }}
+    if: ${{ needs.check_image.outputs.image_exists == 'false' }}
     steps:
       - name: Write to workflow job summary
         run: |
-          echo "✅ Image with tag ${{ needs.build.outputs.tag-version }} can br published on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+          echo "✅ Image with tag ${{ needs.build.outputs.tag_version }} can br published on Azure Cloud." >> $GITHUB_STEP_SUMMARY
