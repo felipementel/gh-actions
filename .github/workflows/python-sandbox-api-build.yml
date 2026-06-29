@@ -243,6 +243,9 @@ jobs:
           export TESTING=1
           export DISABLE_SSL_VERIFY=true
 
+          # Ensure output directory exists
+          mkdir -p tests/results
+
           # Run unit tests only with coverage
           echo -e "🧪${GREEN} Running unit tests with coverage..."
           python -m pytest -v \
@@ -251,7 +254,7 @@ jobs:
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=term-missing \
             --cov-fail-under=${{ inputs.coverageThreshold }} \
-            tests/ || echo -e "⚠️${YELLOW} Tests completed with warnings"
+            tests/
 
       - name: 📊 Upload coverage to Codecov
         if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
