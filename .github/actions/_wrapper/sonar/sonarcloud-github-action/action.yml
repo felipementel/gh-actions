@@ -1,5 +1,5 @@
 name: 'SonarCloud GitHub Action (Wrapper)'
-description: 'Wrapper composite action for SonarSource/sonarqube-scan-action. Update the version only here.'
+description: 'Wrapper composite action for sonarsource/sonarqube-scan-action. Update the version only here.'
 
 inputs:
   args:
@@ -16,7 +16,7 @@ runs:
   steps:
     - name: ☁️ SonarCloud Scan
       id: sonar
-      uses: SonarSource/sonarqube-scan-action@v4
+      uses: sonarsource/sonarqube-scan-action@v6
       with:
         args: ${{ inputs.args }}
         projectBaseDir: ${{ inputs.projectBaseDir }}
