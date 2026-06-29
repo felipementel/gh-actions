@@ -30,7 +30,7 @@ runs:
       shell: bash
       run: |
         # pom_path="${{ inputs.project_base_dir }}/pom.xml"
-        pom_path="pom.xml"
+        pom_path="./pom.xml"
 
         if [ ! -f "$pom_path" ]; then
           echo -e "${RED}❌ Erro: pom.xml não encontrado em: $pom_path"
