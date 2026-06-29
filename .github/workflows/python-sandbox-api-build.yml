@@ -156,6 +156,8 @@ jobs:
           sparse-checkout: |
             ${{ inputs.sparseCheckout }}
             pyproject.toml
+            .flake8
+            setup.cfg
             infra/aca.envmap
             tests/
           sparse-checkout-cone-mode: false
