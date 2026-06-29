@@ -93,7 +93,7 @@ on:
       CODECOV_TOKEN:
         required: false
         description: 'Codecov token for coverage upload'
-      REGISTRY_PASSWORD:
+      REGISTRY_PAT:
         required: false
         description: 'Registry password/token. Defaults to GH_PACKAGES_TOKEN for ghcr.io'
       SONAR_TOKEN:
@@ -385,7 +385,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           username: ${{ inputs.registry_username || github.actor }}
-          password: ${{ secrets.REGISTRY_PASSWORD || secrets.GH_PACKAGES_TOKEN }}
+          password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🔍 Check if image exists
         id: check_image_and_tag
@@ -430,7 +430,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           username: ${{ inputs.registry_username || github.actor }}
-          password: ${{ secrets.REGISTRY_PASSWORD || secrets.GH_PACKAGES_TOKEN }}
+          password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🏷️ Extract metadata for Docker
         id: meta

@@ -342,7 +342,7 @@ jobs:
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
-          registry_password: ${{ secrets.REGISTRY_PASSWORD || secrets.GITHUB_TOKEN }}
+          registry_password: ${{ secrets.REGISTRY_PAT }}
           image_name: ${{ inputs.image_name }}
           tag_version: ${{ needs.build.outputs.tag_version }}
 
