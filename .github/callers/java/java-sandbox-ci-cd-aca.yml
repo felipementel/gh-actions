@@ -59,7 +59,6 @@ jobs:
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
       REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
       # SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
-      # REGISTRY_PASSWORD: ${{ secrets.REGISTRY_PASSWORD }}  # Opcional — padrão: GITHUB_TOKEN
 
   deploy:
     name: Deploy to ACA
