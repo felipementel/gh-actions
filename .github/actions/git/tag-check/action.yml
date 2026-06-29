@@ -17,7 +17,7 @@ inputs:
 outputs:
   TAG_EXISTS:
     description: "Whether the tag already exists (true/false)"
-    value: ${{ steps.check-tag.outputs.TAG_EXISTS }}
+    value: ${{ steps.check_tag.outputs.TAG_EXISTS }}
 
 env:
   # Colors for output
@@ -29,7 +29,7 @@ runs:
   using: 'composite'
   steps:
     - name: 🔍 Check if tag already exists
-      id: check-tag
+      id: check_tag
       shell: bash
       run: |
         TAG="${{ inputs.tag }}"

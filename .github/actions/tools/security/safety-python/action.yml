@@ -2,7 +2,7 @@ name: 'Safety CLI Scan'
 description: 'Runs Safety CLI to check Python dependencies for known vulnerabilities.'
 
 inputs:
-  api-key:
+  api_key:
     description: 'Safety API key'
     required: true
 
@@ -12,4 +12,4 @@ runs:
     - name: Run Safety CLI to check for vulnerabilities
       uses: pyupio/safety-action@v1
       with:
-        api-key: ${{ inputs.api-key }}
+        api-key: ${{ inputs.api_key }}

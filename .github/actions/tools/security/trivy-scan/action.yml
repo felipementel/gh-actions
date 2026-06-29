@@ -2,7 +2,7 @@ name: Trivy Security Scan
 description: Composite action to scan Docker images for vulnerabilities using Trivy
 
 inputs:
-  image-ref:
+  image_ref:
     description: 'Docker image reference to scan (e.g., ghcr.io/org/image:tag)'
     required: true
     default: ''
@@ -14,19 +14,19 @@ inputs:
     description: 'Output format (sarif, json, table, github)'
     required: false
     default: 'github'
-  output-file:
+  output_file:
     description: 'Output file name'
     required: false
     default: 'trivy-results.sarif'
-  upload-to-security:
+  upload_to_security:
     description: 'Upload results to GitHub Security tab'
     required: false
     default: 'true'
-  scan-type:
+  scan_type:
     description: 'Type of scan (image, fs, license)'
     required: true
     default: ''
-  scan-ref:
+  scan_ref:
     description: 'Directory or file to scan (used with fs scan-type)'
     required: false
     default: '.'
@@ -34,7 +34,7 @@ inputs:
     description: 'Comma-separated list of scanners (vuln, misconfig, secret, license)'
     required: false
     default: 'vuln'
-  ignore-unfixed:
+  ignore_unfixed:
     description: 'Ignore unpatched/unfixed vulnerabilities'
     required: false
     default: 'false'
@@ -42,7 +42,7 @@ inputs:
     description: 'Path to trivyignore file (e.g., .trivyignore.yaml). Leave empty to skip.'
     required: false
     default: ''
-  exit-code:
+  exit_code:
     description: 'Exit code when vulnerabilities are found (0 or 1)'
     required: false
     default: '0'
@@ -52,102 +52,102 @@ inputs:
     default: 'trivy'
 
 outputs:
-  scan-results:
+  scan_results:
     description: "Path to scan results file"
-    value: ${{ steps.scan-image.outputs.output-file || steps.scan-fs.outputs.output-file }}
+    value: ${{ steps.scan_image.outputs.output-file || steps.scan_fs.outputs.output-file }}
 
 runs:
   using: 'composite'
   steps:
 
     - name: 🔍 Scan with Trivy (image) - SARIF report
-      if: ${{ inputs.scan-type == 'image' }}
-      id: scan-image
+      if: ${{ inputs.scan_type == 'image' }}
+      id: scan_image
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        image-ref: ${{ inputs.image-ref }}
+        image-ref: ${{ inputs.image_ref }}
         format: ${{ inputs.format }}
-        output: ${{ inputs.output-file }}
+        output: ${{ inputs.output_file }}
         severity: ${{ inputs.severity }}
-        scan-type: ${{ inputs.scan-type }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        scan-type: ${{ inputs.scan_type }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '0'
 
     - name: 🚫 Block on severity violations (image)
-      if: ${{ inputs.scan-type == 'image' && inputs.exit-code == '1' }}
+      if: ${{ inputs.scan_type == 'image' && inputs.exit_code == '1' }}
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        image-ref: ${{ inputs.image-ref }}
+        image-ref: ${{ inputs.image_ref }}
         format: 'table'
         severity: ${{ inputs.severity }}
-        scan-type: ${{ inputs.scan-type }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        scan-type: ${{ inputs.scan_type }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '1'
 
     - name: 🔍 Scan with Trivy (filesystem) - SARIF report
-      if: ${{ inputs.scan-type == 'fs' }}
-      id: scan-fs
+      if: ${{ inputs.scan_type == 'fs' }}
+      id: scan_fs
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        scan-type: ${{ inputs.scan-type }}
-        scan-ref: ${{ inputs.scan-ref }}
+        scan-type: ${{ inputs.scan_type }}
+        scan-ref: ${{ inputs.scan_ref }}
         scanners: ${{ inputs.scanners }}
         format: ${{ inputs.format }}
-        output: ${{ inputs.output-file }}
+        output: ${{ inputs.output_file }}
         severity: ${{ inputs.severity }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '0'
 
     - name: 🚫 Block on severity violations (filesystem)
-      if: ${{ inputs.scan-type == 'fs' && inputs.exit-code == '1' }}
+      if: ${{ inputs.scan_type == 'fs' && inputs.exit_code == '1' }}
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        scan-type: ${{ inputs.scan-type }}
-        scan-ref: ${{ inputs.scan-ref }}
+        scan-type: ${{ inputs.scan_type }}
+        scan-ref: ${{ inputs.scan_ref }}
         scanners: ${{ inputs.scanners }}
         format: 'table'
         severity: ${{ inputs.severity }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '1'
 
     - name: 🔍 Scan with Trivy (license) - SARIF report
-      if: ${{ inputs.scan-type == 'license' }}
-      id: scan-license
+      if: ${{ inputs.scan_type == 'license' }}
+      id: scan_license
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        scan-type: ${{ inputs.scan-type }}
-        scan-ref: ${{ inputs.scan-ref }}
+        scan-type: ${{ inputs.scan_type }}
+        scan-ref: ${{ inputs.scan_ref }}
         scanners: ${{ inputs.scanners }}
         format: ${{ inputs.format }}
-        output: ${{ inputs.output-file }}
+        output: ${{ inputs.output_file }}
         severity: ${{ inputs.severity }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '0'
 
     - name: 🚫 Block on severity violations (license)
-      if: ${{ inputs.scan-type == 'license' && inputs.exit-code == '1' }}
+      if: ${{ inputs.scan_type == 'license' && inputs.exit_code == '1' }}
       uses: aquasecurity/trivy-action@v0.36.0
       with:
-        scan-type: ${{ inputs.scan-type }}
-        scan-ref: ${{ inputs.scan-ref }}
+        scan-type: ${{ inputs.scan_type }}
+        scan-ref: ${{ inputs.scan_ref }}
         scanners: ${{ inputs.scanners }}
         format: 'table'
         severity: ${{ inputs.severity }}
-        ignore-unfixed: ${{ inputs.ignore-unfixed }}
+        ignore-unfixed: ${{ inputs.ignore_unfixed }}
         trivyignores: ${{ inputs.trivyignores }}
         exit-code: '1'
 
     - name: 📤 Upload Trivy scan results to GitHub Security
-      if: ${{ inputs.upload-to-security == 'true' && inputs.format == 'sarif' && always() }}
+      if: ${{ inputs.upload_to_security == 'true' && inputs.format == 'sarif' && always() }}
       uses: github/codeql-action/upload-sarif@v4
       continue-on-error: true
       with:
-        sarif_file: ${{ inputs.output-file }}
+        sarif_file: ${{ inputs.output_file }}
         category: ${{ inputs.category }}
 
     - name: 📦 Upload scan results as artifact
@@ -156,30 +156,30 @@ runs:
       continue-on-error: true
       with:
         name: ${{ inputs.category }}-results
-        path: ${{ inputs.output-file }}
+        path: ${{ inputs.output_file }}
         archive: false
-        retention-days: 30
+        retention_days: 30
 
     - name: 📊 Summary
       shell: bash
       run: |
         echo "### 🔍 Trivy Security Scan" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        if [ "${{ inputs.scan-type }}" == "image" ]; then
+        if [ "${{ inputs.scan_type }}" == "image" ]; then
           echo "- **Scan Type:** Image Vulnerability Scan" >> $GITHUB_STEP_SUMMARY
-          echo "- **Image:** \`${{ inputs.image-ref }}\`" >> $GITHUB_STEP_SUMMARY
-        elif [ "${{ inputs.scan-type }}" == "fs" ]; then
+          echo "- **Image:** \`${{ inputs.image_ref }}\`" >> $GITHUB_STEP_SUMMARY
+        elif [ "${{ inputs.scan_type }}" == "fs" ]; then
           echo "- **Scan Type:** Filesystem Scan" >> $GITHUB_STEP_SUMMARY
-        elif [ "${{ inputs.scan-type }}" == "license" ]; then
+        elif [ "${{ inputs.scan_type }}" == "license" ]; then
           echo "- **Scan Type:** License Compliance Scan" >> $GITHUB_STEP_SUMMARY
         else
           echo "- **Scan Type:** Unknown" >> $GITHUB_STEP_SUMMARY
         fi
         echo "- **Severity:** \`${{ inputs.severity }}\`" >> $GITHUB_STEP_SUMMARY
         echo "- **Format:** \`${{ inputs.format }}\`" >> $GITHUB_STEP_SUMMARY
-        echo "- **Output:** \`${{ inputs.output-file }}\`" >> $GITHUB_STEP_SUMMARY
+        echo "- **Output:** \`${{ inputs.output_file }}\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        if [ -f "${{ inputs.output-file }}" ]; then
+        if [ -f "${{ inputs.output_file }}" ]; then
           echo "✅ Scan completed successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "📥 **View Results:**" >> $GITHUB_STEP_SUMMARY

@@ -9,11 +9,11 @@ on:
         description: 'Deployment environment (DEV, HML, PRD)'
         required: true
         default: 'DEV'
-      tagVersion:
+      tag_version:
         type: string
         description: 'Image tag version to deploy (e.g. 1.2.3)'
         required: true
-      imageName:
+      image_name:
         type: string
         description: 'Docker image name (e.g. myapi)'
         required: true
@@ -23,31 +23,26 @@ on:
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
         required: false
         default: 'ghcr.io'
-      registryUsername:
+      registry_username:
         type: string
         description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
         default: ''
-      #azure
-      azureRgBase:
-        type: string
-        description: 'Base Azure Resource Group name (env suffix appended for non-prd, e.g. rg-myorg)'
-        required: true
-      acaeBaseName:
+      acae_base_name:
         type: string
         description: 'Base Container App Environment name (e.g. cae-myorg)'
         required: true
-      healthCheckPath:
+      health_check_path:
         type: string
         description: 'HTTP path for post-deploy health check'
         required: false
         default: '/health'
-      deployPollMaxAttempts:
+      deploy_poll_max_attempts:
         type: number
         description: 'Max polling attempts for revision readiness and health check'
         required: false
         default: 30
-      deployPollIntervalSeconds:
+      deploy_poll_interval_seconds:
         type: number
         description: 'Seconds between polling attempts'
         required: false
@@ -75,7 +70,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  deploy-aca:
+  deploy_aca:
     name: Deploy to Azure Container Apps
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
@@ -122,8 +117,8 @@ jobs:
           APP="$(echo "$APP" | sed -E 's/^gn-api-//; s/^gn-//; s/-service$//; s/-api$//')"
           APP="$(echo "$APP" | sed -E 's/^-+//; s/-+$//')"
 
-          RG_BASE="${{ inputs.azureRgBase }}"
-          ACAE_BASE="${{ inputs.acaeBaseName }}"
+          RG_BASE="${{ vars.AZURE_RESOURCE_GROUP_NAME }}"
+          ACAE_BASE="${{ inputs.acae_base_name }}"
 
           if [ "$ENV_SUFFIX" = "prd" ]; then
             ACA_NAME="ca-${APP}"
@@ -144,7 +139,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          IMAGE="${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ inputs.tagVersion }}"
+          IMAGE="${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ inputs.tag_version }}"
           echo "Updating image for: ${{ steps.naming.outputs.AZURE_ACA_NAME }} in RG: ${{ steps.naming.outputs.AZURE_RG_NAME }}"
           echo "Image: ${IMAGE}"
 
@@ -158,9 +153,9 @@ jobs:
         run: |
           set -euo pipefail
 
-          EXPECTED_IMAGE="${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ inputs.tagVersion }}"
-          MAX_ATTEMPTS=${{ inputs.deployPollMaxAttempts }}
-          INTERVAL=${{ inputs.deployPollIntervalSeconds }}
+          EXPECTED_IMAGE="${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ inputs.tag_version }}"
+          MAX_ATTEMPTS=${{ inputs.deploy_poll_max_attempts }}
+          INTERVAL=${{ inputs.deploy_poll_interval_seconds }}
 
           echo -e "${BLUE} Expected image: ${EXPECTED_IMAGE}"
           echo -e "${BLUE} Polling for revision readiness (attempts=${MAX_ATTEMPTS}, interval=${INTERVAL}s)"
@@ -230,9 +225,9 @@ jobs:
             --query "properties.configuration.ingress.fqdn" \
             --output tsv)
 
-          HEALTH_PATH="${{ inputs.healthCheckPath }}"
-          MAX_ATTEMPTS=${{ inputs.deployPollMaxAttempts }}
-          INTERVAL=${{ inputs.deployPollIntervalSeconds }}
+          HEALTH_PATH="${{ inputs.health_check_path }}"
+          MAX_ATTEMPTS=${{ inputs.deploy_poll_max_attempts }}
+          INTERVAL=${{ inputs.deploy_poll_interval_seconds }}
           URL="https://${FQDN}${HEALTH_PATH}"
 
           echo -e "${BLUE} Polling URL: ${URL}"
@@ -260,7 +255,7 @@ jobs:
       # leave the app stuck in 'Activating'. This step updates only the container image.
 
       - name: 📊 Container App Details
-        id: aca-details
+        id: aca_details
         run: |
           FQDN=$(az containerapp show \
             --name "${{ steps.naming.outputs.AZURE_ACA_NAME }}" \
@@ -284,19 +279,19 @@ jobs:
 
           | Campo | Valor |
           |-------|-------|
-          | Versão | ${{ inputs.tagVersion }} |
+          | Versão | ${{ inputs.tag_version }} |
           | Environment | ${{ inputs.environment }} |
           | Container App | ${{ steps.naming.outputs.AZURE_ACA_NAME }} |
           | Container App Environment | ${{ steps.naming.outputs.AZURE_ACAE_NAME }} |
           | Resource Group | ${{ steps.naming.outputs.AZURE_RG_NAME }} |
-          | FQDN | ${{ steps.aca-details.outputs.FQDN }} |
-          | Estado | ${{ steps.aca-details.outputs.STATE }} |
-          | URL da API | https://${{ steps.aca-details.outputs.FQDN }} |
+          | FQDN | ${{ steps.aca_details.outputs.FQDN }} |
+          | Estado | ${{ steps.aca_details.outputs.STATE }} |
+          | URL da API | https://${{ steps.aca_details.outputs.FQDN }} |
 
           ## 🔗 Links Úteis
-          - **Swagger UI**: https://${{ steps.aca-details.outputs.FQDN }}/docs
-          - **ReDoc**: https://${{ steps.aca-details.outputs.FQDN }}/redoc
-          - **Health Check**: https://${{ steps.aca-details.outputs.FQDN }}${{ inputs.healthCheckPath }}
+          - **Swagger UI**: https://${{ steps.aca_details.outputs.FQDN }}/docs
+          - **ReDoc**: https://${{ steps.aca_details.outputs.FQDN }}/redoc
+          - **Health Check**: https://${{ steps.aca_details.outputs.FQDN }}${{ inputs.health_check_path }}
 
           ## ✅ Deploy Status
           - ✅ Imagem Docker atualizada no Azure Container App

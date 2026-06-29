@@ -2,52 +2,52 @@ name: 'Setup .NET Core SDK (Wrapper)'
 description: 'Wrapper composite action for actions/setup-dotnet. Update the version only here.'
 
 inputs:
-  dotnet-version:
+  dotnet_version:
     description: 'Optional SDK version(s) to use. If not provided, will install global.json version when available.'
     required: false
-  dotnet-quality:
+  dotnet_quality:
     description: 'Optional quality of the build. Possible values: daily, signed, validated, preview, ga.'
     required: false
-  global-json-file:
+  global_json_file:
     description: 'Optional global.json location, if not located in the root of the repo.'
     required: false
-  source-url:
+  source_url:
     description: 'Optional package source for which to set up authentication.'
     required: false
   owner:
     description: 'Optional OWNER for using packages from GitHub Package Registry organizations/users.'
     required: false
-  config-file:
+  config_file:
     description: 'Optional NuGet.config location, if not located in the root of the repo.'
     required: false
   cache:
     description: 'Optional input to enable caching of the NuGet global-packages folder'
     required: false
     default: 'false'
-  cache-dependency-path:
+  cache_dependency_path:
     description: 'Path to a dependency file: packages.lock.json. Supports wildcards or a list of file names.'
     required: false
 
 outputs:
-  cache-hit:
+  cache_hit:
     description: 'A boolean value to indicate if a cache was hit.'
-    value: ${{ steps.setup-dotnet.outputs.cache-hit }}
-  dotnet-version:
+    value: ${{ steps.setup_dotnet.outputs.cache-hit }}
+  dotnet_version:
     description: 'Contains the installed .NET SDK version.'
-    value: ${{ steps.setup-dotnet.outputs.dotnet-version }}
+    value: ${{ steps.setup_dotnet.outputs.dotnet-version }}
 
 runs:
   using: 'composite'
   steps:
     - name: 🛠️ Setup .NET
-      id: setup-dotnet
+      id: setup_dotnet
       uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: ${{ inputs.dotnet-version }}
-        dotnet-quality: ${{ inputs.dotnet-quality }}
-        global-json-file: ${{ inputs.global-json-file }}
-        source-url: ${{ inputs.source-url }}
+        dotnet-version: ${{ inputs.dotnet_version }}
+        dotnet-quality: ${{ inputs.dotnet_quality }}
+        global-json-file: ${{ inputs.global_json_file }}
+        source-url: ${{ inputs.source_url }}
         owner: ${{ inputs.owner }}
-        config-file: ${{ inputs.config-file }}
+        config-file: ${{ inputs.config_file }}
         cache: ${{ inputs.cache }}
-        cache-dependency-path: ${{ inputs.cache-dependency-path }}
+        cache-dependency-path: ${{ inputs.cache_dependency_path }}

@@ -2,39 +2,39 @@ name: 'Maven Test & Coverage'
 description: 'Checks for Java test classes, runs Maven tests with JaCoCo coverage, generates reports, and uploads artifacts.'
 
 inputs:
-  projectBaseDir:
+  project_base_dir:
     description: 'Path to the project base directory (containing pom.xml)'
     required: false
     default: './src'
-  testsFolder:
+  tests_folder:
     description: 'The main test folder (used to locate test classes)'
     required: false
     default: 'tests'
-  reportTitle:
+  report_title:
     description: 'Title for the coverage report'
     required: false
     default: 'Canal DEPLOY'
-  sonarExclusions:
+  sonar_exclusions:
     description: 'Class filters for coverage report (comma separated)'
     required: false
     default: ''
-  run-number:
+  run_number:
     description: 'The github.run_number value'
     required: true
-  run-id:
+  run_id:
     description: 'The github.run_id value'
     required: true
 
 outputs:
-  has-tests:
+  has_tests:
     description: 'Whether test classes were found (true/false)'
-    value: ${{ steps.check-tests.outputs.HAS_TESTS }}
+    value: ${{ steps.check_tests.outputs.HAS_TESTS }}
 
 runs:
   using: 'composite'
   steps:
     - name: 🔍 Verifica se existem classes de teste
-      id: check-tests
+      id: check_tests
       shell: bash
       run: |
         if find . -type f \( -name '*Test.java' -o -name '*Tests.java' -o -name '*IT.java' \) | grep -q .; then
@@ -46,19 +46,19 @@ runs:
         fi
 
     - name: 🧪 Run Maven tests with JaCoCo coverage
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       shell: bash
       run: |
         mvn test \
-          --file ${{ inputs.projectBaseDir }}/pom.xml \
+          --file ${{ inputs.project_base_dir }}/pom.xml \
           --batch-mode \
           -Dmaven.test.failure.ignore=false
 
     - name: 🧪📤 Upload coverage report artifact
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
       with:
-        name: Coverage-Report-${{ inputs.run-number }}-${{ inputs.run-id }}
+        name: Coverage-Report-${{ inputs.run_number }}-${{ inputs.run_id }}
         path: |
-          ${{ inputs.projectBaseDir }}/target/site/jacoco/
+          ${{ inputs.project_base_dir }}/target/site/jacoco/
           **/target/site/jacoco/

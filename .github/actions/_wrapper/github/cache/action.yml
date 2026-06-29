@@ -8,29 +8,29 @@ inputs:
   key:
     description: 'An explicit key for restoring and saving the cache'
     required: true
-  restore-keys:
+  restore_keys:
     description: 'An ordered multiline string listing prefix-matched keys for restoring stale cache'
     required: false
     default: ''
-  upload-chunk-size:
+  upload_chunk_size:
     description: 'The chunk size used to split up large files during upload, in bytes'
     required: false
     default: ''
-  enableCrossOsArchive:
+  enable_cross_os_archive:
     description: 'When enabled, allows Windows runners to save/restore caches across platforms'
     required: false
     default: 'false'
-  fail-on-cache-miss:
+  fail_on_cache_miss:
     description: 'Fail the workflow if cache entry is not found'
     required: false
     default: 'false'
-  lookup-only:
+  lookup_only:
     description: 'Check if a cache entry exists without downloading it'
     required: false
     default: 'false'
 
 outputs:
-  cache-hit:
+  cache_hit:
     description: 'A boolean value to indicate an exact match was found for the primary key'
     value: ${{ steps.cache.outputs.cache-hit }}
 
@@ -43,8 +43,8 @@ runs:
       with:
         path: ${{ inputs.path }}
         key: ${{ inputs.key }}
-        restore-keys: ${{ inputs.restore-keys }}
-        upload-chunk-size: ${{ inputs.upload-chunk-size }}
-        enableCrossOsArchive: ${{ inputs.enableCrossOsArchive }}
-        fail-on-cache-miss: ${{ inputs.fail-on-cache-miss }}
-        lookup-only: ${{ inputs.lookup-only }}
+        restore-keys: ${{ inputs.restore_keys }}
+        upload-chunk-size: ${{ inputs.upload_chunk_size }}
+        enableCrossOsArchive: ${{ inputs.enable_cross_os_archive }}
+        fail-on-cache-miss: ${{ inputs.fail_on_cache_miss }}
+        lookup-only: ${{ inputs.lookup_only }}

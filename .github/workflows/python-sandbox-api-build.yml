@@ -1,10 +1,10 @@
 name: Python API Build 🐍
-run-name: "${{ github.actor }} - ${{ inputs.buildMode }} - ${{ inputs.environment }} - ${{ github.run_id }}"
+run-name: "${{ github.actor }} - ${{ inputs.build_mode }} - ${{ inputs.environment }} - ${{ github.run_id }}"
 
 on:
   workflow_call:
     inputs:
-      buildMode:
+      build_mode:
         description: "Which action do you want?"
         required: false
         default: 'Build'
@@ -14,60 +14,60 @@ on:
         description: 'Environment to run the workflow'
         required: true
         default: 'DEV'
-      pythonVersion:
+      python_version:
         type: string
         description: 'Python version to use in the workflow'
         required: false
         default: '3.14'
-      projectName:
+      project_name:
         type: string
         description: 'Project name'
         required: true
-      imageName:
+      image_name:
         type: string
         description: 'Docker image name'
         required: true
-      envMapFile:
+      env_map_file:
         description: 'Env/Secret mapping file'
         required: false
         type: string
         default: ''
-      mainFile:
+      main_file:
         type: string
         description: 'Main Python file'
         required: false
         default: 'main.py'
-      sparseCheckout:
+      sparse_checkout:
         description: 'Sparse checkout pattern'
         required: false
         type: string
         default: 'src/'
-      gitLeaks:
+      git_leaks:
         description: 'Enable Gitleaks security scan'
         required: false
         type: boolean
         default: true
-      appDir:
+      app_dir:
         description: 'Application directory (app or src)'
         required: false
         type: string
         default: 'src'
-      coverageThreshold:
+      coverage_threshold:
         description: 'Minimum coverage percentage required (0-100)'
         required: false
         type: number
         default: 0
-      dockerfileFolder:
+      dockerfile_folder:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         type: string
         default: 'docker'
-      openAPIFolder:
+      openapi_folder:
         description: 'Path to folder that will receive the exported OpenAPI JSON (e.g. output_openapi). Leave empty to skip Spectral linting.'
         required: false
         type: string
         default: ''
-      sonarExclusions:
+      sonar_exclusions:
         description: 'Paths to exclude from SonarCloud analysis (comma separated)'
         required: false
         type: string
@@ -78,7 +78,7 @@ on:
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
         required: false
         default: 'ghcr.io'
-      registryUsername:
+      registry_username:
         type: string
         description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
@@ -106,12 +106,12 @@ on:
         required: false
         description: 'Safety API Key'
     outputs:
-      tag-version:
+      tag_version:
         description: 'The version tag built and published'
-        value: ${{ jobs.build.outputs.tag-version }}
-      image-exists:
+        value: ${{ jobs.build.outputs.tag_version }}
+      image_exists:
         description: 'Whether the image already existed in the registry (true/false)'
-        value: ${{ jobs.check-image.outputs.image-exists }}
+        value: ${{ jobs.check_image.outputs.image_exists }}
 
 env:
   # Colors for output
@@ -132,8 +132,8 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
     outputs:
-      tag-version: ${{ steps.get-version.outputs.TAG }}
-      now: ${{ steps.get-env.outputs.NOW }}
+      tag_version: ${{ steps.get_version.outputs.TAG }}
+      now: ${{ steps.get_env.outputs.NOW }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -143,7 +143,7 @@ jobs:
     steps:
 
       - name: 🧭 Get Environment
-        id: get-env
+        id: get_env
         run: |
           echo -e "${GREEN} ⚠️ Environment ${{ inputs.environment }}"
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
@@ -152,61 +152,61 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
-          sparse-checkout: |
-            ${{ inputs.sparseCheckout }}
+          fetch_depth: 0
+          sparse_checkout: |
+            ${{ inputs.sparse_checkout }}
             pyproject.toml
             .flake8
             setup.cfg
             infra/aca.envmap
             tests/
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks
-        if: ${{ inputs.gitLeaks && !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
+        if: ${{ inputs.git_leaks && !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
-          enable-summary: 'true'
-          enable-upload-artifact: 'true'
-          notify-user-list: '@felipementel'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'vuln,misconfig,secret'
           format: 'github'
           severity: 'HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🔎 Trivy - license scan
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'github'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🏷️ Extract Application Version
         uses: felipementel/gh-actions/.github/actions/python/get-version@main
-        id: get-version
+        id: get_version
         with:
           environment: ${{ inputs.environment }}
 
-      - name: 🐍 Set up Python ${{ inputs.pythonVersion }}
+      - name: 🐍 Set up Python ${{ inputs.python_version }}
         uses: actions/setup-python@v6
         with:
-          python-version: ${{ inputs.pythonVersion }}
+          python-version: ${{ inputs.python_version }}
           cache: pip
 
       - name: ✅ Check Python version
@@ -227,7 +227,7 @@ jobs:
           pip check
 
       - name: 🔍 Check for tests
-        id: check-tests
+        id: check_tests
         shell: bash
         run: |
           if find . -name "*test*.py" -o -name "test_*.py" | grep -q .; then
@@ -239,7 +239,7 @@ jobs:
           fi
 
       - name: 🧪 Run Python tests
-        if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+        if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
         run: |
           # Set testing environment
           export TESTING=1
@@ -251,15 +251,15 @@ jobs:
           # Run unit tests only with coverage
           echo -e "🧪${GREEN} Running unit tests with coverage..."
           python -m pytest -v \
-            --cov=${{ inputs.appDir }} \
+            --cov=${{ inputs.app_dir }} \
             --cov-report=html:tests/results/htmlcov \
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=term-missing \
-            --cov-fail-under=${{ inputs.coverageThreshold }} \
+            --cov-fail-under=${{ inputs.coverage_threshold }} \
             tests/
 
       - name: 📊 Upload coverage to Codecov
-        if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+        if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/codecov/codecov-action@main
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
@@ -271,16 +271,16 @@ jobs:
       - name: 📸 SonarCloud Analysis
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-python@main
         with:
-          has-tests: ${{ steps.check-tests.outputs.HAS_TESTS }}
-          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-exclusions: ${{ inputs.sonarExclusions }}
-          app-dir: ${{ inputs.appDir }}
+          has_tests: ${{ steps.check_tests.outputs.HAS_TESTS }}
+          sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
+          sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          app_dir: ${{ inputs.app_dir }}
 
       - name: 🎯 Generate coverage badge
-        if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+        if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
         run: |
           # Extract coverage percentage from coverage.xml
           COVERAGE=$(python -c "
@@ -315,7 +315,7 @@ jobs:
           echo "BADGE_COLOR=${COLOR}" >> $GITHUB_ENV
 
       - name: 🧪📤 Upload test coverage artifacts
-        if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+        if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: coverage-reports-${{ github.run_number }}
@@ -323,34 +323,34 @@ jobs:
             tests/results/htmlcov/
             tests/results/coverage.xml
             coverage-badge.md
-          retention-days: 30
+          retention_days: 30
 
       - name: Code Quality
         uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
-          app_dir: ${{ inputs.appDir }}
+          app_dir: ${{ inputs.app_dir }}
 
       - name: 🔨 Export OpenAPI JSON from FastAPI
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
-          mkdir -p ./${{ inputs.openAPIFolder }}
-          MAIN_MODULE=$(basename "${{ inputs.mainFile }}" .py)
+          mkdir -p ./${{ inputs.openapi_folder }}
+          MAIN_MODULE=$(basename "${{ inputs.main_file }}" .py)
           python -c "
           import json, sys, importlib
-          sys.path.insert(0, '${{ inputs.appDir }}')
+          sys.path.insert(0, '${{ inputs.app_dir }}')
           mod = importlib.import_module('${MAIN_MODULE}')
-          with open('./${{ inputs.openAPIFolder }}/openapi.json', 'w') as f:
+          with open('./${{ inputs.openapi_folder }}/openapi.json', 'w') as f:
               json.dump(mod.app.openapi(), f, indent=2)
           print('OpenAPI JSON exported successfully')
           "
 
       - name: 🚀 Spectral OpenAPI Lint
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
-          openapi-files-path: ./${{ inputs.openAPIFolder }}
-          node-version: '22'
+          openapi_files_path: ./${{ inputs.openapi_folder }}
+          node_version: '22'
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -359,9 +359,9 @@ jobs:
 
           | Campo          | Valor |
           |----------------|-------|
-          | Versão         | ${{ steps.get-version.outputs.TAG }} |
-          | Data           | ${{ steps.get-env.outputs.NOW }} |
-          | Python Version | ${{ inputs.pythonVersion }} |
+          | Versão         | ${{ steps.get_version.outputs.TAG }} |
+          | Data           | ${{ steps.get_env.outputs.NOW }} |
+          | Python Version | ${{ inputs.python_version }} |
           | Environment    | ${{ inputs.environment }} |
 
           ## ✅ Build Status
@@ -371,26 +371,26 @@ jobs:
           - ✅ Linting executado'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  check-image:
+  check_image:
     name: Check if Docker image exists
-    if: ${{ inputs.buildMode == 'Build + Push' }}
+    if: ${{ inputs.build_mode == 'Build + Push' }}
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     needs: build
     outputs:
-      image-exists: ${{ steps.check-image-and-tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
     steps:
       - name: 🔐 Log in to registry
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ inputs.registryUsername || github.actor }}
+          username: ${{ inputs.registry_username || github.actor }}
           password: ${{ secrets.REGISTRY_PASSWORD || secrets.GH_PACKAGES_TOKEN }}
 
       - name: 🔍 Check if image exists
-        id: check-image-and-tag
+        id: check_image_and_tag
         run: |
-          IMAGE_TAG="${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ needs.build.outputs.tag-version }}"
+          IMAGE_TAG="${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}"
           echo "Checking existence of $IMAGE_TAG..."
           if docker manifest inspect "$IMAGE_TAG" > /dev/null 2>&1; then
             echo -e "✅ ${GREEN} Image exists in registry"
@@ -400,11 +400,11 @@ jobs:
             echo "IMAGE_EXISTS=false" >> "$GITHUB_OUTPUT"
           fi
 
-  push-image:
+  push_image:
     name: Build and Push Docker Image
-    if: ${{ inputs.buildMode == 'Build + Push' && needs.check-image.outputs.image-exists == 'false' }}
+    if: ${{ inputs.build_mode == 'Build + Push' && needs.check_image.outputs.image_exists == 'false' }}
     environment: ${{ inputs.environment }}
-    needs: [build, check-image]
+    needs: [build, check_image]
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -414,7 +414,7 @@ jobs:
       - name: 📥 Checkout
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
-          fetch-depth: 0
+          fetch_depth: 0
 
       - name: 🏗️ Set up QEMU
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/setup-qemu-action@main
@@ -429,7 +429,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
           registry: ${{ inputs.registry }}
-          username: ${{ inputs.registryUsername || github.actor }}
+          username: ${{ inputs.registry_username || github.actor }}
           password: ${{ secrets.REGISTRY_PASSWORD || secrets.GH_PACKAGES_TOKEN }}
 
       - name: 🏷️ Extract metadata for Docker
@@ -437,62 +437,62 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/metadata-action@main
         with:
           images: |
-            ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}
+            ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}
 
       - name: 🐳 Build Docker image (without push)
         id: build
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
         with:
           context: .
-          file: ${{ inputs.dockerfileFolder }}/Dockerfile
+          file: ${{ inputs.dockerfile_folder }}/Dockerfile
           push: false
           load: true
           platforms: linux/amd64
           secrets: |
             GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
           tags: |
-            ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ needs.build.outputs.tag-version }}
+            ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.version=${{ needs.build.outputs.tag-version }}
+            org.opencontainers.image.version=${{ needs.build.outputs.tag_version }}
             org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache_from: type=gha
+          cache_to: type=gha,mode=max
 
       - name: 🔍 Scan Docker image for vulnerabilities
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          image-ref: ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ needs.build.outputs.tag-version }}
+          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           severity: 'CRITICAL,HIGH'
           format: 'sarif'
-          output-file: 'trivy-results.sarif'
-          upload-to-security: 'true'
-          scan-type: 'image'
-          exit-code: '1'
+          output_file: 'trivy-results.sarif'
+          upload_to_security: 'true'
+          scan_type: 'image'
+          exit_code: '1'
 
       - name: 🚀 Push Docker image (after security scan passed)
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
         with:
           context: .
-          file: ${{ inputs.dockerfileFolder }}/Dockerfile
+          file: ${{ inputs.dockerfile_folder }}/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64
           secrets: |
             GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
           tags: |
-            ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ needs.build.outputs.tag-version }}
+            ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |
             ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.version=${{ needs.build.outputs.tag-version }}
+            org.opencontainers.image.version=${{ needs.build.outputs.tag_version }}
             org.opencontainers.image.revision=${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache_from: type=gha
+          cache_to: type=gha,mode=max
 
       - name: Generate git tag
         run: |
-          echo "TAG_NAME=v${{ needs.build.outputs.tag-version }}"
-          git tag -a v${{ needs.build.outputs.tag-version }} -m "Release v${{ needs.build.outputs.tag-version }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ needs.build.outputs.tag-version }}
+          echo "TAG_NAME=v${{ needs.build.outputs.tag_version }}"
+          git tag -a v${{ needs.build.outputs.tag_version }} -m "Release v${{ needs.build.outputs.tag_version }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push origin v${{ needs.build.outputs.tag_version }}
 
       - name: 📝 Write image summary
         run: |
@@ -501,18 +501,18 @@ jobs:
 
           | Campo | Valor |
           |-------|-------|
-          | Image | ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }} |
-          | Tag | ${{ needs.build.outputs.tag-version }} |
+          | Image | ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }} |
+          | Tag | ${{ needs.build.outputs.tag_version }} |
           | Registry | ${{ inputs.registry }} |
           | Platforms | linux/amd64, linux/arm64 |
           | Security Scan | ✅ Passed (no CRITICAL/HIGH vulnerabilities) |
           | Status | ✅ Publicada com sucesso |'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  notify-image-exists:
+  notify_image_exists:
     name: Notify Image Already Exists
-    if: ${{ inputs.buildMode == 'Build + Push' && needs.check-image.outputs.image-exists == 'true' }}
-    needs: [build, check-image]
+    if: ${{ inputs.build_mode == 'Build + Push' && needs.check_image.outputs.image_exists == 'true' }}
+    needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
@@ -521,12 +521,12 @@ jobs:
           SUMMARY='
           # ⚠️ Imagem Já Existe
 
-          A imagem Docker com a tag **${{ needs.build.outputs.tag-version }}** já existe no registry.
+          A imagem Docker com a tag **${{ needs.build.outputs.tag_version }}** já existe no registry.
 
           | Campo | Valor |
           |-------|-------|
-          | Tag | ${{ needs.build.outputs.tag-version }} |
-          | Registry | ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }} |
+          | Tag | ${{ needs.build.outputs.tag_version }} |
+          | Registry | ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }} |
           | Status | ⚠️ Imagem já existe |
 
           **Ações puladas:**

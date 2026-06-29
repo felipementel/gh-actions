@@ -13,21 +13,21 @@ inputs:
     description: 'Personal access token (PAT) used to fetch the repository'
     required: false
     default: ${{ github.token }}
-  ssh-key:
+  ssh_key:
     description: 'SSH key used to fetch the repository'
     required: false
-  ssh-known-hosts:
+  ssh_known_hosts:
     description: 'Known hosts in addition to the user and global host key database'
     required: false
-  ssh-strict:
+  ssh_strict:
     description: 'Whether to perform strict host key checking'
     required: false
     default: 'true'
-  ssh-user:
+  ssh_user:
     description: 'The user to use when connecting to the remote SSH host'
     required: false
     default: 'git'
-  persist-credentials:
+  persist_credentials:
     description: 'Whether to configure the token or SSH key with the local git config'
     required: false
     default: 'true'
@@ -41,18 +41,18 @@ inputs:
   filter:
     description: 'Partially clone against a given filter. Overrides sparse-checkout if set.'
     required: false
-  sparse-checkout:
+  sparse_checkout:
     description: 'Do a sparse checkout on given patterns. Each pattern should be separated with new lines.'
     required: false
-  sparse-checkout-cone-mode:
+  sparse_checkout_cone_mode:
     description: 'Specifies whether to use cone-mode when doing a sparse checkout.'
     required: false
     default: 'true'
-  fetch-depth:
+  fetch_depth:
     description: 'Number of commits to fetch. 0 indicates all history for all branches and tags.'
     required: false
     default: '1'
-  fetch-tags:
+  fetch_tags:
     description: 'Whether to fetch tags, even if fetch-depth > 0.'
     required: false
     default: 'false'
@@ -64,11 +64,11 @@ inputs:
     description: "Whether to checkout submodules: `true` to checkout submodules or `recursive` to recursively checkout submodules."
     required: false
     default: 'false'
-  set-safe-directory:
+  set_safe_directory:
     description: 'Add repository path as safe.directory for Git global config'
     required: false
     default: 'true'
-  github-server-url:
+  github_server_url:
     description: 'The base URL for the GitHub instance that you are trying to clone from'
     required: false
 
@@ -90,19 +90,19 @@ runs:
         repository: ${{ inputs.repository }}
         ref: ${{ inputs.ref }}
         token: ${{ inputs.token }}
-        ssh-key: ${{ inputs.ssh-key }}
-        ssh-known-hosts: ${{ inputs.ssh-known-hosts }}
-        ssh-strict: ${{ inputs.ssh-strict }}
-        ssh-user: ${{ inputs.ssh-user }}
-        persist-credentials: ${{ inputs.persist-credentials }}
+        ssh-key: ${{ inputs.ssh_key }}
+        ssh-known-hosts: ${{ inputs.ssh_known_hosts }}
+        ssh-strict: ${{ inputs.ssh_strict }}
+        ssh-user: ${{ inputs.ssh_user }}
+        persist-credentials: ${{ inputs.persist_credentials }}
         path: ${{ inputs.path }}
         clean: ${{ inputs.clean }}
         filter: ${{ inputs.filter }}
-        sparse-checkout: ${{ inputs.sparse-checkout }}
-        sparse-checkout-cone-mode: ${{ inputs.sparse-checkout-cone-mode }}
-        fetch-depth: ${{ inputs.fetch-depth }}
-        fetch-tags: ${{ inputs.fetch-tags }}
+        sparse-checkout: ${{ inputs.sparse_checkout }}
+        sparse-checkout-cone-mode: ${{ inputs.sparse_checkout_cone_mode }}
+        fetch-depth: ${{ inputs.fetch_depth }}
+        fetch-tags: ${{ inputs.fetch_tags }}
         lfs: ${{ inputs.lfs }}
         submodules: ${{ inputs.submodules }}
-        set-safe-directory: ${{ inputs.set-safe-directory }}
-        github-server-url: ${{ inputs.github-server-url }}
+        set-safe-directory: ${{ inputs.set_safe_directory }}
+        github-server-url: ${{ inputs.github_server_url }}

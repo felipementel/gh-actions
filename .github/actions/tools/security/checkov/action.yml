@@ -62,5 +62,5 @@ runs:
         path: |
           checkov-results.json
           results.sarif
-        if-no-files-found: ignore
-        retention-days: 7
+        if_no_files_found: ignore
+        retention_days: 7

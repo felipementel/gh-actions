@@ -5,13 +5,13 @@ inputs:
   environment:
     description: 'Deployment environment (dev, hml, prd and variants)'
     required: true
-  azure-rg-base:
+  azure_resource_group:
     description: 'Base resource group name (env suffix will be appended for non-prd)'
     required: true
-  acae-base-name:
+  acae_base_name:
     description: 'Base Container App Environment name (e.g. cae-myorg)'
     required: true
-  repo-name:
+  repo_name:
     description: 'Repository name used to derive the app slug'
     required: false
     default: ''
@@ -37,7 +37,7 @@ runs:
       id: naming
       shell: bash
       run: |
-        REPO_NAME="${{ inputs.repo-name }}"
+        REPO_NAME="${{ inputs.repo_name }}"
         ENV_INPUT="$(echo "${{ inputs.environment }}" | tr '[:upper:]' '[:lower:]')"
 
         case "$ENV_INPUT" in
@@ -63,8 +63,8 @@ runs:
         APP="$(echo "$APP" | sed -E 's/^gn-api-//; s/^gn-//; s/-service$//; s/-api$//')"
         APP="$(echo "$APP" | sed -E 's/^-+//; s/-+$//')"
 
-        RG_BASE="${{ inputs.azure-rg-base }}"
-        ACAE_BASE="${{ inputs.acae-base-name }}"
+        RG_BASE="${{ inputs.azure_resource_group }}"
+        ACAE_BASE="${{ inputs.acae_base_name }}"
 
         if [ "$ENV_SUFFIX" = "prd" ]; then
           ACA_NAME="ca-${APP}"

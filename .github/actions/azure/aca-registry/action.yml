@@ -2,19 +2,19 @@ name: Azure Container Apps Deploy
 description: Logs in to Azure, updates Container App image, polls for revision readiness and health endpoint
 
 inputs:
-  azure-client-id:
+  azure_client_id:
     description: 'Azure Client ID for OIDC authentication'
     required: true
-  azure-tenant-id:
+  azure_tenant_id:
     description: 'Azure Tenant ID for OIDC authentication'
     required: true
-  azure-subscription-id:
+  azure_subscription_id:
     description: 'Azure Subscription ID for OIDC authentication'
     required: true
-  aca-name:
+  aca_name:
     description: 'Azure Container App name'
     required: true
-  rg-name:
+  rg_name:
     description: 'Azure Resource Group name'
     required: true
   image:
@@ -27,7 +27,7 @@ runs:
     - name: 🔐 Set registry in Azure Container App
       run: |
         az containerapp registry set \
-        --name ${{ inputs.aca-name }} \
+        --name ${{ inputs.aca_name }} \
         --resource-group ${{ vars.RESOURCE_GROUP_NAME }} \
         --server ghcr.io \
         --username ${{ github.actor }} \

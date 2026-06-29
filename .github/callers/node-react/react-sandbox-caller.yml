@@ -1,5 +1,5 @@
 name: React Web — Build & Deploy (Caller Example)
-run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
+run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 # ---------------------------------------------------------------------------
 # EXEMPLO de caller para os workflows:
@@ -25,7 +25,7 @@ on:
       - 'source/**'
   workflow_dispatch:
     inputs:
-      buildMode:
+      build_mode:
         description: "Qual ação deseja fazer?"
         required: true
         default: 'Build'
@@ -45,9 +45,9 @@ jobs:
     uses: felipementel/gh-actions/.github/workflows/react-sandbox-web-build.yml@main
     with:
       environment: ${{ inputs.environment || 'DEV' }}
-      nodeVersion: '24.x'
-      workingDirectory: './source'
-      sparseCheckout: 'source/'
+      node_version: '24.x'
+      working_directory: './source'
+      sparse_checkout: 'source/'
     permissions:
       security-events: write
       contents: write
@@ -62,22 +62,22 @@ jobs:
     name: Deploy to SWA
     if: >
       github.event_name == 'workflow_dispatch' &&
-      inputs.buildMode == 'Build + Deploy'
+      inputs.build_mode == 'Build + Deploy'
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/react-sandbox-web-deploy-swa.yml@main
     with:
       environment: ${{ inputs.environment || 'DEV' }}
-      appName: ${{ needs.build.outputs.app-name }}
+      app_name: ${{ needs.build.outputs.app-name }}
       # URL do site publicado — usada pelo OWASP ZAP DAST após o deploy
       url: 'https://my-app.azurestaticapps.net'
-      appLocation: './dist'
-      apiLocation: ''
-      outputLocation: ''
-      allowIssueWriting: false
-      failAction: false
-      cmdOptions: '-a'
-      nodeVersion: '24.x'
-      workingDirectory: './source'
+      app_location: './dist'
+      api_location: ''
+      output_location: ''
+      allow_issue_writing: false
+      fail_action: false
+      cmd_options: '-a'
+      node_version: '24.x'
+      working_directory: './source'
     permissions:
       id-token: write
       contents: read

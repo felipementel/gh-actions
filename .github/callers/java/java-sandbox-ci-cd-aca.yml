@@ -5,7 +5,7 @@
 # }
 
 name: Java API — Build & Deploy [Caller]
-run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
+run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
       - 'src/**'
   workflow_dispatch:
     inputs:
-      buildMode:
+      build_mode:
         description: "Qual ação deseja fazer?"
         required: true
         default: 'Build'
@@ -34,18 +34,18 @@ jobs:
     name: Build
     uses: felipementel/gh-actions/.github/workflows/java-sandbox-api-build.yml@main
     with:
-      buildMode: ${{ github.event_name == 'workflow_dispatch' && inputs.buildMode || 'Build' }}
+      build_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mode || 'Build' }}
       environment: ${{ inputs.environment || 'development' }}
-      javaVersion: ${{ vars.BUILD_VERSION }}
-      projectBaseDir: './src'
-      mainProject: 'myproject-api'
-      testsFolder: 'tests'
-      reportTitle: 'My Project API'
-      sonarExclusions: ''
-      imageName: ${{ github.event.repository.name }}
-      openAPIFolder: 'open-api'
-      dockerFileFullPath: 'docker/Dockerfile'
-      dockerBuildContext: '.'
+      java_version: ${{ vars.BUILD_VERSION }}
+      project_base_dir: './src'
+      main_project: 'myproject-api'
+      tests_folder: 'tests'
+      report_title: 'My Project API'
+      sonar_exclusions: ''
+      image_name: ${{ github.event.repository.name }}
+      openapi_folder: 'open-api'
+      docker_file_full_path: 'docker/Dockerfile'
+      docker_build_context: '.'
       registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:
       security-events: write
@@ -65,21 +65,21 @@ jobs:
     name: Deploy to ACA
     if: >-
       github.event_name == 'workflow_dispatch' &&
-      inputs.buildMode == 'Build + Tag Validation + Deploy' &&
+      inputs.build_mode == 'Build + Tag Validation + Deploy' &&
       needs.build.outputs.image-exists == 'false'
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/java-sandbox-api-deploy-aca.yml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
-      tagVersion: ${{ needs.build.outputs.tag-version }}
-      imageName: ${{ github.event.repository.name }}
+      tag_version: ${{ needs.build.outputs.tag-version }}
+      image_name: ${{ github.event.repository.name }}
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-      azureRgBase: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
-      acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}
-      healthCheckPath: '/health/live'
-      deployPollMaxAttempts: '20'
-      deployPollIntervalSeconds: '15'
+      azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
+      acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
+      health_check_path: '/health/live'
+      deploy_poll_max_attempts: '20'
+      deploy_poll_interval_seconds: '15'
     permissions:
       id-token: write
       contents: read

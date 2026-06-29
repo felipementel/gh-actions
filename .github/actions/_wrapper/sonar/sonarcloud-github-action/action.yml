@@ -6,7 +6,7 @@ inputs:
     description: 'Additional arguments to the Sonar Scanner CLI'
     required: false
     default: ''
-  projectBaseDir:
+  project_base_dir:
     description: 'Set the sonar.projectBaseDir analysis property'
     required: false
     default: ''
@@ -19,4 +19,4 @@ runs:
       uses: sonarsource/sonarqube-scan-action@v6
       with:
         args: ${{ inputs.args }}
-        projectBaseDir: ${{ inputs.projectBaseDir }}
+        projectBaseDir: ${{ inputs.project_base_dir }}

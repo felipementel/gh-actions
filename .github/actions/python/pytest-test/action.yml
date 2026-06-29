@@ -2,42 +2,42 @@ name: 'Pytest Test & Coverage'
 description: 'Checks for Python test files, runs pytest with coverage, generates reports, and uploads artifacts.'
 
 inputs:
-  appDir:
+  app_dir:
     description: 'Application source directory to measure coverage (e.g. src)'
     required: false
     default: 'src'
-  testsFolder:
+  tests_folder:
     description: 'The main test folder (used to locate test files)'
     required: false
     default: 'tests'
-  coverageThreshold:
+  coverage_threshold:
     description: 'Minimum coverage percentage required (0-100)'
     required: false
     default: '80'
-  reportTitle:
+  report_title:
     description: 'Title for the coverage report artifact'
     required: false
     default: 'Canal DEPLOY'
-  run-number:
+  run_number:
     description: 'The github.run_number value'
     required: true
-  run-id:
+  run_id:
     description: 'The github.run_id value'
     required: true
 
 outputs:
-  has-tests:
+  has_tests:
     description: 'Whether test files were found (true/false)'
-    value: ${{ steps.check-tests.outputs.HAS_TESTS }}
+    value: ${{ steps.check_tests.outputs.HAS_TESTS }}
 
 runs:
   using: 'composite'
   steps:
     - name: 🔍 Verifica se existem arquivos de teste
-      id: check-tests
+      id: check_tests
       shell: bash
       run: |
-        if find ${{ inputs.testsFolder }} -type f \( -name 'test_*.py' -o -name '*_test.py' \) 2>/dev/null | grep -q .; then
+        if find ${{ inputs.tests_folder }} -type f \( -name 'test_*.py' -o -name '*_test.py' \) 2>/dev/null | grep -q .; then
           echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
           echo -e "\033[0;32m✅ Arquivos de teste encontrados."
         else
@@ -46,24 +46,24 @@ runs:
         fi
 
     - name: 🧪 Run pytest with coverage
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       shell: bash
       run: |
         export TESTING=1
         export DISABLE_SSL_VERIFY=true
 
-        mkdir -p ${{ inputs.testsFolder }}/results
+        mkdir -p ${{ inputs.tests_folder }}/results
 
         pytest -v \
-          --cov=${{ inputs.appDir }} \
-          --cov-report=xml:${{ inputs.testsFolder }}/results/coverage.xml \
-          --cov-report=html:${{ inputs.testsFolder }}/results/htmlcov \
+          --cov=${{ inputs.app_dir }} \
+          --cov-report=xml:${{ inputs.tests_folder }}/results/coverage.xml \
+          --cov-report=html:${{ inputs.tests_folder }}/results/htmlcov \
           --cov-report=term-missing \
-          --cov-fail-under=${{ inputs.coverageThreshold }}
+          --cov-fail-under=${{ inputs.coverage_threshold }}
 
     - name: 🧪📤 Upload coverage report artifact
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
       with:
-        name: Coverage-Report-${{ inputs.run-number }}-${{ inputs.run-id }}
-        path: ${{ inputs.testsFolder }}/results/
+        name: Coverage-Report-${{ inputs.run_number }}-${{ inputs.run_id }}
+        path: ${{ inputs.tests_folder }}/results/

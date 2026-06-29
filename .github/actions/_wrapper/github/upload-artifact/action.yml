@@ -9,15 +9,15 @@ inputs:
   path:
     description: 'A file, directory or wildcard pattern that describes what to upload'
     required: true
-  if-no-files-found:
+  if_no_files_found:
     description: 'Behavior when no files are found: warn | error | ignore'
     required: false
     default: 'warn'
-  retention-days:
+  retention_days:
     description: 'Duration in days before artifact expires (0 = repository default; max 90)'
     required: false
     default: '0'
-  compression-level:
+  compression_level:
     description: 'Zlib compression level 0–9 (0 = no compression, 6 = default, 9 = best)'
     required: false
     default: '6'
@@ -25,7 +25,7 @@ inputs:
     description: 'Delete existing artifact with the same name before uploading'
     required: false
     default: 'false'
-  include-hidden-files:
+  include_hidden_files:
     description: 'Include hidden files in the artifact'
     required: false
     default: 'false'
@@ -35,13 +35,13 @@ inputs:
     default: 'true'
 
 outputs:
-  artifact-id:
+  artifact_id:
     description: 'Unique identifier of the uploaded artifact'
     value: ${{ steps.upload.outputs.artifact-id }}
-  artifact-url:
+  artifact_url:
     description: 'Download URL for the uploaded artifact (requires authentication)'
     value: ${{ steps.upload.outputs.artifact-url }}
-  artifact-digest:
+  artifact_digest:
     description: 'SHA-256 digest of the uploaded artifact'
     value: ${{ steps.upload.outputs.artifact-digest }}
 
@@ -54,9 +54,9 @@ runs:
       with:
         name: ${{ inputs.name }}
         path: ${{ inputs.path }}
-        if-no-files-found: ${{ inputs.if-no-files-found }}
-        retention-days: ${{ inputs.retention-days }}
-        compression-level: ${{ inputs.compression-level }}
+        if-no-files-found: ${{ inputs.if_no_files_found }}
+        retention-days: ${{ inputs.retention_days }}
+        compression-level: ${{ inputs.compression_level }}
         overwrite: ${{ inputs.overwrite }}
-        include-hidden-files: ${{ inputs.include-hidden-files }}
+        include-hidden-files: ${{ inputs.include_hidden_files }}
         archive: ${{ inputs.archive }}

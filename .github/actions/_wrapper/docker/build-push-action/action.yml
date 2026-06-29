@@ -28,31 +28,31 @@ inputs:
   platforms:
     description: 'List of target platforms for build'
     required: false
-  build-args:
+  build_args:
     description: 'List of build-time variables'
     required: false
-  build-contexts:
+  build_contexts:
     description: 'List of additional build contexts'
     required: false
   builder:
     description: 'Builder instance'
     required: false
-  cache-from:
+  cache_from:
     description: 'List of external cache sources'
     required: false
-  cache-to:
+  cache_to:
     description: 'List of cache export destinations'
     required: false
   secrets:
     description: 'List of secrets to expose to the build'
     required: false
-  secret-envs:
+  secret_envs:
     description: 'List of secret env vars to expose to the build'
     required: false
-  secret-files:
+  secret_files:
     description: 'List of secret files to expose to the build'
     required: false
-  no-cache:
+  no_cache:
     description: 'Do not use cache when building the image'
     required: false
     default: 'false'
@@ -75,7 +75,7 @@ inputs:
   ssh:
     description: 'List of SSH agent socket or keys to expose to the build'
     required: false
-  github-token:
+  github_token:
     description: 'GitHub Token for authentication'
     required: false
     default: ${{ github.token }}
@@ -83,19 +83,19 @@ inputs:
 outputs:
   imageid:
     description: 'Image ID'
-    value: ${{ steps.build-push.outputs.imageid }}
+    value: ${{ steps.build_push.outputs.imageid }}
   digest:
     description: 'Image content-addressable identifier also called a digest'
-    value: ${{ steps.build-push.outputs.digest }}
+    value: ${{ steps.build_push.outputs.digest }}
   metadata:
     description: 'Build result metadata'
-    value: ${{ steps.build-push.outputs.metadata }}
+    value: ${{ steps.build_push.outputs.metadata }}
 
 runs:
   using: 'composite'
   steps:
     - name: 🐳 Build and push Docker image
-      id: build-push
+      id: build_push
       uses: docker/build-push-action@v7
       with:
         context: ${{ inputs.context }}
@@ -106,19 +106,19 @@ runs:
         labels: ${{ inputs.labels }}
         annotations: ${{ inputs.annotations }}
         platforms: ${{ inputs.platforms }}
-        build-args: ${{ inputs.build-args }}
-        build-contexts: ${{ inputs.build-contexts }}
+        build-args: ${{ inputs.build_args }}
+        build-contexts: ${{ inputs.build_contexts }}
         builder: ${{ inputs.builder }}
-        cache-from: ${{ inputs.cache-from }}
-        cache-to: ${{ inputs.cache-to }}
+        cache-from: ${{ inputs.cache_from }}
+        cache-to: ${{ inputs.cache_to }}
         secrets: ${{ inputs.secrets }}
-        secret-envs: ${{ inputs.secret-envs }}
-        secret-files: ${{ inputs.secret-files }}
-        no-cache: ${{ inputs.no-cache }}
+        secret-envs: ${{ inputs.secret_envs }}
+        secret-files: ${{ inputs.secret_files }}
+        no-cache: ${{ inputs.no_cache }}
         pull: ${{ inputs.pull }}
         target: ${{ inputs.target }}
         outputs: ${{ inputs.outputs }}
         provenance: ${{ inputs.provenance }}
         sbom: ${{ inputs.sbom }}
         ssh: ${{ inputs.ssh }}
-        github-token: ${{ inputs.github-token }}
+        github-token: ${{ inputs.github_token }}

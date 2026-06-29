@@ -12,55 +12,55 @@ on:
         description: 'Environment to run the workflow'
         required: true
         default: 'development'
-      testsFolder:
+      tests_folder:
         type: string
         description: 'The main test folder'
         required: false
         default: 'tests'
       #build config
-      javaVersion:
+      java_version:
         type: string
         description: 'Java Version'
         required: true
         default: '21'
-      projectBaseDir:
+      project_base_dir:
         type: string
         description: 'Path to project root (containing pom.xml)'
         required: true
         default: ./src
-      mainProject:
+      main_project:
         type: string
         description: 'The main project module name. eg: myproject-api'
         required: true
         default: ""
-      reportTitle:
+      report_title:
         type: string
         description: 'Message to be displayed in the unit test report title'
         required: true
         default: 'Canal DEPLOY'
-      openAPIFolder:
+      openapi_folder:
         type: string
         description: 'Path to folder containing OpenAPI specification files'
         required: true
         default: ""
       #build use
-      sonarExclusions:
+      sonar_exclusions:
         type: string
         description: 'Path to exclusion from sonar, like migrations. Use comma separation'
         required: true
         default: ""
-      dockerFileFullPath:
+      docker_file_full_path:
         type: string
         description: 'Full path to the Dockerfile to be used in the container scan (e.g. docker/Dockerfile)'
         required: false
         default: ''
-      dockerBuildContext:
+      docker_build_context:
         type: string
         description: 'Docker build context (e.g. .)'
         required: false
         default: ''
       #push-image
-      imageName:
+      image_name:
         type: string
         description: 'Image name to publish at github packages'
         required: true
@@ -70,7 +70,7 @@ on:
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
         required: false
         default: 'ghcr.io'
-      registryUsername:
+      registry_username:
         type: string
         description: 'Registry username. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
@@ -116,14 +116,14 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: false
     outputs:
-      tag-version: ${{ steps.get-version.outputs.TAG }}
-      now: ${{ steps.get-env.outputs.NOW }}
+      tag_version: ${{ steps.get_version.outputs.TAG }}
+      now: ${{ steps.get_env.outputs.NOW }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
       - name: 🧭 Get Environment
-        id: get-env
+        id: get_env
         run: |
           echo -e "${GREEN} ⚠️ Environment ${{ inputs.environment }}"
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
@@ -132,75 +132,75 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
-          sparse-checkout: |
+          fetch_depth: 0
+          sparse_checkout: |
             src
             tests
             docker
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: 🔍 Get-Version from pom.xml
-        id: get-version
+        id: get_version
         uses: felipementel/gh-actions/.github/actions/java/get-version@main
         with:
-          projectBaseDir: ${{ inputs.projectBaseDir }}
-          mainProject: ${{ inputs.mainProject }}
+          project_base_dir: ${{ inputs.project_base_dir }}
+          main_project: ${{ inputs.main_project }}
 
       - name: 🔍 Check Tag
-        id: tag-check
+        id: tag_check
         uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
-          tag: ${{ steps.get-version.outputs.TAG }}
-          version_file: ${{ inputs.projectBaseDir }}/pom.xml
+          tag: ${{ steps.get_version.outputs.TAG }}
+          version_file: ${{ inputs.project_base_dir }}/pom.xml
           fail_on_exists: false
 
-      - name: 🛠️ Setup Java version ${{ inputs.javaVersion }}
+      - name: 🛠️ Setup Java version ${{ inputs.java_version }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-java@main
         with:
-          java-version: ${{ inputs.javaVersion }}
+          java_version: ${{ inputs.java_version }}
 
       - name: 🧱📤 Git Leaks
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
 
       - name: 🐋 Docker setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🧪 Maven Test & Coverage
-        id: maven-test
+        id: maven_test
         uses: felipementel/gh-actions/.github/actions/java/maven-test@main
         with:
-          projectBaseDir: ${{ inputs.projectBaseDir }}
-          testsFolder: ${{ inputs.testsFolder }}
-          reportTitle: ${{ inputs.reportTitle }}
-          sonarExclusions: ${{ inputs.sonarExclusions }}
-          run-number: ${{ github.run_number }}
-          run-id: ${{ github.run_id }}
+          project_base_dir: ${{ inputs.project_base_dir }}
+          tests_folder: ${{ inputs.tests_folder }}
+          report_title: ${{ inputs.report_title }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          run_number: ${{ github.run_number }}
+          run_id: ${{ github.run_id }}
 
       - name: 📸 SonarCloud Analysis
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-java@main
         with:
-          has-tests: ${{ steps.maven-test.outputs.has-tests }}
-          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-exclusions: ${{ inputs.sonarExclusions }}
-          projectBaseDir: ${{ inputs.projectBaseDir }}
-          mainProject: ${{ inputs.mainProject }}
-          java-version: ${{ inputs.javaVersion }}
+          has_tests: ${{ steps.maven_test.outputs.has_tests }}
+          sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
+          sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          project_base_dir: ${{ inputs.project_base_dir }}
+          main_project: ${{ inputs.main_project }}
+          java_version: ${{ inputs.java_version }}
 
       - name: 🐳 Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
-          registry-username: ${{ inputs.registryUsername || github.actor }}
-          image-name: ${{ inputs.imageName }}
-          tag-version: ${{ steps.get-version.outputs.TAG }}
-          dockerfile: ${{ inputs.dockerFileFullPath }}
-          context: ${{ inputs.dockerBuildContext }}
+          registry_username: ${{ inputs.registry_username || github.actor }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ steps.get_version.outputs.TAG }}
+          dockerfile: ${{ inputs.docker_file_full_path }}
+          context: ${{ inputs.docker_build_context }}
           platforms: 'linux/amd64'
           push: 'false'
           load: 'true'
@@ -208,81 +208,81 @@ jobs:
       - name: 🍵 Safety Python Dependency Check
         uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
         with:
-          api-key: ${{ secrets.SAFETY_API_KEY }}
+          api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'vuln,misconfig,secret'
           format: 'sarif'
-          output-file: 'trivy-fs-results.sarif'
+          output_file: 'trivy-fs-results.sarif'
           severity: 'HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'sarif'
-          output-file: 'trivy-license-results.sarif'
+          output_file: 'trivy-license-results.sarif'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
-          image-ref: ${{ inputs.registry }}/${{ inputs.registryUsername || github.actor }}/${{ inputs.imageName }}:${{ steps.get-version.outputs.TAG }}
-          scan-type: 'image'
+          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
+          scan_type: 'image'
           format: 'sarif'
-          output-file: 'trivy-image-results.sarif'
+          output_file: 'trivy-image-results.sarif'
           severity: 'HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
           category: 'trivy-image'
 
       - name: 🚀 Maven build to generate OpenAPI JSON
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
-          mvn --file ${{ inputs.projectBaseDir }}/pom.xml \
+          mvn --file ${{ inputs.project_base_dir }}/pom.xml \
             package -DskipTests \
             --batch-mode
 
       - name: 🔍 Check OpenAPI files
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
-          if ls ./target/${{ inputs.openAPIFolder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
-            echo -e "${GREEN}✅ OpenAPI specification files found in target/${{ inputs.openAPIFolder }}."
+          if ls ./target/${{ inputs.openapi_folder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in target/${{ inputs.openapi_folder }}."
           else
-            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in target/${{ inputs.openAPIFolder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in target/${{ inputs.openapi_folder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
           fi
 
       - name: Upload OpenAPI artifacts
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
-          path: ./target/${{ inputs.openAPIFolder }}/*.{json,yaml,yml}
+          path: ./target/${{ inputs.openapi_folder }}/*.{json,yaml,yml}
 
       - name: 🚀 Spectral OpenAPI Lint
-        if: ${{ inputs.openAPIFolder != '' }}
+        if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
-          openapi-files-path: ./target/${{ inputs.openAPIFolder }}
-          node-version: ${{ env.nodeVersion }}
+          openapi_files_path: ./target/${{ inputs.openapi_folder }}
+          node_version: ${{ env.nodeVersion }}
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -290,44 +290,44 @@ jobs:
           # Versão gerada\n
           | versao | data | 
           |--|--|
-          | ${{ steps.get-version.outputs.tag }} | ${{ steps.get-env.outputs.now }} | \n
+          | ${{ steps.get_version.outputs.tag }} | ${{ steps.get_env.outputs.now }} | \n
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  check-image:
+  check_image:
     name: Check if image exists
     runs-on: ubuntu-latest
     outputs:
-      image-exists: ${{ steps.check-image-and-tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
     needs: build
     steps:
       - name: 🔍 Check if image exists in registry
-        id: check-image-and-tag
+        id: check_image_and_tag
         uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
           registry: ghcr.io
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: ${{ inputs.imageName }}
-          tag-version: ${{ needs.build.outputs.tag-version }}
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag-version }}
 
-  notify-image-not-exists:
+  notify_image_not_exists:
     name: Notify when image not exists
-    needs: [build, check-image]
+    needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check-image.outputs.image-exists == 'false' }}
+    if: ${{ needs.check_image.outputs.image-exists == 'false' }}
     steps:
       - name: 🧾 Write to workflow job summary
         run: |
           echo "Image with tag ${{ needs.build.outputs.tag-version }} can be deployed. Push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
 
-  notify-image-exists:
+  notify_image_exists:
     name: Notify when already image exists
-    needs: [build, check-image]
+    needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check-image.outputs.image-exists == 'true' }}
+    if: ${{ needs.check_image.outputs.image-exists == 'true' }}
     steps:
       - name: 🧾 Write to workflow job summary
         run: |

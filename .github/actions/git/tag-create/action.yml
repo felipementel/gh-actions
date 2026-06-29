@@ -16,7 +16,7 @@ runs:
   using: 'composite'
   steps:
     - name: 🔍 Check if tag already exists
-      id: check-tag
+      id: check_tag
       shell: bash
       run: |
         echo "TAG_NAME=v${{ inputs.tag }}"

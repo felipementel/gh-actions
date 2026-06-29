@@ -2,10 +2,10 @@ name: 'Spectral OpenAPI Lint'
 description: 'Runs Spectral lint with DevOps Linter and OWASP rulesets against OpenAPI specs and uploads results.'
 
 inputs:
-  openapi-files-path:
+  openapi_files_path:
     description: 'Path to the folder containing the OpenAPI JSON/YAML files to lint (e.g. ./output_build/open-api)'
     required: true
-  node-version:
+  node_version:
     description: 'Node.js version'
     required: false
     default: '22'
@@ -13,10 +13,10 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: 🎗️ Setup Node.js ${{ inputs.node-version }}
+    - name: 🎗️ Setup Node.js ${{ inputs.node_version }}
       uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
       with:
-        node-version: ${{ inputs.node-version }}
+        node_version: ${{ inputs.node_version }}
 
     - name: 🎗️ Install Spectral
       shell: bash
@@ -27,7 +27,7 @@ runs:
       continue-on-error: true
       run: |
         spectral lint \
-          "${{ inputs.openapi-files-path }}/*.json" \
+          "${{ inputs.openapi_files_path }}/*.json" \
           --format stylish \
           --format html \
           --output.html spectral-devops-linter.html \
@@ -38,7 +38,7 @@ runs:
       continue-on-error: true
       run: |
         spectral lint \
-          "${{ inputs.openapi-files-path }}/*.json" \
+          "${{ inputs.openapi_files_path }}/*.json" \
           --format stylish \
           --format html \
           --output.html spectral-owasp.html \

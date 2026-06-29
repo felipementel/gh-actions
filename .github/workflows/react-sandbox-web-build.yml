@@ -9,22 +9,22 @@ on:
         required: false
         type: string
         default: 'DEV'
-      nodeVersion:
+      node_version:
         description: 'Node.js version to use'
         required: false
         type: string
         default: '24.x'
-      workingDirectory:
+      working_directory:
         description: 'Working directory where package.json is located'
         required: false
         type: string
         default: './source'
-      sparseCheckout:
+      sparse_checkout:
         description: 'Sparse checkout pattern'
         required: false
         type: string
         default: 'source/'
-      sonarExclusions:
+      sonar_exclusions:
         description: 'Paths to exclude from SonarCloud analysis (comma separated)'
         required: false
         type: string
@@ -49,12 +49,12 @@ on:
         required: false
         description: 'SonarCloud project key'
     outputs:
-      tag-version:
+      tag_version:
         description: 'The version tag extracted from package.json'
-        value: ${{ jobs.build-and-test.outputs.tag-version }}
-      app-name:
+        value: ${{ jobs.build_and_test.outputs.tag-version }}
+      app_name:
         description: 'The application name extracted from package.json'
-        value: ${{ jobs.build-and-test.outputs.app-name }}
+        value: ${{ jobs.build_and_test.outputs.app-name }}
 
 env:
   # Colors for output
@@ -70,7 +70,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  build-and-test:
+  build_and_test:
     name: Build and Test React Web
     environment: ${{ inputs.environment }}
     concurrency:
@@ -78,8 +78,8 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     outputs:
-      tag-version: ${{ steps.get-package-data.outputs.TAG }}
-      app-name: ${{ steps.get-package-data.outputs.APP_NAME }}
+      tag_version: ${{ steps.get_package_data.outputs.TAG }}
+      app_name: ${{ steps.get_package_data.outputs.APP_NAME }}
     timeout-minutes: 10
     permissions:
       contents: write
@@ -90,63 +90,63 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
-          sparse-checkout: |
-            ${{ inputs.sparseCheckout }}
-          sparse-checkout-cone-mode: false
+          fetch_depth: 0
+          sparse_checkout: |
+            ${{ inputs.sparse_checkout }}
+          sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/git-leaks@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
-          enable-summary: 'true'
-          enable-upload-artifact: 'true'
-          notify-user-list: '@felipementel'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - filesystem scan (deps, misconfig, secrets)
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}/dist'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}/dist'
           scanners: 'vuln,misconfig,secret'
           format: 'github'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🔎 Trivy - license scan
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'table'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🏷️ Extract Application Version
         uses: felipementel/gh-actions/.github/actions/react-get-package-data@main
-        id: get-package-data
+        id: get_package_data
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
 
-      - name: Setup Node ${{ inputs.nodeVersion }} (with npm cache)
+      - name: Setup Node ${{ inputs.node_version }} (with npm cache)
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
         with:
-          node-version: ${{ inputs.nodeVersion }}
+          node_version: ${{ inputs.node_version }}
           cache: 'npm'
-          cache-dependency-path: '${{ inputs.workingDirectory }}/package-lock.json'
+          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
 
       - name: Show npm version
         run: npm --version
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: Install dependencies
         run: |
@@ -157,21 +157,21 @@ jobs:
             echo -e "⚠️${YELLOW} package-lock.json ausente: usando install"
             npm install
           fi
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: 🔍 npm audit (dependency vulnerabilities)
         run: |
           echo "🔍 Checking for known vulnerabilities in dependencies..."
           npm audit --audit-level=high || echo -e "⚠️${YELLOW} npm audit found vulnerabilities (non-blocking)"
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: Run ESLint
         run: npm run lint || echo -e "⚠️${YELLOW} ESLint warnings (não bloqueou)"
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: Check formatting (Prettier)
         run: npx prettier --check "src/**/*.{ts,tsx,js,jsx,css}" || echo -e "⚠️${YELLOW} Prettier encontrou arquivos não formatados"
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       # ENV para o Data Processor
       - name: Create .env for Data Processor
@@ -192,7 +192,7 @@ jobs:
           VITE_APPLICATION_ID: ${{ vars.VITE_APPLICATION_ID }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Admin Plataforma
@@ -205,7 +205,7 @@ jobs:
           VITE_DEBUG: ${{ vars.VITE_DEBUG }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Slider
@@ -217,7 +217,7 @@ jobs:
           AZURE_IMGS_CONTAINER_URL: ${{ vars.AZURE_IMGS_CONTAINER_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Plataforma (principal)
@@ -250,7 +250,7 @@ jobs:
           VITE_POLLING_INTERVAL_SECONDS: ${{ vars.VITE_POLLING_INTERVAL_SECONDS }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
           environment: ${{ inputs.environment }}
 
       - name: Create .env for Report Design
@@ -261,7 +261,7 @@ jobs:
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.workingDirectory }}
+          working_directory: ${{ inputs.working_directory }}
           environment: ${{ inputs.environment }}
 
       - name: Build
@@ -285,7 +285,7 @@ jobs:
               npm run build
               ;;
           esac
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: Verify build output
         run: |
@@ -293,36 +293,36 @@ jobs:
           test -f dist/index.html || (echo -e "${RED} ❌ index.html não encontrado" && exit 1)
           echo -e "${GREEN} ✅ Build OK"
           ls -la dist/
-        working-directory: ${{ inputs.workingDirectory }}
+        working-directory: ${{ inputs.working_directory }}
 
       - name: 📸 SonarCloud Analysis
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-node@main
         with:
-          has-tests: 'false'
-          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-exclusions: ${{ inputs.sonarExclusions }}
-          working-directory: ${{ inputs.workingDirectory }}
+          has_tests: 'false'
+          sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
+          sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Upload artifact for deployment job
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: static-website
-          path: ${{ inputs.workingDirectory }}/dist
-          retention-days: 1
+          path: ${{ inputs.working_directory }}/dist
+          retention_days: 1
 
       - name: Generate git tag
         run: |
-          echo "TAG_NAME=v${{ steps.get-package-data.outputs.TAG }}"
-          git tag -a v${{ steps.get-package-data.outputs.TAG }} -m "Release v${{ steps.get-package-data.outputs.TAG }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ steps.get-package-data.outputs.TAG }}
+          echo "TAG_NAME=v${{ steps.get_package_data.outputs.TAG }}"
+          git tag -a v${{ steps.get_package_data.outputs.TAG }} -m "Release v${{ steps.get_package_data.outputs.TAG }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push origin v${{ steps.get_package_data.outputs.TAG }}
         continue-on-error: true
 
       - name: Summary
         run: |
-          APP_VERSION=$(node -p "require('${{ inputs.workingDirectory }}/package.json').version")
+          APP_VERSION=$(node -p "require('${{ inputs.working_directory }}/package.json').version")
           echo "## ✅ Build Completed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY
@@ -331,7 +331,7 @@ jobs:
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Environment** | \`${{ inputs.environment }}\` |" >> $GITHUB_STEP_SUMMARY
-          echo "| **Node.js** | \`${{ inputs.nodeVersion }}\` |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Node.js** | \`${{ inputs.node_version }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **npm** | \`$(npm --version)\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🔍 Checks Performed:" >> $GITHUB_STEP_SUMMARY

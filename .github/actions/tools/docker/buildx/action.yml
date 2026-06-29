@@ -6,13 +6,13 @@ inputs:
     description: 'Container registry URL (e.g., ghcr.io, docker.io)'
     required: false
     default: 'ghcr.io'
-  registry-username:
+  registry_username:
     description: 'Username for registry authentication'
     required: true
-  image-name:
+  image_name:
     description: 'Docker image name (without registry prefix)'
     required: true
-  tag-version:
+  tag_version:
     description: 'Version tag for the image'
     required: true
   dockerfile:
@@ -34,7 +34,7 @@ inputs:
     description: 'Load is a shorthand for --output=type=docker (loads image into local Docker daemon)'
     required: false
     default: 'false'
-  output-tar:
+  output_tar:
     description: 'Path to export the image as a tar file (e.g., ./my-image.tar). When set, runs docker buildx build --output=type=docker,dest=<path>'
     required: false
     default: ''
@@ -48,10 +48,10 @@ runs:
       uses: felipementel/gh-actions/.github/actions/_wrapper/docker/metadata-action@main
       with:
         images: |
-          ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}
+          ${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}
 
     - name: 🐳 Build and push
-      if: inputs.output-tar == ''
+      if: inputs.output_tar == ''
       uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
       with:
         context: ${{ inputs.context }}
@@ -60,18 +60,18 @@ runs:
         push: ${{ inputs.push }}
         load: ${{ inputs.load }}
         tags: |
-          ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:latest
-          ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:${{ inputs.tag-version }}
+          ${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}:latest
+          ${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}:${{ inputs.tag_version }}
         labels: ${{ steps.meta.outputs.labels }}
 
     - name: 🐳 Build and export to tar
-      if: inputs.output-tar != ''
+      if: inputs.output_tar != ''
       shell: bash
       run: |
         docker buildx build \
           -f ${{ inputs.dockerfile }} \
-          -t ${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}:${{ inputs.tag-version }} \
-          --output=type=docker,dest=${{ inputs.output-tar }} \
+          -t ${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}:${{ inputs.tag_version }} \
+          --output=type=docker,dest=${{ inputs.output_tar }} \
           --load
           ${{ inputs.context }}
 
@@ -80,10 +80,10 @@ runs:
       run: |
         echo "### 🐳 Docker Build" >> "$GITHUB_STEP_SUMMARY"
         echo "" >> "$GITHUB_STEP_SUMMARY"
-        echo "- **Image:** \`${{ inputs.registry }}/${{ inputs.registry-username }}/${{ inputs.image-name }}\`" >> "$GITHUB_STEP_SUMMARY"
-        echo "- **Tags:** \`latest\`, \`${{ inputs.tag-version }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "- **Image:** \`${{ inputs.registry }}/${{ inputs.registry_username }}/${{ inputs.image_name }}\`" >> "$GITHUB_STEP_SUMMARY"
+        echo "- **Tags:** \`latest\`, \`${{ inputs.tag_version }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Dockerfile:** \`${{ inputs.dockerfile }}\`" >> "$GITHUB_STEP_SUMMARY"
         echo "- **Platforms:** \`${{ inputs.platforms }}\`" >> "$GITHUB_STEP_SUMMARY"
-        if [ -n "${{ inputs.output-tar }}" ]; then
-          echo "- **Tar export:** \`${{ inputs.output-tar }}\`" >> "$GITHUB_STEP_SUMMARY"
+        if [ -n "${{ inputs.output_tar }}" ]; then
+          echo "- **Tar export:** \`${{ inputs.output_tar }}\`" >> "$GITHUB_STEP_SUMMARY"
         fi

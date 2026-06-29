@@ -2,35 +2,35 @@ name: 'Dotnet Test & Coverage'
 description: 'Checks for test projects, runs tests with coverage, generates reports, and uploads artifacts.'
 
 inputs:
-  testsFolder:
+  tests_folder:
     description: 'The main test folder'
     required: false
     default: ''
-  reportTitle:
+  report_title:
     description: 'Title for the coverage report'
     required: false
     default: 'Canal DEPLOY'
-  sonarExclusions:
+  sonar_exclusions:
     description: 'Class filters for coverage report (comma separated)'
     required: false
     default: ''
-  run-number:
+  run_number:
     description: 'The github.run_number value'
     required: true
-  run-id:
+  run_id:
     description: 'The github.run_id value'
     required: true
 
 outputs:
-  has-tests:
+  has_tests:
     description: 'Whether test projects were found (true/false)'
-    value: ${{ steps.check-tests.outputs.HAS_TESTS }}
+    value: ${{ steps.check_tests.outputs.HAS_TESTS }}
 
 runs:
   using: 'composite'
   steps:
     - name: 🔍 Verifica se existem projetos de teste
-      id: check-tests
+      id: check_tests
       shell: bash
       run: |
         if find . -type f \( -name '*Tests.csproj' -o -name '*Test.csproj' \) | grep -q .; then
@@ -42,17 +42,17 @@ runs:
         fi
 
     - name: 🛠️ Install dotnet-reportgenerator-globaltool and dotnet-coverage
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       shell: bash
       run: |
         dotnet tool install --global dotnet-reportgenerator-globaltool
         dotnet tool install --global dotnet-coverage
 
     - name: 🧪 Run tests and generate coverage
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       shell: bash
       run: |
-        for proj in $(find ./${{ inputs.testsFolder }}/ -name '*.csproj'); do
+        for proj in $(find ./${{ inputs.tests_folder }}/ -name '*.csproj'); do
           echo "➡️ Rodando testes com cobertura para: $proj"
           dotnet test $proj \
               --verbosity Minimal \
@@ -66,12 +66,12 @@ runs:
           -reports:"**/TestResults/**/coverage.cobertura.xml" \
           -targetdir:"coveragereport" \
           -reportTypes:"Cobertura;Html;MarkdownSummaryGithub;SonarQube" \
-          -title:${{ inputs.reportTitle }} \
-          -classfilters:"${{ inputs.sonarExclusions || ' '}}" \
-          -tag:'${{ inputs.run-number }}_${{ inputs.run-id }}'
+          -title:${{ inputs.report_title }} \
+          -classfilters:"${{ inputs.sonar_exclusions || ' '}}" \
+          -tag:'${{ inputs.run_number }}_${{ inputs.run_id }}'
 
     - name: 🧪📤 Upload coverage report artifact
-      if: ${{ steps.check-tests.outputs.HAS_TESTS == 'true' }}
+      if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
       with:
         name: Coverage-Report

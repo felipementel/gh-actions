@@ -5,7 +5,7 @@
 # }
 
 name: Python API — Build & Deploy [Caller]
-run-name: "${{ github.actor }} | ${{ inputs.buildMode }} | ${{ inputs.environment }}"
+run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 on:
   push:
@@ -14,7 +14,7 @@ on:
       - 'src/**'
   workflow_dispatch:
     inputs:
-      buildMode:
+      build_mode:
         description: "Qual ação deseja fazer?"
         required: true
         default: 'Build'
@@ -35,21 +35,21 @@ jobs:
     uses: felipementel/gh-actions/.github/workflows/python-sandbox-api-build.yml@main
     with:
       # Mapeia as opções do caller para o valor esperado pelo workflow reutilizável
-      buildMode: >-
+      build_mode: >-
         ${{
           github.event_name != 'workflow_dispatch' && 'Build' ||
-          startsWith(inputs.buildMode, 'Build + Tag Validation') && 'Build + Push' ||
+          startsWith(inputs.build_mode, 'Build + Tag Validation') && 'Build + Push' ||
           'Build'
         }}
       environment: ${{ inputs.environment || 'development' }}
-      pythonVersion: ${{ vars.BUILD_VERSION }}
-      projectName: ${{ github.event.repository.name }}
-      imageName: ${{ github.event.repository.name }}
-      appDir: 'src'
-      mainFile: 'main.py'
-      sparseCheckout: 'src/'
-      coverageThreshold: 80
-      dockerfileFolder: 'docker'
+      python_version: ${{ vars.BUILD_VERSION }}
+      project_name: ${{ github.event.repository.name }}
+      image_name: ${{ github.event.repository.name }}
+      app_dir: 'src'
+      main_file: 'main.py'
+      sparse_checkout: 'src/'
+      coverage_threshold: 80
+      dockerfile_folder: 'docker'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
     permissions:
@@ -68,21 +68,21 @@ jobs:
     name: Deploy to ACA
     if: >-
       github.event_name == 'workflow_dispatch' &&
-      inputs.buildMode == 'Build + Tag Validation + Deploy' &&
+      inputs.build_mode == 'Build + Tag Validation + Deploy' &&
       needs.build.outputs.image-exists == 'false'
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/python-sandbox-api-deploy-aca.yml@main
     with:
       environment: ${{ inputs.environment || 'development' }}
-      tagVersion: ${{ needs.build.outputs.tag-version }}
-      imageName: ${{ github.event.repository.name }}
+      tag_version: ${{ needs.build.outputs.tag-version }}
+      image_name: ${{ github.event.repository.name }}
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-      azureRgBase: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
-      acaeBaseName: ${{ vars.AZURE_ACAE_BASE }}
-      healthCheckPath: '/health'
-      deployPollMaxAttempts: 20
-      deployPollIntervalSeconds: 15
+      azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
+      acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
+      health_check_path: '/health'
+      deploy_poll_max_attempts: 20
+      deploy_poll_interval_seconds: 15
     permissions:
       id-token: write
       contents: read

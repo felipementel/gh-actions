@@ -6,10 +6,10 @@ inputs:
     description: 'Container registry URL (e.g., ghcr.io, docker.io)'
     required: false
     default: 'ghcr.io'
-  registry-username:
+  registry_username:
     description: 'Username for registry authentication'
     required: true
-  registry-password:
+  registry_password:
     description: 'Password or token for registry authentication'
     required: true
 
@@ -21,5 +21,5 @@ runs:
       uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
       with:
         registry: ${{ inputs.registry }}
-        username: ${{ inputs.registry-username }}
-        password: ${{ inputs.registry-password }}
+        username: ${{ inputs.registry_username }}
+        password: ${{ inputs.registry_password }}

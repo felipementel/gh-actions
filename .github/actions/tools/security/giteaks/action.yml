@@ -2,21 +2,21 @@ name: Git Leaks
 description: Composite action to scan the repository for secrets using GitLeaks
 
 inputs:
-  github-token:
+  github_token:
     description: 'GitHub token used by the GitLeaks action'
     required: true
-  gitleaks-license:
+  gitleaks_license:
     description: 'GitLeaks license key'
     required: true
-  enable-summary:
+  enable_summary:
     description: 'Enable GitLeaks summary output'
     required: false
     default: 'true'
-  enable-upload-artifact:
+  enable_upload_artifact:
     description: 'Enable GitLeaks artifact upload'
     required: false
     default: 'true'
-  notify-user-list:
+  notify_user_list:
     description: 'Users to notify in GitLeaks output'
     required: false
     default: '@felipementel'
@@ -35,8 +35,8 @@ runs:
     - name: 🧱📤 Git Leaks
       uses: gitleaks/gitleaks-action@v3
       env:
-        GITHUB_TOKEN: ${{ inputs.github-token }}
-        GITLEAKS_LICENSE: ${{ inputs.gitleaks-license }}
-        GITLEAKS_ENABLE_SUMMARY: ${{ inputs.enable-summary }}
-        GITLEAKS_ENABLE_UPLOAD_ARTIFACT: ${{ inputs.enable-upload-artifact }}
-        GITLEAKS_NOTIFY_USER_LIST: ${{ inputs.notify-user-list }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GITLEAKS_LICENSE: ${{ inputs.gitleaks_license }}
+        GITLEAKS_ENABLE_SUMMARY: ${{ inputs.enable_summary }}
+        GITLEAKS_ENABLE_UPLOAD_ARTIFACT: ${{ inputs.enable_upload_artifact }}
+        GITLEAKS_NOTIFY_USER_LIST: ${{ inputs.notify_user_list }}

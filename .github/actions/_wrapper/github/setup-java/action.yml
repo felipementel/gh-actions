@@ -2,18 +2,18 @@ name: 'Setup Java JDK (Wrapper)'
 description: 'Wrapper composite action for actions/setup-java'
 
 inputs:
-  java-version:
+  java_version:
     description: 'The Java version to set up (whole or semver)'
     required: false
     default: ''
-  java-version-file:
+  java_version_file:
     description: 'The path to the .java-version file'
     required: false
     default: ''
   distribution:
     description: 'Java distribution (e.g. zulu, temurin, microsoft)'
     required: true
-  java-package:
+  java_package:
     description: 'The package type (jdk, jre, jdk+fx, jre+fx)'
     required: false
     default: 'jdk'
@@ -21,7 +21,7 @@ inputs:
     description: "The architecture of the package (defaults to the runner's architecture)"
     required: false
     default: ''
-  check-latest:
+  check_latest:
     description: 'Check for the latest available version that satisfies the version spec'
     required: false
     default: 'false'
@@ -29,7 +29,7 @@ inputs:
     description: 'Name of the build platform to cache dependencies (maven, gradle or sbt)'
     required: false
     default: ''
-  cache-dependency-path:
+  cache_dependency_path:
     description: 'Path to a dependency file (pom.xml, build.gradle, etc.)'
     required: false
     default: ''
@@ -41,30 +41,30 @@ inputs:
 outputs:
   distribution:
     description: 'Distribution of Java that has been installed'
-    value: ${{ steps.setup-java.outputs.distribution }}
+    value: ${{ steps.setup_java.outputs.distribution }}
   version:
     description: 'Actual version of the Java environment that has been installed'
-    value: ${{ steps.setup-java.outputs.version }}
+    value: ${{ steps.setup_java.outputs.version }}
   path:
     description: 'Path to where the Java environment has been installed (same as $JAVA_HOME)'
-    value: ${{ steps.setup-java.outputs.path }}
-  cache-hit:
+    value: ${{ steps.setup_java.outputs.path }}
+  cache_hit:
     description: 'A boolean value to indicate an exact match was found for the primary key'
-    value: ${{ steps.setup-java.outputs.cache-hit }}
+    value: ${{ steps.setup_java.outputs.cache-hit }}
 
 runs:
   using: 'composite'
   steps:
     - name: ☕ Setup Java JDK
-      id: setup-java
+      id: setup_java
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ inputs.java-version }}
-        java-version-file: ${{ inputs.java-version-file }}
+        java-version: ${{ inputs.java_version }}
+        java-version-file: ${{ inputs.java_version_file }}
         distribution: ${{ inputs.distribution }}
-        java-package: ${{ inputs.java-package }}
+        java-package: ${{ inputs.java_package }}
         architecture: ${{ inputs.architecture }}
-        check-latest: ${{ inputs.check-latest }}
+        check-latest: ${{ inputs.check_latest }}
         cache: ${{ inputs.cache }}
-        cache-dependency-path: ${{ inputs.cache-dependency-path }}
+        cache-dependency-path: ${{ inputs.cache_dependency_path }}
         token: ${{ inputs.token }}

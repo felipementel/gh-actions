@@ -25,7 +25,7 @@ inputs:
     description: 'Enable verbose logging'
     required: false
     default: 'false'
-  working-directory:
+  working_directory:
     description: 'Directory in which to execute codecov.sh'
     required: false
   disable_search:
@@ -67,7 +67,7 @@ runs:
         fail_ci_if_error: ${{ inputs.fail_ci_if_error }}
         directory: ${{ inputs.directory }}
         verbose: ${{ inputs.verbose }}
-        working-directory: ${{ inputs.working-directory }}
+        working-directory: ${{ inputs.working_directory }}
         disable_search: ${{ inputs.disable_search }}
         override_branch: ${{ inputs.override_branch }}
         override_commit: ${{ inputs.override_commit }}

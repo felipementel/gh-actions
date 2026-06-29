@@ -79,7 +79,7 @@ env:
 
 
 jobs:
-  build-and-test:
+  build_and_test:
     name: Build and Test React Web
     environment: ${{ inputs.environment }}
     concurrency:
@@ -87,8 +87,8 @@ jobs:
       cancel-in-progress: true
     runs-on: ubuntu-latest
     outputs:
-      tag-version: ${{ steps.get-package-data.outputs.TAG }}
-      app-name: ${{ steps.get-package-data.outputs.APP_NAME }}
+      tag_version: ${{ steps.get_package_data.outputs.TAG }}
+      app_name: ${{ steps.get_package_data.outputs.APP_NAME }}
     timeout-minutes: 10
     permissions:
       contents: write
@@ -99,49 +99,49 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
-          sparse-checkout: |
+          fetch_depth: 0
+          sparse_checkout: |
             ${{ inputs.sparse_checkout }}
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/git-leaks@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
-          enable-summary: 'true'
-          enable-upload-artifact: 'true'
-          notify-user-list: '@felipementel'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - filesystem scan (deps, misconfig, secrets)
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}/dist'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}/dist'
           scanners: 'vuln,misconfig,secret'
           format: 'github'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🔎 Trivy - license scan
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'table'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🏷️ Extract Application Version
         uses: felipementel/gh-actions/.github/actions/react-get-package-data@main
-        id: get-package-data
+        id: get_package_data
         with:
           environment: ${{ inputs.environment }}
           working_directory: ${{ inputs.working_directory }}
@@ -149,9 +149,9 @@ jobs:
       - name: Setup Node ${{ inputs.node_version }} (with npm cache)
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
         with:
-          node-version: ${{ inputs.node_version }}
+          node_version: ${{ inputs.node_version }}
           cache: 'npm'
-          cache-dependency-path: '${{ inputs.working_directory }}/package-lock.json'
+          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
 
       - name: Show npm version
         run: npm --version
@@ -309,13 +309,13 @@ jobs:
         with:
           name: static-website
           path: ${{ inputs.working_directory }}/dist
-          retention-days: 1
+          retention_days: 1
 
       - name: Generate git tag
         run: |
-          echo "TAG_NAME=v${{ steps.get-package-data.outputs.TAG }}"
-          git tag -a v${{ steps.get-package-data.outputs.TAG }} -m "Release v${{ steps.get-package-data.outputs.TAG }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ steps.get-package-data.outputs.TAG }}
+          echo "TAG_NAME=v${{ steps.get_package_data.outputs.TAG }}"
+          git tag -a v${{ steps.get_package_data.outputs.TAG }} -m "Release v${{ steps.get_package_data.outputs.TAG }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
+          git push origin v${{ steps.get_package_data.outputs.TAG }}
         continue-on-error: true
 
       - name: Summary
@@ -344,7 +344,7 @@ jobs:
     if: ${{ inputs.build_mode == 'Build + Deploy' }}
     name: Deploy to Azure
     runs-on: ubuntu-latest
-    needs: build-and-test
+    needs: build_and_test
     timeout-minutes: 20
     environment: ${{ inputs.environment }}
     permissions:
@@ -427,7 +427,7 @@ jobs:
           NODE
 
       - name: 🚀 Deploy to Azure Static Web Apps
-        id: swa-deploy
+        id: swa_deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN }}
@@ -446,7 +446,7 @@ jobs:
           allow_issue_writing: ${{ inputs.allow_issue_writing }}
           fail_action: ${{ inputs.fail_action }}
           cmd_options: ${{ inputs.cmd_options }}
-          artifact_name: zap-baseline-report-${{ inputs.environment }}-${{ steps.get-package-data.outputs.APP_NAME }}
+          artifact_name: zap-baseline-report-${{ inputs.environment }}-${{ steps.get_package_data.outputs.APP_NAME }}
 
       - name: Deploy Summary
         run: |
@@ -458,4 +458,4 @@ jobs:
           echo "| **Branch** | \`${{ github.ref_name }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "| **Commit** | \`${{ github.sha }}\` |" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "- 🌍 Site publicado: ${{ steps.swa-deploy.outputs.static_web_app_url }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🌍 Site publicado: ${{ steps.swa_deploy.outputs.static_web_app_url }}" >> $GITHUB_STEP_SUMMARY

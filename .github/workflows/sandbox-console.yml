@@ -21,17 +21,17 @@ on:
         description: 'Environment to run the workflow'
         required: true
         default: 'DEV'
-      git-leaks:
+      git_leaks:
         type: boolean
         description: 'Run GitLeaks'
         required: false
         default: true
-      sonar-qube:
+      sonar_qube:
         type: boolean
         description: 'Run SonarQube'
         required: false
         default: true
-      unit-tests:
+      unit_tests:
         type: boolean
         description: 'Run Unit Tests'
         required: false
@@ -41,18 +41,18 @@ on:
         description: 'Snyk.io'
         required: false
         default: true
-      msg-canal-deploy:
+      msg_canal_deploy:
         type: string
         description: 'Message to be displayed in the summary'
         required: false
         default: 'Canal DEPLOY - O melhor canal sobre .NET, Azure, DevOps e IA'
       #build config
-      dotnetVersion:
+      dotnet_version:
         type: string
         description: '.NET Version'
         required: true
         default: 9.x
-      projectBaseDir:
+      project_base_dir:
         type: string
         description: 'Path to SLNX file'
         required: true
@@ -62,24 +62,24 @@ on:
         description: 'The SLNX full name. eg: DEPLOY.PROJECT.API.slnx'
         required: true
         default: ""
-      mainProject:
+      main_project:
         type: string
         description: 'The main project. eg: DEPLOY.PROJECT.API'
         required: true
         default: ""
-      reportTitle:
+      report_title:
         type: string
         description: 'Message to be displayed in the unit test report title'
         required: true
         default: 'Canal DEPLOY'
       #build use
-      sonarExclusions:
+      sonar_exclusions:
         type: string
         description: 'Path to exclusion from sonar, like migrations. Use comma separation'
         required: true
         default: ""
       #push-image
-      imageName:
+      image_name:
         type: string
         description: 'Image name to publish at github packages'
         required: true
@@ -119,9 +119,9 @@ jobs:
       group: ${{ github.workflow }}-${{ github.ref }}
       cancel-in-progress: true
     outputs:
-      tag-version: ${{ steps.get-version.outputs.TAG }}
-      now: ${{ steps.get-env.outputs.NOW }}
-      image-exists: ${{ steps.check-image-and-tag.outputs.IMAGE_EXISTS }}
+      tag_version: ${{ steps.get_version.outputs.TAG }}
+      now: ${{ steps.get_env.outputs.NOW }}
+      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
     runs-on: ubuntu-latest
     timeout-minutes: 4
     permissions:
@@ -130,7 +130,7 @@ jobs:
 
     steps:
       - name: Get Environment
-        id: get-env
+        id: get_env
         run: |
           echo "::warning::Environment ${{ inputs.environment }}"
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
@@ -138,17 +138,17 @@ jobs:
       - name: Sys - Checkout
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
-          sparse-checkout: |
+          sparse_checkout: |
             src
             .github
             test
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: Sys - Get-Version from csproj
-        id: get-version
+        id: get_version
         shell: bash
         run: |
-          csproj_path="${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj"
+          csproj_path="${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj"
 
           # Extrair os valores
           version=$(sed -n 's/.*<Version>\(.*\)<\/Version>.*/\1/p' "$csproj_path")
@@ -189,20 +189,20 @@ jobs:
           echo "VERSION_PREFIX=$versionPrefix" >> "$GITHUB_OUTPUT"
           echo "VERSION_SUFFIX=$versionSuffix" >> "$GITHUB_OUTPUT"
 
-      - name: Sys - Setup .NET version ${{ inputs.dotnetVersion }}
+      - name: Sys - Setup .NET version ${{ inputs.dotnet_version }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-dotnet@main
         with:
-          dotnet-version: ${{ inputs.dotnetVersion }}
+          dotnet_version: ${{ inputs.dotnet_version }}
 
       - name: 🎃 Install Coverage
-        if: ${{ inputs.unit-tests }}
+        if: ${{ inputs.unit_tests }}
         run: |
           dotnet tool install --global dotnet-coverage
           dotnet tool install --global dotnet-reportgenerator-globaltool
 
       - name: 🧱 Git Leaks
         uses: gitleaks/gitleaks-action@v2
-        if: ${{ inputs.git-leaks }}
+        if: ${{ inputs.git_leaks }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
@@ -211,38 +211,38 @@ jobs:
           GITLEAKS_NOTIFY_USER_LIST: '@felipementel'
 
       - name: 🔐 Set up JDK 23 to use with SonarCloud
-        if: ${{ inputs.sonar-qube }}
+        if: ${{ inputs.sonar_qube }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-java@main
         with:
-          java-version: 23
+          java_version: 23
           distribution: 'zulu'
 
       - name: 🔐 SonarCloud packages cache
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/cache@main
-        if: ${{ inputs.sonar-qube }}
+        if: ${{ inputs.sonar_qube }}
         with:
           path: ~/sonar/cache
           key: ${{ runner.os }}-sonar
-          restore-keys: ${{ runner.os }}-sonar
+          restore_keys: ${{ runner.os }}-sonar
 
       - name: 🔐 SonarCloud scanner cache
-        id: cache-sonar-scanner
-        if: ${{ inputs.sonar-qube }}
+        id: cache_sonar_scanner
+        if: ${{ inputs.sonar_qube }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/cache@main
         with:
           path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
-          restore-keys: ${{ runner.os }}-sonar-scanner
+          restore_keys: ${{ runner.os }}-sonar-scanner
 
       - name: 🔐 SonarCloud scanner installer
-        if: ${{ inputs.sonar-qube }} #&& (steps.cache-sonar-scanner.outputs.cache-hit != 'true')
+        if: ${{ inputs.sonar_qube }} #&& (steps.cache_sonar_scanner.outputs.cache-hit != 'true')
         run: |
           mkdir -p .sonar/scanner
           dotnet tool install --global dotnet-sonarscanner
         # --tool-path .sonar/scanner
 
       - name: 🔐 Build and analyze (Test ✅, Sonar ✅)
-        if: ${{ inputs.unit-tests && inputs.sonar-qube }}
+        if: ${{ inputs.unit_tests && inputs.sonar_qube }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -254,14 +254,14 @@ jobs:
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.scanner.scanAll=false \
             /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
-            /d:sonar.exclusions="${{ inputs.sonarExclusions || ' '}}"
-          dotnet restore ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj
-          dotnet build ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj --no-incremental
+            /d:sonar.exclusions="${{ inputs.sonar_exclusions || ' '}}"
+          dotnet restore ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
+          dotnet build ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj --no-incremental
           dotnet-coverage collect 'dotnet test ./src/' --output-format xml --output 'coverage.xml'
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: 🔐 Build and analyze (Test ⛔, Sonar ✅)
-        if: ${{ !inputs.unit-tests && inputs.sonar-qube }}
+        if: ${{ !inputs.unit_tests && inputs.sonar_qube }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -272,18 +272,18 @@ jobs:
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.scanner.scanAll=false \
-            /d:sonar.exclusions="${{ inputs.sonarExclusions || ' '}}"
-          dotnet restore ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj
-          dotnet build ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj --no-incremental
+            /d:sonar.exclusions="${{ inputs.sonar_exclusions || ' '}}"
+          dotnet restore ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
+          dotnet build ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj --no-incremental
           dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
       - name: 🔐 Build and analyze (Test ✅, Sonar ⛔)
-        if: ${{ inputs.unit-tests && !inputs.sonar-qube }}
+        if: ${{ inputs.unit_tests && !inputs.sonar_qube }}
         run: |
           dotnet-coverage collect 'dotnet test ./src/' -f xml -o 'coverage.xml'
 
       - name: ReportGenerator
-        if: ${{ inputs.unit-tests }}
+        if: ${{ inputs.unit_tests }}
         uses: danielpalme/ReportGenerator-GitHub-Action@5
         with:
           reports: '**/*coverage.xml'
@@ -293,19 +293,19 @@ jobs:
           classfilters: '-*.Migrations.*'
           filefilters: '+*'
           verbosity: 'Verbose'
-          title: ${{ inputs.reportTitle }}
+          title: ${{ inputs.report_title }}
           tag: '${{ github.run_number }}_${{ github.run_id }}'
           toolpath: 'reportgeneratortool'
 
       - name: Upload coverage report artifact
-        if: ${{ inputs.unit-tests }}
+        if: ${{ inputs.unit_tests }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: CoverageReport
           path: coveragereport
 
       - name: 🍵 Restore dependencies
-        run: dotnet restore ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/${{ inputs.mainProject }}.csproj
+        run: dotnet restore ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
 
       - name: 🍵 Snyk Setup
         uses: snyk/actions/setup@master
@@ -316,10 +316,10 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         with:
-          args: --sarif-file-output=snyk.sarif --file=${{ inputs.projectBaseDir }}/${{ inputs.sln }}
+          args: --sarif-file-output=snyk.sarif --file=${{ inputs.project_base_dir }}/${{ inputs.sln }}
 
       - name: 🍵 Upload result to GitHub Code Scanning
-        if: ${{ inputs.git-leaks }}
+        if: ${{ inputs.git_leaks }}
         uses: github/codeql-action/upload-sarif@v4
         with:
           sarif_file: snyk.sarif
@@ -330,35 +330,35 @@ jobs:
           # Versão gerada\n
           | versao | data | 
           |--|--|
-          | ${{ steps.get-version.outputs.tag }} | ${{ steps.get-env.outputs.now }} | \n
-          Mensagem: ${{ inputs.msg-canal-deploy }}\n'
+          | ${{ steps.get_version.outputs.tag }} | ${{ steps.get_env.outputs.now }} | \n
+          Mensagem: ${{ inputs.msg_canal_deploy }}\n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  check-image:
+  check_image:
     name: Check if image exists
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     outputs:
-      image-exists: ${{ steps.check-image-and-tag.outputs.IMAGE_EXISTS }}
+      image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
     needs: build
     steps:
       - name: 🔍 Check if image exists in registry
-        id: check-image-and-tag
+        id: check_image_and_tag
         uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
           registry: ghcr.io
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
-          image-name: deploy.${{ inputs.imageName }}
-          tag-version: ${{ needs.build.outputs.tag-version }}
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          image_name: deploy.${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag-version }}
 
-  push-image:
+  push_image:
     name: Push image to Registry
     environment: ${{ inputs.environment }}
     # if: ${{ github.event.pull_request.merged && github.event.pull_request.state == 'closed' }}
-    needs: [build, check-image]
+    needs: [build, check_image]
     runs-on: ubuntu-latest
-    if: ${{ needs.check-image.outputs.image-exists == 'false' }}
+    if: ${{ needs.check_image.outputs.image-exists == 'false' }}
     permissions:
       packages: write
       contents: read
@@ -367,10 +367,10 @@ jobs:
       - name: Checkout
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
-          fetch-depth: 0
-          sparse-checkout: |
+          fetch_depth: 0
+          sparse_checkout: |
             src
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker Setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
@@ -379,18 +379,18 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
         with:
           registry: ghcr.io
-          registry-username: ${{ github.actor }}
-          registry-password: ${{ secrets.GITHUB_TOKEN }}
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🐳 Docker Build and Push
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ghcr.io
-          registry-username: ${{ github.actor }}
-          image-name: deploy.${{ inputs.imageName }}
-          tag-version: ${{ needs.build.outputs.tag-version }}
-          dockerfile: ${{ inputs.projectBaseDir }}/${{ inputs.mainProject }}/Dockerfile
-          context: ${{ inputs.projectBaseDir }}
+          registry_username: ${{ github.actor }}
+          image_name: deploy.${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag-version }}
+          dockerfile: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/Dockerfile
+          context: ${{ inputs.project_base_dir }}
           push: 'true'
 
       - name: Write to workflow job summary DEPLOY
@@ -400,12 +400,12 @@ jobs:
           | versao | data | 
           |--|--|
           | ${{ needs.build.outputs.tag-version }} | ${{ needs.build.outputs.now }} | \n
-          Mensagem: ${{ inputs.msg-canal-deploy }}\n'
+          Mensagem: ${{ inputs.msg_canal_deploy }}\n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
   publish:
     name: Publish
-    needs: [push-image]
+    needs: [push_image]
     environment: ${{ inputs.environment }}
     # if: ${{ github.event.pull_request.merged && github.event.pull_request.state == 'closed' }}
     runs-on: ubuntu-latest
@@ -417,15 +417,15 @@ jobs:
           | versao | data | 
           |--|--|
           | ${{ needs.build.outputs.tag-version }} | ${{ needs.build.outputs.now }} | \n
-          Mensagem: ${{ inputs.msg-canal-deploy }}\n'
+          Mensagem: ${{ inputs.msg_canal_deploy }}\n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
-  notify-image-exists:
+  notify_image_exists:
     name: Notify when already image exists
-    needs: [build, check-image]
+    needs: [build, check_image]
     environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
-    if: ${{ needs.check-image.outputs.image-exists == 'true' }}
+    if: ${{ needs.check_image.outputs.image-exists == 'true' }}
     steps:
       - name: Write to workflow job summary
         run: |

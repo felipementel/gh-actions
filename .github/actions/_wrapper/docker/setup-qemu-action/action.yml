@@ -10,7 +10,7 @@ inputs:
     description: 'Platforms to install'
     required: false
     default: 'all'
-  cache-image:
+  cache_image:
     description: 'Cache QEMU image'
     required: false
     default: 'true'
@@ -29,4 +29,4 @@ runs:
       with:
         image: ${{ inputs.image }}
         platforms: ${{ inputs.platforms }}
-        cache-image: ${{ inputs.cache-image }}
+        cache-image: ${{ inputs.cache_image }}

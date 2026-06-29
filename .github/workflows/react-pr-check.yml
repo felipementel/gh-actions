@@ -77,7 +77,7 @@ env:
   # FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  build-and-test:
+  build_and_test:
     name: Build and Test React Web
     environment: ${{ inputs.environment }}
     concurrency:
@@ -96,23 +96,23 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
-          fetch-depth: 0
-          sparse-checkout: |
+          fetch_depth: 0
+          sparse_checkout: |
             ${{ inputs.sparse_checkout }}
-          sparse-checkout-cone-mode: false
+          sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/git-leaks@main
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks-license: ${{ secrets.GITLEAKS_LICENSE }}
-          enable-summary: 'true'
-          enable-upload-artifact: 'true'
-          notify-user-list: '@felipementel'
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
 
       # - name: 🔍 Check trivyignore
-      #   id: check-trivyignore
+      #   id: check_trivyignore
       #   shell: bash
       #   run: |
       #     if [ -f .trivyignore.yaml ]; then
@@ -127,30 +127,30 @@ jobs:
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'vuln,misconfig,secret'
           format: 'github'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
+          ignore_unfixed: true
           trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
-          exit-code: '1'
+          exit_code: '1'
 
       - name: 🔎 Trivy - License Scan
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'github'
           severity: 'MEDIUM,HIGH,CRITICAL'
-          ignore-unfixed: true
+          ignore_unfixed: true
           trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
-          exit-code: '1'
+          exit_code: '1'
 
       - name: 🏷️ Extract Application Version
         uses: felipementel/gh-actions/.github/actions/react-get-package-data@main
-        id: get-package-data
+        id: get_package_data
         with:
           environment: ${{ inputs.environment }}
           working_directory: ${{ inputs.working_directory }}
@@ -158,15 +158,15 @@ jobs:
       - name: 🔍 Check if tag already exists
         uses: felipementel/gh-actions/.github/actions/check-tag-exists@main
         with:
-          tag: ${{ steps.get-package-data.outputs.TAG }}
+          tag: ${{ steps.get_package_data.outputs.TAG }}
           version_file: package.json
 
       - name: Setup Node ${{ inputs.node_version }} (with npm cache)
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
         with:
-          node-version: ${{ inputs.node_version }}
+          node_version: ${{ inputs.node_version }}
           cache: 'npm'
-          cache-dependency-path: '${{ inputs.working_directory }}/package-lock.json'
+          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
 
       - name: Show npm version
         run: npm --version
@@ -305,25 +305,25 @@ jobs:
       - name: 🔎 Trivy - filesystem scan vuln, secret, misconfig)
         uses: felipementel/gh-actions/.github/actions/trivy-scan@main
         with:
-          scan-type: 'fs'
-          scan-ref: '${{ env.working_directory }}'
+          scan_type: 'fs'
+          scan_ref: '${{ env.working_directory }}'
           scanners: 'license'
           format: 'table'
           severity: 'HIGH,CRITICAL'
-          ignore-unfixed: true
-          exit-code: '1'
-          trivyignores: ${{ steps.check-trivyignore.outputs.path }}
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 📸 SonarCloud Analysis
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-node@main
         with:
-          has-tests: 'false'
-          sonar-project-key: ${{ secrets.SONAR_PROJECT_KEY }}
-          sonar-organization: ${{ vars.SONAR_ORGANIZATION }}
-          sonar-token: ${{ secrets.SONAR_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          sonar-exclusions: ${{ inputs.sonar_exclusions }}
-          working-directory: ${{ inputs.working_directory }}
+          has_tests: 'false'
+          sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
+          sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          working_directory: ${{ inputs.working_directory }}
 
       - name: Summary
         run: |

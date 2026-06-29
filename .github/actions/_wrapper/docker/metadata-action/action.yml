@@ -21,19 +21,19 @@ inputs:
   annotations:
     description: 'List of annotations'
     required: false
-  sep-tags:
+  sep_tags:
     description: 'Separator to use for tags output'
     required: false
-  sep-labels:
+  sep_labels:
     description: 'Separator to use for labels output'
     required: false
-  sep-annotations:
+  sep_annotations:
     description: 'Separator to use for annotations output'
     required: false
-  bake-target:
+  bake_target:
     description: 'Bake target name (default docker-metadata-action)'
     required: false
-  github-token:
+  github_token:
     description: 'GitHub Token as provided by secrets'
     required: true
     default: ${{ github.token }}
@@ -45,7 +45,7 @@ outputs:
   tags:
     description: 'Generated Docker tags'
     value: ${{ steps.meta.outputs.tags }}
-  tag-names:
+  tag_names:
     description: 'Generated Docker tag names without registry'
     value: ${{ steps.meta.outputs.tag-names }}
   labels:
@@ -57,16 +57,16 @@ outputs:
   json:
     description: 'JSON output of tags and labels'
     value: ${{ steps.meta.outputs.json }}
-  bake-file-tags:
+  bake_file_tags:
     description: 'Bake definition file with tags'
     value: ${{ steps.meta.outputs.bake-file-tags }}
-  bake-file-labels:
+  bake_file_labels:
     description: 'Bake definition file with labels'
     value: ${{ steps.meta.outputs.bake-file-labels }}
-  bake-file-annotations:
+  bake_file_annotations:
     description: 'Bake definition file with annotations'
     value: ${{ steps.meta.outputs.bake-file-annotations }}
-  bake-file:
+  bake_file:
     description: 'Bake definition file with tags and labels'
     value: ${{ steps.meta.outputs.bake-file }}
 
@@ -83,8 +83,8 @@ runs:
         flavor: ${{ inputs.flavor }}
         labels: ${{ inputs.labels }}
         annotations: ${{ inputs.annotations }}
-        sep-tags: ${{ inputs.sep-tags }}
-        sep-labels: ${{ inputs.sep-labels }}
-        sep-annotations: ${{ inputs.sep-annotations }}
-        bake-target: ${{ inputs.bake-target }}
-        github-token: ${{ inputs.github-token }}
+        sep-tags: ${{ inputs.sep_tags }}
+        sep-labels: ${{ inputs.sep_labels }}
+        sep-annotations: ${{ inputs.sep_annotations }}
+        bake-target: ${{ inputs.bake_target }}
+        github-token: ${{ inputs.github_token }}
