@@ -367,7 +367,9 @@ jobs:
         if: ${{ inputs.build_mode != 'Build' }}
         uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
-          tag: ${{ steps.get_version.outputs.TAG }}      - name: 🧾 Write to workflow job summary
+          tag: ${{ steps.get_version.outputs.TAG }}      
+
+      - name: 🧾 Write to workflow job summary
         run: |
           SUMMARY='
           # 📦 Build Completed
