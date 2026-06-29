@@ -6,6 +6,10 @@ inputs:
     description: 'Application source directory (e.g. src)'
     required: false
     default: 'src'
+  max-line-length:
+    description: 'Maximum line length for flake8 (should match black line-length)'
+    required: false
+    default: '88'
 
 runs:
   using: 'composite'
@@ -18,9 +22,9 @@ runs:
       shell: bash
       run: |        
         if [ -d "tests" ]; then
-          flake8 ${{ inputs.app_dir }} tests
+          flake8 --max-line-length ${{ inputs.max-line-length }} ${{ inputs.app_dir }} tests
         else
-          flake8 ${{ inputs.app_dir }}
+          flake8 --max-line-length ${{ inputs.max-line-length }} ${{ inputs.app_dir }}
         fi
 
     - run: echo -e ${GREEN} "Running black..."
