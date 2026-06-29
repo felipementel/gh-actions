@@ -87,15 +87,12 @@ on:
       GITLEAKS_LICENSE:
         required: true
         description: 'Gitleaks License'
-      GH_PACKAGES_TOKEN:
-        required: true
-        description: 'GitHub Packages token for image push'
       CODECOV_TOKEN:
         required: false
         description: 'Codecov token for coverage upload'
       REGISTRY_PAT:
         required: false
-        description: 'Registry password/token. Defaults to GH_PACKAGES_TOKEN for ghcr.io'
+        description: 'Registry password/token.'
       SONAR_TOKEN:
         required: false
         description: 'SonarCloud token'
@@ -228,10 +225,10 @@ jobs:
 
       - name: 📦 Install dependencies
         env:
-          GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+          REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
         run: |
           python -m pip install --upgrade pip
-          git config --global url."https://${GH_PACKAGES_TOKEN}@github.com/".insteadOf "https://github.com/"
+          git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
           python -m pip install -e ".[dev]"
 
       - name: ✅ Check dependencies
@@ -429,7 +426,7 @@ jobs:
           load: true
           platforms: linux/amd64
           secrets: |
-            GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
+            REGISTRY_PAT=${{ secrets.REGISTRY_PAT }}
           tags: |
             ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |
@@ -458,7 +455,7 @@ jobs:
           push: true
           platforms: linux/amd64,linux/arm64
           secrets: |
-            GITHUB_TOKEN=${{ secrets.GH_PACKAGES_TOKEN }}
+            REGISTRY_PAT=${{ secrets.REGISTRY_PAT }}
           tags: |
             ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
           labels: |

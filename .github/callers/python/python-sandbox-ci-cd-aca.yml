@@ -62,7 +62,7 @@ jobs:
       GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       SAFETY_API_KEY: ${{ secrets.SAFETY_API_KEY }}
-      GH_PACKAGES_TOKEN: ${{ secrets.GH_PACKAGES_TOKEN }}
+      REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
 
   deploy:
     name: Deploy to ACA
@@ -91,3 +91,4 @@ jobs:
       AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
