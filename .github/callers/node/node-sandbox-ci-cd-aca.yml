@@ -1,0 +1,85 @@
+# {
+#  "apiVersion": apps/v1.0.0
+#  "kind": "ci-cd"
+#  "stack": "node"
+# }
+
+name: Node API — Build & Deploy [Caller]
+run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/**'
+  workflow_dispatch:
+    inputs:
+      build_mode:
+        description: "Qual ação deseja fazer?"
+        required: true
+        default: 'Build'
+        type: choice
+        options:
+          - Build
+          - Build + Tag Validation
+          - Build + Tag Validation + Deploy
+      environment:
+        description: "Selecione o ambiente de implantação"
+        required: true
+        default: 'development'
+        type: environment
+
+jobs:
+  build:
+    name: Build
+    uses: felipementel/gh-actions/.github/workflows/node-sandbox-api-build.yml@main
+    with:
+      build_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mode || 'Build' }}
+      environment: ${{ inputs.environment || 'development' }}
+      node_version: ${{ vars.BUILD_VERSION }}
+      working_directory: '.'
+      tests_folder: 'tests'
+      report_title: 'My Project API'
+      sonar_exclusions: ''
+      image_name: ${{ github.event.repository.name }}
+      openapi_folder: ''
+      dockerfile_folder: 'docker'
+      registry: ${{ vars.CONTAINER_REGISTRY }}
+      # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
+    permissions:
+      security-events: write
+      contents: write
+      id-token: write
+      packages: write
+    secrets:
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+
+  # deploy:
+  #   name: Deploy to ACA
+  #   if: >-
+  #     github.event_name == 'workflow_dispatch' &&
+  #     inputs.build_mode == 'Build + Tag Validation + Deploy' &&
+  #     needs.build.outputs.image_exists == 'false'
+  #   needs: [build]
+  #   uses: felipementel/gh-actions/.github/workflows/node-sandbox-api-deploy-aca.yml@main
+  #   with:
+  #     environment: ${{ inputs.environment || 'development' }}
+  #     tag_version: ${{ needs.build.outputs.tag_version }}
+  #     image_name: ${{ github.event.repository.name }}
+  #     registry: ${{ vars.CONTAINER_REGISTRY }}
+  #     # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
+  #     acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
+  #     health_check_path: '/health/live'
+  #     deploy_poll_max_attempts: '20'
+  #     deploy_poll_interval_seconds: '15'
+  #   permissions:
+  #     id-token: write
+  #     contents: read
+  #     packages: read
+  #   secrets:
+  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

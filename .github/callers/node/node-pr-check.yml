@@ -1,0 +1,48 @@
+# {
+#  "apiVersion": apps/v1.0.0
+#  "kind": "pr-check"
+#  "stack": "node"
+# }
+
+name: Node API — PR Check [Caller]
+run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'src/**'
+      - 'tests/**'
+      - 'docker/**'
+      - '.github/workflows/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Selecione o ambiente de implantação"
+        required: true
+        default: 'development'
+        type: environment
+
+jobs:
+  pr_check:
+    name: PR Check
+    uses: felipementel/gh-actions/.github/workflows/node-pr-check.yml@main
+    with:
+      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'development' }}
+      node_version: ${{ vars.BUILD_VERSION }}
+      working_directory: '.'
+      tests_folder: 'tests'
+      report_title: 'My Project API - PR'
+      sonar_exclusions: ''
+      image_name: ${{ github.event.repository.name }}
+      openapi_folder: ''
+      dockerfile_folder: 'docker'
+    permissions:
+      security-events: write
+      contents: read
+      id-token: write
+      packages: write
+    secrets:
+      SONAR_PROJECT_KEY: ${{ secrets.SONAR_PROJECT_KEY }}
+      GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

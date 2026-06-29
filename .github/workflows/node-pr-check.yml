@@ -1,0 +1,318 @@
+name: Pull Request Check - Node 🟢
+run-name: "${{ github.actor }} - ${{ github.run_id }}"
+
+#SECRETS: GITLEAKS_LICENSE, SONAR_TOKEN, SONAR_PROJECT_KEY
+#VARS: SONAR_ORGANIZATION
+
+on:
+  workflow_call:
+    inputs:
+      environment:
+        type: string
+        description: 'Environment to run the workflow'
+        required: true
+        default: 'development'
+      node_version:
+        type: string
+        description: 'Node.js version to use'
+        required: false
+        default: '24.x'
+      working_directory:
+        type: string
+        description: 'Working directory where package.json is located'
+        required: false
+        default: '.'
+      tests_folder:
+        type: string
+        description: 'The main test folder'
+        required: false
+        default: 'tests'
+      report_title:
+        type: string
+        description: 'Message to be displayed in the unit test report title'
+        required: false
+        default: 'Canal DEPLOY'
+      sonar_exclusions:
+        type: string
+        description: 'Paths to exclude from SonarCloud analysis (comma separated)'
+        required: false
+        default: ''
+      image_name:
+        type: string
+        description: 'Docker image name for registry check'
+        required: true
+        default: ''
+      openapi_folder:
+        type: string
+        description: 'Path to folder containing OpenAPI specification files (leave empty to skip Spectral linting)'
+        required: false
+        default: ''
+      dockerfile_folder:
+        type: string
+        description: 'Folder containing the Dockerfile (relative to repo root)'
+        required: false
+        default: 'docker'
+      registry:
+        type: string
+        description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
+        required: false
+        default: 'ghcr.io'
+      registry_username:
+        type: string
+        description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
+        required: false
+        default: ''
+    secrets:
+      GITLEAKS_LICENSE:
+        required: true
+        description: 'Gitleaks License'
+      SONAR_TOKEN:
+        required: false
+        description: 'SonarCloud token'
+      SONAR_PROJECT_KEY:
+        required: false
+        description: 'SonarCloud project key'
+
+env:
+  RED: '\033[0;31m'
+  GREEN: '\033[0;32m'
+  YELLOW: '\033[0;33m'
+  BLUE: '\033[0;34m'
+  RESET: '\033[0m'
+  BOLD: '\033[1m'
+  BOLD_GREEN: '\033[1;32m'
+  BOLD_YELLOW: '\033[1;33m'
+
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  build:
+    name: Build
+    environment: ${{ inputs.environment }}
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: false
+    outputs:
+      tag_version: ${{ steps.get_version.outputs.TAG }}
+      now: ${{ steps.get_env.outputs.NOW }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+      packages: write
+      id-token: write
+
+    steps:
+      - name: 🧭 Get Environment
+        id: get_env
+        run: |
+          echo -e "${GREEN} ⚠️ Environment ${{ inputs.environment }}"
+          echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
+
+      - name: 📥 Checkout
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        with:
+          ref: ${{ github.ref }}
+          fetch_depth: 0
+          sparse_checkout: |
+            src
+            tests
+            docker
+          sparse_checkout_cone_mode: false
+
+      - name: 🏷️ Extract Application Version
+        id: get_version
+        uses: felipementel/gh-actions/.github/actions/node/get-package-data@main
+        with:
+          environment: ${{ inputs.environment }}
+          working_directory: ${{ inputs.working_directory }}
+
+      - name: 🔍 Check Tag
+        id: tag_check
+        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
+          version_file: ${{ inputs.working_directory }}/package.json
+          fail_on_exists: false
+
+      - name: 🛠️ Setup Node.js ${{ inputs.node_version }}
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
+        with:
+          node_version: ${{ inputs.node_version }}
+          cache: 'npm'
+          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
+
+      - name: ✅ Check Node.js version in use
+        run: node --version && npm --version
+
+      - name: 🧱📤 Git Leaks
+        if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
+        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
+
+      - name: 📦 Install dependencies
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          if [ -f package-lock.json ]; then
+            echo -e "✅${GREEN} package-lock.json encontrado: usando ci"
+            npm ci
+          else
+            echo -e "⚠️${YELLOW} package-lock.json ausente: usando install"
+            npm install
+          fi
+
+      - name: 🔍 npm audit (dependency vulnerabilities)
+        working-directory: ${{ inputs.working_directory }}
+        run: |
+          echo "🔍 Checking for known vulnerabilities in dependencies..."
+          npm audit --audit-level=high || echo -e "⚠️${YELLOW} npm audit found vulnerabilities (non-blocking)"
+
+      - name: 🏗️ TypeScript type check
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run check-types
+
+      - name: 🔍 ESLint
+        working-directory: ${{ inputs.working_directory }}
+        run: npm run lint || echo -e "⚠️${YELLOW} ESLint warnings (non-blocking)"
+
+      - name: 🧪 Vitest Test & Coverage
+        id: vitest_test
+        uses: felipementel/gh-actions/.github/actions/node/vitest-test@main
+        with:
+          working_directory: ${{ inputs.working_directory }}
+          tests_folder: ${{ inputs.tests_folder }}
+          report_title: ${{ inputs.report_title }}
+          run_number: ${{ github.run_number }}
+          run_id: ${{ github.run_id }}
+
+      - name: 📸 SonarCloud Analysis
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-node@main
+        with:
+          has_tests: ${{ steps.vitest_test.outputs.has_tests }}
+          sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
+          sonar_organization: ${{ vars.SONAR_ORGANIZATION }}
+          sonar_token: ${{ secrets.SONAR_TOKEN }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          sonar_exclusions: ${{ inputs.sonar_exclusions }}
+          working_directory: ${{ inputs.working_directory }}
+
+      - name: 🐋 Docker setup
+        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
+
+      - name: 🐳 Docker Build (local, for Security scan)
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        with:
+          registry: ${{ inputs.registry }}
+          registry_username: ${{ inputs.registry_username || github.actor }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ steps.get_version.outputs.TAG }}
+          dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
+          context: .
+          platforms: 'linux/amd64'
+          push: 'false'
+          load: 'true'
+
+      # Trivy SAST scans (vulnerabilities, secrets, misconfigurations)
+      - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        with:
+          scan_type: 'fs'
+          scan_ref: '${{ inputs.working_directory }}'
+          scanners: 'vuln,misconfig,secret'
+          format: 'sarif'
+          output_file: 'trivy-fs-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          category: 'trivy-fs-vuln'
+
+      - name: 🔎 Trivy - license scan
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        with:
+          scan_type: 'fs'
+          scan_ref: '${{ inputs.working_directory }}'
+          scanners: 'license'
+          format: 'sarif'
+          output_file: 'trivy-license-results.sarif'
+          severity: 'MEDIUM,HIGH,CRITICAL'
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          category: 'trivy-fs-license'
+
+      - name: 🔎 Trivy - Image Scan (vuln, secret)
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        with:
+          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
+          scan_type: 'image'
+          format: 'sarif'
+          output_file: 'trivy-image-results.sarif'
+          severity: 'HIGH,CRITICAL'
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          category: 'trivy-image'
+
+      - name: 🚀 Spectral OpenAPI Lint
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        with:
+          openapi_files_path: ./${{ inputs.openapi_folder }}
+          node_version: ${{ inputs.node_version }}
+
+      - name: 🧾 Write to workflow job summary
+        run: |
+          SUMMARY=$GITHUB_STEP_SUMMARY$'
+          # Versão gerada\n
+          | versao | data | 
+          |--|--|
+          | ${{ steps.get_version.outputs.TAG }} | ${{ steps.get_env.outputs.NOW }} | \n
+          \n'
+          echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+  check_image:
+    name: Check if image exists
+    runs-on: ubuntu-latest
+    outputs:
+      image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
+    needs: build
+
+    steps:
+      - name: 🔍 Check if image exists in registry
+        id: check_image
+        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
+        with:
+          registry: ${{ inputs.registry }}
+          registry_username: ${{ github.actor }}
+          registry_password: ${{ secrets.GITHUB_TOKEN }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
+
+  notify_image_not_exists:
+    name: Notify when image not exists
+    needs: [build, check_image]
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_image.outputs.image_exists == 'false' }}
+    steps:
+      - name: 🧾 Write to workflow job summary
+        run: |
+          echo "Image with tag ${{ needs.build.outputs.tag_version }} can be deployed. Push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY
+
+  notify_image_exists:
+    name: Notify when already image exists
+    needs: [build, check_image]
+    environment: ${{ inputs.environment }}
+    runs-on: ubuntu-latest
+    if: ${{ needs.check_image.outputs.image_exists == 'true' }}
+    steps:
+      - name: 🧾 Write to workflow job summary
+        run: |
+          echo "Image with tag ${{ needs.build.outputs.tag_version }} already exists. Skipping push image to registry and publish on Azure Cloud." >> $GITHUB_STEP_SUMMARY

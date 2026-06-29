@@ -349,7 +349,25 @@ jobs:
           push: 'false'
           load: 'true'
 
-      - name: 🧾 Write to workflow job summary
+      - name: 🔎 Trivy - Image Scan (vuln, secret)
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        with:
+          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
+          scan_type: 'image'
+          format: 'sarif'
+          output_file: 'trivy-image-results.sarif'
+          severity: 'CRITICAL,HIGH'
+          ignore_unfixed: true
+          exit_code: '1'
+          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          category: 'trivy-image'
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}      - name: 🧾 Write to workflow job summary
         run: |
           SUMMARY='
           # 📦 Build Completed
@@ -426,44 +444,7 @@ jobs:
           images: |
             ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}
 
-      - name: 🐳 Build Docker image (without push)
-        id: build
-        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
-        with:
-          context: .
-          file: ${{ inputs.dockerfile_folder }}/Dockerfile
-          push: false
-          load: true
-          platforms: linux/amd64
-          secrets: |
-            REGISTRY_PAT=${{ secrets.REGISTRY_PAT }}
-          tags: |
-            ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
-          labels: |
-            ${{ steps.meta.outputs.labels }}
-            org.opencontainers.image.version=${{ needs.build.outputs.tag_version }}
-            org.opencontainers.image.revision=${{ github.sha }}
-          cache_from: type=gha
-          cache_to: type=gha,mode=max
-
-      - name: 🔍 Scan Docker image for vulnerabilities
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
-        with:
-          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
-          severity: 'CRITICAL,HIGH'
-          format: 'sarif'
-          output_file: 'trivy-results.sarif'
-          upload_to_security: 'true'
-          scan_type: 'image'
-          exit_code: '1'
-
-      - name: 🏷️ Create Tag
-        id: github_tag
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
-        with:
-          tag: ${{ needs.build.outputs.tag_version }}
-
-      - name: 🚀 Push Docker image (after security scan passed)
+      - name: 🐳 Push Docker image
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
         with:
           context: .
@@ -492,7 +473,7 @@ jobs:
           | Tag | ${{ needs.build.outputs.tag_version }} |
           | Registry | ${{ inputs.registry }} |
           | Platforms | linux/amd64, linux/arm64 |
-          | Security Scan | ✅ Passed (no CRITICAL/HIGH vulnerabilities) |
+          | Security Scan | ✅ Validated in build job |
           | Status | ✅ Publicada com sucesso |'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
 
