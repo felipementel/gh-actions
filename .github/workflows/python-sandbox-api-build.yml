@@ -156,8 +156,8 @@ jobs:
           fetch_depth: 0
           sparse_checkout: |
             ${{ inputs.sparse_checkout }}
+            docker/
             pyproject.toml
-            .flake8
             setup.cfg
             infra/aca.envmap
             tests/
@@ -333,11 +333,21 @@ jobs:
           openapi_files_path: ./${{ inputs.openapi_folder }}
           node_version: ${{ env.node_version }}
 
-      - name: 🏷️ Create Tag
-        id: github_tag
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+      - name: 🐋 Docker setup
+        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
+
+      - name: 🐳 Docker Build (local, for Security scan)
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
-          tag: ${{ steps.get_version.outputs.TAG }}
+          registry: ${{ inputs.registry }}
+          registry_username: ${{ inputs.registry_username || github.actor }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ steps.get_version.outputs.TAG }}
+          dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
+          context: .
+          platforms: 'linux/amd64'
+          push: 'false'
+          load: 'true'
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -447,6 +457,12 @@ jobs:
           scan_type: 'image'
           exit_code: '1'
 
+      - name: 🏷️ Create Tag
+        id: github_tag
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ needs.build.outputs.tag_version }}
+
       - name: 🚀 Push Docker image (after security scan passed)
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
         with:
@@ -464,12 +480,6 @@ jobs:
             org.opencontainers.image.revision=${{ github.sha }}
           cache_from: type=gha
           cache_to: type=gha,mode=max
-
-      - name: Generate git tag
-        run: |
-          echo "TAG_NAME=v${{ needs.build.outputs.tag_version }}"
-          git tag -a v${{ needs.build.outputs.tag_version }} -m "Release v${{ needs.build.outputs.tag_version }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ needs.build.outputs.tag_version }}
 
       - name: 📝 Write image summary
         run: |

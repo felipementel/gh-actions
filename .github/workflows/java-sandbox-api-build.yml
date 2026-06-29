@@ -319,6 +319,7 @@ jobs:
 
       - name: 🏷️ Create Tag
         id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
         uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
@@ -380,7 +381,38 @@ jobs:
           registry_username: ${{ inputs.registry_username || github.actor }}
           registry_password: ${{ secrets.REGISTRY_PAT }}
 
-      - name: 🐳 Docker Build and Push
+      - name: 🐳 Build Docker image (without push)
+        id: build
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        with:
+          registry: ${{ inputs.registry }}
+          registry_username: ${{ inputs.registry_username || github.actor }}
+          image_name: ${{ inputs.image_name }}
+          tag_version: ${{ needs.build.outputs.tag_version }}
+          dockerfile: ${{ inputs.docker_file_full_path }}
+          context: ${{ inputs.docker_build_context }}
+          platforms: 'linux/amd64'
+          push: 'false'
+          load: 'true'
+
+      - name: 🔍 Trivy - Scan Docker image
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        with:
+          scan_type: 'image'
+          image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ needs.build.outputs.tag_version }}
+          severity: 'CRITICAL,HIGH'
+          format: 'sarif'
+          output_file: 'trivy-deploy-results.sarif'
+          upload_to_security: 'true'
+          exit_code: '1'
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ needs.build.outputs.tag_version }}
+
+      - name: 🚀 Push Docker image (after security scan passed)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
@@ -393,7 +425,7 @@ jobs:
           push: 'true'
           load: 'false'
 
-      - name: Write to workflow job summary DEPLOY
+      - name: 📝 Write to workflow job summary DEPLOY
         run: |
           SUMMARY=$'
           # Image publicada\n

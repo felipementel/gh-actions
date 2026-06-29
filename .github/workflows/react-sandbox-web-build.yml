@@ -315,12 +315,11 @@ jobs:
           path: ${{ inputs.working_directory }}/dist
           retention_days: 1
 
-      - name: Generate git tag
-        run: |
-          echo "TAG_NAME=v${{ steps.get_package_data.outputs.TAG }}"
-          git tag -a v${{ steps.get_package_data.outputs.TAG }} -m "Release v${{ steps.get_package_data.outputs.TAG }} at $(date -u +'%Y-%m-%d %H:%M:%S UTC')"
-          git push origin v${{ steps.get_package_data.outputs.TAG }}
-        continue-on-error: true
+      - name: 🏷️ Create Tag
+        id: github_tag
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ needs.build.outputs.tag_version }}
 
       - name: Summary
         run: |
