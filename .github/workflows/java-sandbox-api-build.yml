@@ -218,6 +218,13 @@ jobs:
           main_project: ${{ inputs.main_project }}
           java_version: ${{ inputs.java_version }}
 
+      - name: 🎯 Generate coverage badge
+        if: ${{ steps.maven_test.outputs.has_tests == 'true' }}
+        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        with:
+          coverage_file: ${{ inputs.project_base_dir }}/target/site/jacoco/jacoco.xml
+          coverage_format: jacoco
+
       - name: 🐳 Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:

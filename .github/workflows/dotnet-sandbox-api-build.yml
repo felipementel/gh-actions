@@ -235,6 +235,13 @@ jobs:
           java_version: ${{ env.javaVersion }}
           java_distro: ${{ env.javaDistro }}
 
+      - name: 🎯 Generate coverage badge
+        if: ${{ steps.dotnet_test.outputs.has_tests == 'true' }}
+        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        with:
+          coverage_file: coveragereport/Cobertura.xml
+          coverage_format: cobertura
+
       - name: 🐳 Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:

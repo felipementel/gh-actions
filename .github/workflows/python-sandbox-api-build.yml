@@ -203,6 +203,14 @@ jobs:
         with:
           environment: ${{ inputs.environment }}
 
+      - name: 🏷️ Check Tag
+        id: tag_check
+        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
+          version_file: pyproject.toml
+          fail_on_exists: true
+
       - name: 🐍 Set up Python ${{ inputs.python_version }}
         uses: actions/setup-python@v6
         with:
@@ -281,38 +289,10 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        run: |
-          # Extract coverage percentage from coverage.xml
-          COVERAGE=$(python -c "
-          import xml.etree.ElementTree as ET
-          try:
-            tree = ET.parse('tests/results/coverage.xml')
-            root = tree.getroot()
-            coverage = float(root.attrib['line-rate']) * 100
-            print(f'{coverage:.1f}')
-          except:
-            print('0.0')
-          ")
-
-          echo "Coverage: ${COVERAGE}%"
-
-          # Determine badge color
-          if (( $(echo "$COVERAGE >= 90" | bc -l) )); then
-            COLOR="brightgreen"
-          elif (( $(echo "$COVERAGE >= 70" | bc -l) )); then
-            COLOR="yellow"
-          else
-            COLOR="red"
-          fi
-
-          # Create badge URL
-          BADGE_URL="https://img.shields.io/badge/coverage-${COVERAGE}%25-${COLOR}"
-          echo -e "🛡️${GREEN} Badge URL: $BADGE_URL"
-
-          # Create badge file
-          echo "![Coverage](${BADGE_URL})" > coverage-badge.md
-          echo "COVERAGE_PERCENTAGE=${COVERAGE}" >> $GITHUB_ENV
-          echo "BADGE_COLOR=${COLOR}" >> $GITHUB_ENV
+        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        with:
+          coverage_file: tests/results/coverage.xml
+          coverage_format: cobertura
 
       - name: 🧪📤 Upload test coverage artifacts
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
@@ -352,11 +332,16 @@ jobs:
           openapi_files_path: ./${{ inputs.openapi_folder }}
           node_version: '22'
 
+      - name: 🏷️ Create Tag
+        id: github_tag
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
+
       - name: 🧾 Write to workflow job summary
         run: |
           SUMMARY='
           # 📦 Build Completed
-
           | Campo          | Valor |
           |----------------|-------|
           | Versão         | ${{ steps.get_version.outputs.TAG }} |
@@ -379,6 +364,7 @@ jobs:
     needs: build
     outputs:
       image_exists: ${{ steps.check_image_and_tag.outputs.IMAGE_EXISTS }}
+
     steps:
       - name: 🔐 Log in to registry
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
