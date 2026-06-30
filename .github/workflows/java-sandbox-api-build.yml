@@ -191,7 +191,7 @@ jobs:
           java_version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
           cache: 'maven'
-          cache_dependency_path: '${{ inputs.project_base_dir }}/pom.xml'
+          cache_dependency_path: '**/pom.xml'
 
       - name: 🧱📤 Git Leaks
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
