@@ -163,16 +163,6 @@ jobs:
             tests/
           sparse_checkout_cone_mode: false
 
-      - name: 🧱📤 Git Leaks
-        if: ${{ inputs.git_leaks && !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
-          enable_summary: 'true'
-          enable_upload_artifact: 'true'
-          notify_user_list: '@felipementel'
-
       - name: 🏷️ Extract Application Version
         uses: felipementel/gh-actions/.github/actions/python/get-version@main
         id: get_version
@@ -209,6 +199,19 @@ jobs:
       - name: ✅ Check dependencies
         run: |
           pip check
+
+      - name: 🧱📤 Git Leaks
+        if: ${{ inputs.git_leaks && !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
+        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
+          enable_summary: 'true'
+          enable_upload_artifact: 'true'
+          notify_user_list: '@felipementel'
+
+      - name: 🐋 Docker setup
+        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🔍 Check for tests
         id: check_tests
@@ -286,32 +289,7 @@ jobs:
         with:
           app_dir: ${{ inputs.app_dir }}
 
-      - name: 🔨 Export OpenAPI JSON from FastAPI
-        if: ${{ inputs.openapi_folder != '' }}
-        shell: bash
-        run: |
-          mkdir -p ./${{ inputs.openapi_folder }}
-          MAIN_MODULE=$(basename "${{ inputs.main_file }}" .py)
-          python -c "
-          import json, sys, importlib
-          sys.path.insert(0, '${{ inputs.app_dir }}')
-          mod = importlib.import_module('${MAIN_MODULE}')
-          with open('./${{ inputs.openapi_folder }}/openapi.json', 'w') as f:
-              json.dump(mod.app.openapi(), f, indent=2)
-          print('OpenAPI JSON exported successfully')
-          "
-
-      - name: 🚀 Spectral OpenAPI Lint
-        if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
-        with:
-          openapi_files_path: ./${{ inputs.openapi_folder }}
-          node_version: ${{ env.node_version }}
-
-      - name: 🐋 Docker setup
-        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
-
-      - name: 🐳 Docker Build (local, for Security scan)
+      - name:  Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
@@ -323,6 +301,11 @@ jobs:
           platforms: 'linux/amd64'
           push: 'false'
           load: 'true'
+
+      - name: 🍵 Safety Python Dependency Check
+        uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
+        with:
+          api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
@@ -371,7 +354,29 @@ jobs:
         if: ${{ inputs.build_mode != 'Build' }}
         uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
-          tag: ${{ steps.get_version.outputs.TAG }}      
+          tag: ${{ steps.get_version.outputs.TAG }}
+
+      - name: 🔨 Export OpenAPI JSON from FastAPI
+        if: ${{ inputs.openapi_folder != '' }}
+        shell: bash
+        run: |
+          mkdir -p ./${{ inputs.openapi_folder }}
+          MAIN_MODULE=$(basename "${{ inputs.main_file }}" .py)
+          python -c "
+          import json, sys, importlib
+          sys.path.insert(0, '${{ inputs.app_dir }}')
+          mod = importlib.import_module('${MAIN_MODULE}')
+          with open('./${{ inputs.openapi_folder }}/openapi.json', 'w') as f:
+              json.dump(mod.app.openapi(), f, indent=2)
+          print('OpenAPI JSON exported successfully')
+          "
+
+      - name: 🚀 Spectral OpenAPI Lint
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        with:
+          openapi_files_path: ./${{ inputs.openapi_folder }}
+          node_version: ${{ env.node_version }}
 
       - name: 🧾 Write to workflow job summary
         run: |

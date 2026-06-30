@@ -33,6 +33,7 @@
 |--------|-----------|
 | [`tools/code-quality/spectral`](.github/actions/tools/code-quality/spectral) | Linting de OpenAPI specs com **Spectral CLI** (rulesets DevOps Linter + OWASP) |
 | [`tools/code-quality/sonar-cloud-dotnet`](.github/actions/tools/code-quality/sonar-cloud-dotnet) | Análise de qualidade de código .NET com **SonarCloud** |
+| [`tools/code-quality/sonar-cloud-java`](.github/actions/tools/code-quality/sonar-cloud-java) | Análise de qualidade de código Java com **SonarCloud** |
 | [`tools/code-quality/sonar-cloud-python`](.github/actions/tools/code-quality/sonar-cloud-python) | Análise de qualidade de código Python com **SonarCloud** |
 | [`tools/code-quality/sonar-cloud-node`](.github/actions/tools/code-quality/sonar-cloud-node) | Análise de qualidade de código Node.js/React com **SonarCloud** |
 
@@ -62,6 +63,13 @@
 | [`dotnet/get-version`](.github/actions/dotnet/get-version) | Extração de versão (Version, VersionPrefix, VersionSuffix) de um `.csproj` |
 | [`dotnet/dotnet-test`](.github/actions/dotnet/dotnet-test) | Execução de testes com cobertura, geração de relatórios e upload de artefatos |
 
+### Java
+
+| Action | Descrição |
+|--------|-----------|
+| [`java/get-version`](.github/actions/java/get-version) | Extração de versão do `pom.xml` |
+| [`java/maven-test`](.github/actions/java/maven-test) | Execução de testes Maven com cobertura JaCoCo, geração de relatórios e upload de artefatos |
+
 ### Python
 
 | Action | Descrição |
@@ -75,6 +83,7 @@
 |--------|-----------|
 | [`node/get-package-data`](.github/actions/node/get-package-data) | Extração de versão do `package.json` |
 | [`node/env-values`](.github/actions/node/env-values) | Criação de `.env` para aplicações React |
+| [`node/vitest-test`](.github/actions/node/vitest-test) | Execução de testes com Vitest, geração de cobertura e upload de artefatos |
 
 ### Git / Utilitários
 
@@ -93,9 +102,14 @@
 | [`dotnet-sandbox-api-build.yml`](.github/workflows/dotnet-sandbox-api-build.yml) | Pipeline DevSecOps para APIs .NET — build, testes, scans de segurança, push de imagem |
 | [`dotnet-sandbox-api-deploy-aca.yml`](.github/workflows/dotnet-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (.NET) |
 | [`dotnet-pr-check.yml`](.github/workflows/dotnet-pr-check.yml) | Validação de PRs para projetos .NET |
+| [`java-sandbox-api-build.yml`](.github/workflows/java-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Java Spring Boot — build Maven, testes, scans de segurança, push de imagem |
+| [`java-sandbox-api-deploy-aca.yml`](.github/workflows/java-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Java) |
+| [`java-pr-check.yml`](.github/workflows/java-pr-check.yml) | Validação de PRs para projetos Java |
 | [`python-sandbox-api-build.yml`](.github/workflows/python-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Python — build, testes, scans de segurança, push de imagem |
 | [`python-sandbox-api-deploy-aca.yml`](.github/workflows/python-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Python) |
 | [`python-pr-check.yml`](.github/workflows/python-pr-check.yml) | Validação de PRs para projetos Python |
+| [`node-sandbox-api-build.yml`](.github/workflows/node-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Node.js — build, testes, scans de segurança, push de imagem |
+| [`node-pr-check.yml`](.github/workflows/node-pr-check.yml) | Validação de PRs para projetos Node.js |
 | [`react-sandbox-web-build.yml`](.github/workflows/react-sandbox-web-build.yml) | Pipeline DevSecOps para frontends React — build, scans de segurança, upload de artefato |
 | [`react-sandbox-web-deploy-swa.yml`](.github/workflows/react-sandbox-web-deploy-swa.yml) | Deploy de artefato para **Azure Static Web Apps** + OWASP ZAP DAST |
 | [`react-pr-check.yml`](.github/workflows/react-pr-check.yml) | Validação de PRs para projetos React |
@@ -126,6 +140,24 @@
 |------|:-----------:|-----------|
 | `SONAR_ORGANIZATION` | ✅ | Slug da organização no SonarCloud |
 
+### `java-sandbox-api-build.yml`
+
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `GITLEAKS_LICENSE` | ✅ | Licença do GitLeaks |
+| `SONAR_TOKEN` | ✅ | Token de autenticação do SonarCloud |
+| `SONAR_PROJECT_KEY` | ✅ | Chave do projeto no SonarCloud |
+| `SAFETY_API_KEY` | ✅ | API Key do Safety CLI |
+| `REGISTRY_PAT` | ⬜ | Senha/token do registry. Omita para `ghcr.io` (usa `GITHUB_TOKEN` automaticamente) |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `SONAR_ORGANIZATION` | ✅ | Slug da organização no SonarCloud |
+
 ### `dotnet-sandbox-api-deploy-aca.yml`
 
 **Secrets** (Settings → Secrets and variables → Actions → Secrets):
@@ -146,11 +178,18 @@
 |------|:-----------:|-----------|
 | `GITLEAKS_LICENSE` | ✅ | Licença do GitLeaks |
 | `GH_PACKAGES_TOKEN` | ✅ | Token do GitHub Packages para push de imagem |
+| `SAFETY_API_KEY` | ✅ | API Key do Safety CLI |
 | `CODECOV_TOKEN` | ⬜ | Token do Codecov para upload de cobertura |
 | `BADGE_GIST_TOKEN` | ⬜ | Token do Gist para atualização do badge de CI/CD |
-| `REGISTRY_PASSWORD` | ⬜ | Senha/token do registry. Omita para `ghcr.io` (usa `GH_PACKAGES_TOKEN` automaticamente) |
+| `REGISTRY_PAT` | ⬜ | Senha/token do registry. Omita para `ghcr.io` (usa `GH_PACKAGES_TOKEN` automaticamente) |
 | `SONAR_TOKEN` | ⬜ | Token de autenticação do SonarCloud |
 | `SONAR_PROJECT_KEY` | ⬜ | Chave do projeto no SonarCloud |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `SONAR_ORGANIZATION` | ⬜ | Slug da organização no SonarCloud |
 
 ### `python-sandbox-api-deploy-aca.yml`
 
@@ -163,6 +202,24 @@
 | `AZURE_SUBSCRIPTION_ID` | ✅ | Subscription ID do Azure para autenticação OIDC |
 
 > Os valores `azureRgBase` e `acaeBaseName` são passados como **inputs** do workflow caller (`with:`).
+
+### `node-sandbox-api-build.yml`
+
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `GITLEAKS_LICENSE` | ✅ | Licença do GitLeaks |
+| `CODECOV_TOKEN` | ⬜ | Token do Codecov para upload de cobertura |
+| `REGISTRY_PAT` | ⬜ | Senha/token do registry. Omita para `ghcr.io` (usa `GITHUB_TOKEN` automaticamente) |
+| `SONAR_TOKEN` | ⬜ | Token de autenticação do SonarCloud |
+| `SONAR_PROJECT_KEY` | ⬜ | Chave do projeto no SonarCloud |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `SONAR_ORGANIZATION` | ⬜ | Slug da organização no SonarCloud |
 
 ---
 
