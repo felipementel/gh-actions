@@ -2,20 +2,20 @@ name: 'Get Version from pom.xml'
 description: 'Extracts version information from a Maven pom.xml file and builds a TAG.'
 
 inputs:
-  projectBaseDir:
+  project_base_dir:
     description: 'Path to the project base directory (containing pom.xml)'
     required: true
-  mainProject:
+  main_project:
     description: 'The main project/module name (e.g. myproject-api)'
     required: true
 
 outputs:
   TAG:
     description: 'The final computed tag (version)'
-    value: ${{ steps.get-version.outputs.TAG }}
+    value: ${{ steps.get_version.outputs.TAG }}
   VERSION:
     description: 'The version value from pom.xml'
-    value: ${{ steps.get-version.outputs.VERSION }}
+    value: ${{ steps.get_version.outputs.VERSION }}
 
 env:
   RED: '\033[0;31m'
@@ -26,10 +26,12 @@ runs:
   using: 'composite'
   steps:
     - name: 🔍 Get-Version from pom.xml
-      id: get-version
+      id: get_version
       shell: bash
       run: |
         pom_path="./pom.xml"
+
+        # pom_path="${{ inputs.project_base_dir }}/pom.xml"
 
         if [ ! -f "$pom_path" ]; then
           echo -e "${RED}❌ Erro: pom.xml não encontrado em: $pom_path"
@@ -59,4 +61,3 @@ runs:
 
         echo "TAG=$version" >> "$GITHUB_OUTPUT"
         echo "VERSION=$version" >> "$GITHUB_OUTPUT"
-RSION=$version" >> "$GITHUB_OUTPUT"

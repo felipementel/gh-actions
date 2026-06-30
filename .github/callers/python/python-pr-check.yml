@@ -5,7 +5,7 @@
 # }
 
 
-name: Python - PR Check [Caller]
+name: Python API - PR Check [Caller]
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
 on:
@@ -35,7 +35,7 @@ jobs:
       project_base_dir: './src'
       solution_file_name: 'PortsAndAdapters.slnx'
       main_project: 'Usuarios.Api'
-      report_title: 'My Project API - PR'
+      report_title: 'Usuarios API - PR'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
       openapi_folder: 'open-api'

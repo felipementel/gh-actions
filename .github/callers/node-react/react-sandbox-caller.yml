@@ -36,7 +36,7 @@ on:
       environment:
         description: "Selecione o ambiente de implantação"
         required: true
-        default: 'DEV'
+        default: 'development'
         type: environment
 
 jobs:
@@ -44,7 +44,7 @@ jobs:
     name: Build
     uses: felipementel/gh-actions/.github/workflows/react-sandbox-web-build.yml@main
     with:
-      environment: ${{ inputs.environment || 'DEV' }}
+      environment: ${{ inputs.environment || 'development' }}
       node_version: '24.x'
       working_directory: './source'
       sparse_checkout: 'source/'
@@ -66,7 +66,7 @@ jobs:
     needs: [build]
     uses: felipementel/gh-actions/.github/workflows/react-sandbox-web-deploy-swa.yml@main
     with:
-      environment: ${{ inputs.environment || 'DEV' }}
+      environment: ${{ inputs.environment || 'development' }}
       app_name: ${{ needs.build.outputs.app-name }}
       # URL do site publicado — usada pelo OWASP ZAP DAST após o deploy
       url: 'https://my-app.azurestaticapps.net'
