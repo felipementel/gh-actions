@@ -293,6 +293,13 @@ jobs:
           trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-image'
 
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
+
       - name: 🚀 Maven build to generate OpenAPI JSON
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
@@ -324,13 +331,6 @@ jobs:
         with:
           openapi_files_path: ./target/${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
-
-      - name: 🏷️ Create Tag
-        id: github_tag
-        if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
-        with:
-          tag: ${{ steps.get_version.outputs.TAG }}
 
       - name: 🧾 Write to workflow job summary
         run: |
