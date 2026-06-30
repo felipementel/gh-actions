@@ -23,6 +23,11 @@ on:
         description: 'Java Version'
         required: true
         default: '21'
+      java_distribution:
+        type: string
+        description: 'Java distribution (temurin, zulu, microsoft, etc.)'
+        required: false
+        default: 'temurin'
       project_base_dir:
         type: string
         description: 'Path to project root (containing pom.xml)'
@@ -158,6 +163,9 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-java@main
         with:
           java_version: ${{ inputs.java_version }}
+          distribution: ${{ inputs.java_distribution }}
+          cache: 'maven'
+          cache_dependency_path: '${{ inputs.project_base_dir }}/pom.xml'
 
       - name: 🧱📤 Git Leaks
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
@@ -215,28 +223,28 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
-          scan_ref: '${{ env.working_directory }}'
+          scan_ref: '.'
           scanners: 'vuln,misconfig,secret'
           format: 'sarif'
           output_file: 'trivy-fs-results.sarif'
           severity: 'HIGH,CRITICAL'
           ignore_unfixed: true
           exit_code: '1'
-          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
-          scan_ref: '${{ env.working_directory }}'
+          scan_ref: '.'
           scanners: 'license'
           format: 'sarif'
           output_file: 'trivy-license-results.sarif'
           severity: 'MEDIUM,HIGH,CRITICAL'
           ignore_unfixed: true
           exit_code: '1'
-          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)
@@ -249,7 +257,7 @@ jobs:
           severity: 'HIGH,CRITICAL'
           ignore_unfixed: true
           exit_code: '1'
-          trivyignores: ${{ steps.check_trivyignore.outputs.path }}
+          trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-image'
 
       - name: 🚀 Maven build to generate OpenAPI JSON

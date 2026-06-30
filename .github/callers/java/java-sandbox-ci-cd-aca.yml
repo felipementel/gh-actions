@@ -37,6 +37,7 @@ jobs:
       build_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mode || 'Build' }}
       environment: ${{ inputs.environment || 'development' }}
       java_version: ${{ vars.BUILD_VERSION }}
+      java_distribution: ${{ vars.JAVA_DISTRIBUTION || 'temurin' }}
       project_base_dir: './src'
       main_project: 'myproject-api'
       tests_folder: 'tests'
