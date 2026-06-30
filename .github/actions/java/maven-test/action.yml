@@ -50,7 +50,7 @@ runs:
       shell: bash
       run: |
         mvn test \
-          --file ${{ inputs.project_base_dir }}/pom.xml \
+          --file ./pom.xml \
           --batch-mode \
           -Dmaven.test.failure.ignore=false
 
