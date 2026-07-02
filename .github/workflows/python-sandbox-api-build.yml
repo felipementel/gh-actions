@@ -160,6 +160,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/python/get-version@main
         id: get_version
         with:
+          project_base_dir: ${{ inputs.app_dir }}
           environment: ${{ inputs.environment }}
 
       - name: 🏷️ Check Tag
@@ -167,7 +168,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
-          version_file: pyproject.toml
+          version_file: ${{ inputs.app_dir }}/pyproject.toml
           fail_on_exists: true
 
       - name: 🐍 Set up Python ${{ inputs.python_version }}

@@ -2,6 +2,9 @@ name: Python Get Versions
 description: Composite action to get Python versions
 
 inputs:
+  project_base_dir:
+    description: 'Path to the project base directory (containing pyproject.toml)'
+    required: true
   environment:
     description: 'Deployment environment (e.g., PRD, HML)'
     required: true
@@ -37,11 +40,11 @@ runs:
       shell: bash
       run: |
         set -e
-        if [ ! -f "pyproject.toml" ]; then
-          echo -e "❌ ${RED} pyproject.toml não encontrado no diretório atual" >&2
+        if [ ! -f "${{ inputs.project_base_dir }}/pyproject.toml" ]; then
+          echo -e "❌ ${RED} pyproject.toml não encontrado no diretório ${PROJECT_BASE_DIR}" >&2
           exit 1
         fi
-        version=$(grep -E '^version\s*=' pyproject.toml | head -1 | sed -E 's/^version\s*=\s*"([^"]+)".*/\1/')
+        version=$(grep -E '^version\s*=' "${{ inputs.project_base_dir }}/pyproject.toml" | head -1 | sed -E 's/^version\s*=\s*"([^"]+)".*/\1/')
         if [ -z "$version" ]; then
           echo -e "❌ ${RED} Não foi possível extrair 'version' de pyproject.toml" >&2
           exit 1
@@ -51,10 +54,10 @@ runs:
         ENVIRONMENT='${{ inputs.environment }}'
         BRANCH_NAME="${GITHUB_REF_NAME}"
 
-        if [ "${ENVIRONMENT,,}" == "dev" ]; then
+        if [ "${ENVIRONMENT,,}" == "development" ]; then
           tag="${tag}-dev"
           echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
-        elif [ "${ENVIRONMENT,,}" == "hml" ]; then
+        elif [ "${ENVIRONMENT,,}" == "staging" ]; then
           tag="${tag}-sandbox"
           echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         else
