@@ -164,11 +164,9 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
-            mvnw
-            .mvn
-            pom.xml
-            src
-            docker
+          sparse_checkout:
+            - ./source
+            - ./docker
           sparse_checkout_cone_mode: false
 
       - name: 🔍 Get-Version from pom.xml
@@ -379,11 +377,8 @@ jobs:
         with:
           fetch_depth: 0
           sparse_checkout: |
-            mvnw
-            .mvn
-            pom.xml
-            src
-            docker
+            ./source
+            ./docker
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker login

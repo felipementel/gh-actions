@@ -41,17 +41,12 @@ on:
         description: 'Sparse checkout pattern'
         required: false
         type: string
-        default: 'src/'
-      git_leaks:
-        description: 'Enable Gitleaks security scan'
-        required: false
-        type: boolean
-        default: true
+        default: 'source/'
       app_dir:
         description: 'Application directory (app or src)'
         required: false
         type: string
-        default: 'src'
+        default: 'source'
       coverage_threshold:
         description: 'Minimum coverage percentage required (0-100)'
         required: false
@@ -156,11 +151,9 @@ jobs:
           fetch_depth: 0
           sparse_checkout: |
             ${{ inputs.sparse_checkout }}
-            docker/
-            pyproject.toml
-            setup.cfg
-            infra/aca.envmap
-            tests/
+            ./source
+            ./docker
+            ./tests            
           sparse_checkout_cone_mode: false
 
       - name: 🏷️ Extract Application Version

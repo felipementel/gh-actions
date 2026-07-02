@@ -116,9 +116,9 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            src
-            tests
-            docker
+            ./source
+            ./tests
+            ./docker
           sparse_checkout_cone_mode: false
 
       - name: 🏷️ Extract Application Version
@@ -213,7 +213,7 @@ jobs:
           image_name: ${{ inputs.image_name }}
           tag_version: ${{ steps.get_version.outputs.TAG }}
           dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
-          context: .
+          context: ${{ inputs.docker_build_context }}
           platforms: 'linux/amd64'
           push: 'false'
           load: 'true'
