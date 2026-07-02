@@ -196,7 +196,7 @@ jobs:
           pip check
 
       - name: 🧱📤 Git Leaks
-        if: ${{ inputs.git_leaks && !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
+        if: ${{!(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
         uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
@@ -238,7 +238,7 @@ jobs:
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=term-missing \
             --cov-fail-under=${{ inputs.coverage_threshold }} \
-            tests/
+            ${{ inputs.app_dir }}/tests/
 
       - name: 📊 Upload coverage to Codecov
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
@@ -274,8 +274,8 @@ jobs:
         with:
           name: coverage-reports-${{ github.run_number }}
           path: |
-            tests/results/htmlcov/
-            tests/results/coverage.xml
+            ${{ inputs.app_dir }}/tests/results/htmlcov/
+            ${{ inputs.app_dir }}/tests/results/coverage.xml
             coverage-badge.md
           retention_days: 30
 
