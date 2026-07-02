@@ -37,7 +37,7 @@ jobs:
       build_mode: ${{ github.event_name == 'workflow_dispatch' && inputs.build_mode || 'Build' }}
       environment: ${{ inputs.environment || 'development' }}
       node_version: ${{ vars.BUILD_VERSION }}
-      working_directory: '.'
+      working_directory: './source'
       tests_folder: 'tests'
       report_title: 'My Project API'
       sonar_exclusions: ''

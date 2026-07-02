@@ -45,9 +45,10 @@ jobs:
       python_version: ${{ vars.BUILD_VERSION }}
       project_name: ${{ github.event.repository.name }}
       image_name: ${{ github.event.repository.name }}
-      app_dir: 'src'
+      app_dir: 'source'
       main_file: 'main.py'
-      sparse_checkout: 'src/'
+      sparse_checkout: |
+        ./source
       coverage_threshold: 80
       dockerfile_folder: 'docker'
       registry: ${{ vars.CONTAINER_REGISTRY }}

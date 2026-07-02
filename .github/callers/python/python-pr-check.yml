@@ -32,7 +32,7 @@ jobs:
       environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'DEV' }}
       tests_folder: 'tests'
       python_version: ${{ vars.BUILD_VERSION }}
-      project_base_dir: './src'
+      project_base_dir: './source'
       solution_file_name: 'PortsAndAdapters.slnx'
       main_project: 'Usuarios.Api'
       report_title: 'Usuarios API - PR'
