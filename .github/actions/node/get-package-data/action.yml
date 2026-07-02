@@ -64,10 +64,10 @@ runs:
         ENVIRONMENT='${{ inputs.environment }}'
         BRANCH_NAME="${GITHUB_REF_NAME}"
 
-        if [ "${ENVIRONMENT,,}" == "dev" ]; then
+        if [ "${ENVIRONMENT,,}" == "development" ]; then
           tag="${tag}-dev"
           echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
-        elif [ "${ENVIRONMENT,,}" == "hml" ]; then
+        elif [ "${ENVIRONMENT,,}" == "staging" ]; then
           tag="${tag}-sandbox"
           echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         else

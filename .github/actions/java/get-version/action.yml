@@ -8,14 +8,21 @@ inputs:
   main_project:
     description: 'The main project/module name (e.g. myproject-api)'
     required: true
+  environment:
+    description: 'Deployment environment (e.g., development, staging, production)'
+    required: true
+    default: 'development'
 
 outputs:
   TAG:
-    description: 'The final computed tag (version)'
+    description: 'The final computed tag (version with environment suffix if applicable)'
     value: ${{ steps.get_version.outputs.TAG }}
   VERSION:
     description: 'The version value from pom.xml'
     value: ${{ steps.get_version.outputs.VERSION }}
+  BUILD_COMMIT_SHA:
+    description: 'Build commit SHA'
+    value: ${{ steps.get_version.outputs.BUILD_COMMIT_SHA }}
 
 env:
   RED: '\033[0;31m'
@@ -54,8 +61,24 @@ runs:
           exit 1
         fi
 
-        echo -e "📦${GREEN} Version: $version"
-        echo -e "🏷️${GREEN} TAG final: $version"
+        tag="$version"
+        # Append suffix based on environment
+        ENVIRONMENT='${{ inputs.environment }}'
+        BRANCH_NAME="${GITHUB_REF_NAME}"
 
-        echo "TAG=$version" >> "$GITHUB_OUTPUT"
+        if [ "${ENVIRONMENT,,}" == "development" ]; then
+          tag="${tag}-dev"
+          echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        elif [ "${ENVIRONMENT,,}" == "staging" ]; then
+          tag="${tag}-sandbox"
+          echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        else
+          echo -e "✅ ${GREEN} Sem sufixo (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        fi
+
+        echo -e "📦${GREEN} Version: $version"
+        echo -e "🏷️${GREEN} TAG final: $tag"
+
+        echo "TAG=$tag" >> "$GITHUB_OUTPUT"
         echo "VERSION=$version" >> "$GITHUB_OUTPUT"
+        echo "BUILD_COMMIT_SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"

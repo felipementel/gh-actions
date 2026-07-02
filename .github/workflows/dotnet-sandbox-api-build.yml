@@ -175,6 +175,7 @@ jobs:
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
+          environment: ${{ inputs.environment }}
 
       - name: 🔍 Check Tag
         id: tag_check

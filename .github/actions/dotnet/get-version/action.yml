@@ -10,10 +10,14 @@ inputs:
   main_project:
     description: 'The main project name (e.g. DEPLOY.PROJECT.API)'
     required: true
+  environment:
+    description: 'Deployment environment (e.g., development, staging, production)'
+    required: true
+    default: 'development'
 
 outputs:
   TAG:
-    description: 'The final computed tag'
+    description: 'The final computed tag (version with environment suffix if applicable)'
     value: ${{ steps.get_version.outputs.TAG }}
   VERSION:
     description: 'The Version value from csproj'
@@ -24,6 +28,9 @@ outputs:
   VERSION_SUFFIX:
     description: 'The VersionSuffix value from csproj'
     value: ${{ steps.get_version.outputs.VERSION_SUFFIX }}
+  BUILD_COMMIT_SHA:
+    description: 'Build commit SHA'
+    value: ${{ steps.get_version.outputs.BUILD_COMMIT_SHA }}
 
 env:
   RED: '\033[0;31m'
@@ -66,6 +73,20 @@ runs:
           ColorTagSuffix="${YELLOW}"
         fi
 
+        # Append suffix based on environment
+        ENVIRONMENT='${{ inputs.environment }}'
+        BRANCH_NAME="${GITHUB_REF_NAME}"
+
+        if [ "${ENVIRONMENT,,}" == "development" ]; then
+          tag="${tag}-dev"
+          echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        elif [ "${ENVIRONMENT,,}" == "staging" ]; then
+          tag="${tag}-sandbox"
+          echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        else
+          echo -e "✅ ${GREEN} Sem sufixo (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+        fi
+
         echo -e "📦${GREEN} Version: $version"
         echo -e "⬅️${ColorTagPrefix} Prefix: ${versionPrefix:-n/a}"
         echo -e "➡️${ColorTagSuffix} Suffix: ${versionSuffix:-n/a}"
@@ -75,3 +96,4 @@ runs:
         echo "VERSION=$version" >> "$GITHUB_OUTPUT"
         echo "VERSION_PREFIX=$versionPrefix" >> "$GITHUB_OUTPUT"
         echo "VERSION_SUFFIX=$versionSuffix" >> "$GITHUB_OUTPUT"
+        echo "BUILD_COMMIT_SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
