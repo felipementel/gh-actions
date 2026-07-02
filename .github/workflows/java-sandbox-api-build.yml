@@ -311,17 +311,17 @@ jobs:
         shell: bash
         run: |
           mvn --file ${{ inputs.project_base_dir }}/pom.xml \
-            package -DskipTests \
+            verify -DskipTests \
             --batch-mode
 
       - name: 🔍 Check OpenAPI files
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
-          if ls ./target/${{ inputs.openapi_folder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
-            echo -e "${GREEN}✅ OpenAPI specification files found in target/${{ inputs.openapi_folder }}."
+          if ls ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}."
           else
-            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in target/${{ inputs.openapi_folder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
           fi
 
       - name: Upload OpenAPI artifacts
@@ -329,13 +329,13 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
-          path: ./target/${{ inputs.openapi_folder }}/*.{json,yaml,yml}
+          path: ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.{json,yaml,yml}
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
-          openapi_files_path: ./target/${{ inputs.openapi_folder }}
+          openapi_files_path: ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
 
       - name: 🧾 Write to workflow job summary
