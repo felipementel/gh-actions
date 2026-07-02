@@ -46,7 +46,7 @@ jobs:
       image_name: ${{ github.event.repository.name }}
       openapi_folder: 'open-api'
       docker_file_full_path: 'docker/Dockerfile'
-      docker_build_context: '.'
+      docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:
       security-events: write
