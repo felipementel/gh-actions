@@ -64,7 +64,7 @@ runs:
           tag="${tag}-dev"
           echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         elif [ "${ENVIRONMENT,,}" == "staging" ]; then
-          tag="${tag}-sandbox"
+          tag="${tag}-stg"
           echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         else
           echo -e "✅ ${GREEN} Sem sufixo (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
