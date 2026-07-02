@@ -22,15 +22,6 @@ outputs:
   VERSION:
     description: 'The Version value from csproj'
     value: ${{ steps.get_version.outputs.VERSION }}
-  VERSION_PREFIX:
-    description: 'The VersionPrefix value from csproj'
-    value: ${{ steps.get_version.outputs.VERSION_PREFIX }}
-  VERSION_SUFFIX:
-    description: 'The VersionSuffix value from csproj'
-    value: ${{ steps.get_version.outputs.VERSION_SUFFIX }}
-  BUILD_COMMIT_SHA:
-    description: 'Build commit SHA'
-    value: ${{ steps.get_version.outputs.BUILD_COMMIT_SHA }}
 
 env:
   RED: '\033[0;31m'
@@ -94,6 +85,3 @@ runs:
 
         echo "TAG=$tag" >> "$GITHUB_OUTPUT"
         echo "VERSION=$version" >> "$GITHUB_OUTPUT"
-        echo "VERSION_PREFIX=$versionPrefix" >> "$GITHUB_OUTPUT"
-        echo "VERSION_SUFFIX=$versionSuffix" >> "$GITHUB_OUTPUT"
-        echo "BUILD_COMMIT_SHA=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
