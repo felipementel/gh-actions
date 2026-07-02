@@ -277,10 +277,13 @@ jobs:
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
-          if ls ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.{json,yaml,yml} 1> /dev/null 2>&1; then
-            echo -e "${GREEN}✅ OpenAPI specification files found in ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}."
+          openapi_path="${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}"
+
+          if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
           else
-            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your build generates the expected OpenAPI JSON/YAML files."
+            exit 1
           fi
 
       - name: Upload OpenAPI artifacts
@@ -288,7 +291,10 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
-          path: ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.{json,yaml,yml}
+          path: |
+            ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.json
+            ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.yaml
+            ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}/*.yml
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
