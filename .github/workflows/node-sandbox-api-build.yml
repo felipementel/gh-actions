@@ -361,7 +361,6 @@ jobs:
           fetch_depth: 0
           sparse_checkout: |
             source/
-            tests/
             docker/
           sparse_checkout_cone_mode: false
 

@@ -430,6 +430,10 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           fetch_depth: 0
+          sparse_checkout: |
+            source/
+            docker/
+          sparse_checkout_cone_mode: false
 
       - name: 🏗️ Set up QEMU
         uses: felipementel/gh-actions/.github/actions/_wrapper/docker/setup-qemu-action@main
