@@ -169,7 +169,7 @@ jobs:
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
-          sparse_checkout:
+          sparse_checkout: |
             source/
             tests/
             docker/
@@ -180,7 +180,6 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/java/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
-          main_project: ${{ inputs.main_project }}
           environment: ${{ inputs.environment }}
 
       - name: 🔍 Check Tag

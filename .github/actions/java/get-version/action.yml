@@ -5,9 +5,6 @@ inputs:
   project_base_dir:
     description: 'Path to the project base directory (containing pom.xml)'
     required: true
-  main_project:
-    description: 'The main project/module name (e.g. myproject-api)'
-    required: true
   environment:
     description: 'Deployment environment (e.g., development, staging, production)'
     required: true
