@@ -18,30 +18,24 @@ runs:
     - name: Code Quality - isort
       shell: bash
       run: |
-        DIRS="${{ inputs.app_dir }}"
-        [ -d "${{ inputs.app_dir }}/tests" ] && DIRS="$DIRS ${{ inputs.app_dir }}/tests"
-        python${{ inputs.python_version }} -m isort --check-only --settings-path ${{ inputs.app_dir }}/pyproject.toml $DIRS
+        python${{ inputs.python_version }} -m isort --check-only --settings-path ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
 
     - name: Code Quality - black
       shell: bash
       run: |
-        DIRS="${{ inputs.app_dir }}"
-        [ -d "${{ inputs.app_dir }}/tests" ] && DIRS="$DIRS ${{ inputs.app_dir }}/tests"
-        python${{ inputs.python_version }} -m black --check --config ${{ inputs.app_dir }}/pyproject.toml $DIRS
+        python${{ inputs.python_version }} -m black --check --config ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
 
     - name: Code Quality - flake8
       shell: bash
       run: |
-        DIRS="${{ inputs.app_dir }}"
-        [ -d "${{ inputs.app_dir }}/tests" ] && DIRS="$DIRS ${{ inputs.app_dir }}/tests"
-        python${{ inputs.python_version }} -m flake8 --toml-config ${{ inputs.app_dir }}/pyproject.toml $DIRS
+        python${{ inputs.python_version }} -m flake8 --toml-config ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
 
     - name: Code Quality - mypy
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m mypy --config-file ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}
+        python${{ inputs.python_version }} -m mypy --config-file ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
 
     - name: Code Quality - bandit
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m bandit -c ${{ inputs.app_dir }}/pyproject.toml -r ${{ inputs.app_dir }}
+        python${{ inputs.python_version }} -m bandit -c ${{ inputs.app_dir }}/pyproject.toml -r ${{ inputs.app_dir }}/src
