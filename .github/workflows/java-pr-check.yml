@@ -144,9 +144,9 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            src
-            tests
-            docker
+            source/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🔍 Get-Version from pom.xml

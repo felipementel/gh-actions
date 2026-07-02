@@ -48,8 +48,9 @@ jobs:
       app_dir: './source'
       main_file: 'main.py'
       sparse_checkout: |
-        ./source
-        ./docker
+        source/
+        docker/
+        tests/
       coverage_threshold: 80
       dockerfile_folder: './Docker/'
       docker_build_context: './source'

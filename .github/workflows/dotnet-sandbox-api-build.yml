@@ -169,9 +169,9 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            ./source
-            ./tests
-            ./docker
+            source/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🔍 Get-Version from csproj
@@ -408,8 +408,9 @@ jobs:
         with:
           fetch_depth: 0
           sparse_checkout: |
-            ./source
-            ./docker
+            src/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker login

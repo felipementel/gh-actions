@@ -98,7 +98,9 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            ${{ inputs.sparse_checkout }}
+            source/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks

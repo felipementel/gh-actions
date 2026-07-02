@@ -383,8 +383,7 @@ jobs:
         with:
           fetch_depth: 0
           sparse_checkout: |
-            ./source
-            ./docker
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker login

@@ -96,8 +96,9 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            ${{ inputs.sparse_checkout }}
-            pyproject.toml
+            source/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: 🧱📤 Git Leaks
@@ -211,8 +212,9 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
-            ${{ inputs.sparse_checkout }}
-            pyproject.toml
+            source/
+            tests/
+            docker/
           sparse_checkout_cone_mode: false
 
       - name: Set up Python
@@ -558,5 +560,5 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
-            pyproject.toml
+            source/
           sparse_checkout_cone_mode: false
