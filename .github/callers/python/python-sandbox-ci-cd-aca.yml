@@ -47,6 +47,7 @@ jobs:
       image_name: ${{ github.event.repository.name }}
       app_dir: './source'
       main_file: 'main.py'
+      openapi_folder: 'open-api'
       sparse_checkout: |
         source/
         docker/
