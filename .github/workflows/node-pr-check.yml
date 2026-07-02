@@ -52,6 +52,11 @@ on:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         default: 'docker'
+      docker_build_context:
+        description: 'Docker build context (relative to repo root)'
+        required: false
+        type: string
+        default: '.'
       registry:
         type: string
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'

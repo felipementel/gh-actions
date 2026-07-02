@@ -59,6 +59,11 @@ on:
         description: 'Full path to the Dockerfile to be used in the container scan (e.g. src/Project/Project/Dockerfile)'
         required: false
         default: ''
+      dockerfile_folder:
+        description: 'Folder containing the Dockerfile (relative to repo root)'
+        required: false
+        type: string
+        default: 'docker'
       docker_build_context:
         type: string
         description: 'Docker build context (e.g. src/Project/Project or .)'

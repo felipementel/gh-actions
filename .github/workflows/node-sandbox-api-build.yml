@@ -54,6 +54,11 @@ on:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         default: 'docker'
+      docker_build_context:
+        description: 'Docker build context (relative to repo root)'
+        required: false
+        type: string
+        default: '.'
       git_leaks:
         description: 'Enable Gitleaks security scan'
         required: false
