@@ -173,6 +173,7 @@ jobs:
             source/
             tests/
             docker/
+            .trivyignore.yaml
           sparse_checkout_cone_mode: false
 
       - name: 🔍 Get-Version from pom.xml
