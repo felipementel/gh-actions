@@ -43,7 +43,8 @@ jobs:
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
       openapi_folder: ''
-      dockerfile_folder: 'docker'
+      dockerfile_folder: './docker'
+      docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
     permissions:
