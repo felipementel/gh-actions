@@ -249,7 +249,37 @@ jobs:
           coverage_file: ${{ inputs.working_directory }}/coverage/clover.xml
           coverage_format: clover
 
-      - name: 🐋 Docker setup
+      - name: 🔍 Check OpenAPI files
+        if: ${{ inputs.openapi_folder != '' }}
+        shell: bash
+        run: |
+          openapi_path="${{ inputs.working_directory }}/${{ inputs.openapi_folder }}"
+
+          if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
+          else
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your source contains the expected OpenAPI JSON/YAML files."
+            exit 1
+          fi
+
+      - name: 📤 Upload OpenAPI artifacts
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        with:
+          name: OpenAPI-Specs
+          path: |
+            ${{ inputs.working_directory }}/${{ inputs.openapi_folder }}/*.json
+            ${{ inputs.working_directory }}/${{ inputs.openapi_folder }}/*.yaml
+            ${{ inputs.working_directory }}/${{ inputs.openapi_folder }}/*.yml
+
+      - name: 🚀 Spectral OpenAPI Lint
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        with:
+          openapi_files_path: ${{ inputs.working_directory }}/${{ inputs.openapi_folder }}
+          node_version: ${{ inputs.node_version }}
+
+      - name: 🐳 Docker setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🐳 Docker Build (local, for Security scan)

@@ -33,7 +33,7 @@ runs:
       id: check_tests
       shell: bash
       run: |
-        if find ${{ inputs.tests_folder }} -type f \( -name '*.test.ts' -o -name '*.spec.ts' -o -name '*.test.js' -o -name '*.spec.js' \) 2>/dev/null | grep -q .; then
+        if find "${{ inputs.working_directory }}/${{ inputs.tests_folder }}" -type f \( -name '*.test.ts' -o -name '*.spec.ts' -o -name '*.test.js' -o -name '*.spec.js' \) 2>/dev/null | grep -q .; then
           echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
           echo -e "\033[0;32m✅ Arquivos de teste encontrados."
         else
