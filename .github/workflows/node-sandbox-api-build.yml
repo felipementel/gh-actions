@@ -249,12 +249,12 @@ jobs:
           coverage_file: ${{ inputs.working_directory }}/coverage/clover.xml
           coverage_format: clover
 
-      - name: � Generate OpenAPI JSON
+      - name: 🔍 Generate OpenAPI JSON
         if: ${{ inputs.openapi_folder != '' }}
         working-directory: ${{ inputs.working_directory }}
         run: npm run generate:openapi
 
-      - name: �🔍 Check OpenAPI files
+      - name: 🔍 Check OpenAPI files
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
         run: |
