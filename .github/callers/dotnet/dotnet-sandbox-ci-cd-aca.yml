@@ -2,6 +2,7 @@
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
 #  "stack": "dotnet"
+#  "deploy": "aca"
 # }
 
 name: .NET API — Build & Deploy [Caller]

@@ -2,6 +2,7 @@
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
 #  "stack": "java"
+#  "deploy": "aca"
 # }
 
 name: Java API — Build & Deploy [Caller]

@@ -2,6 +2,7 @@
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
 #  "stack": "node"
+#  "deploy": "aca"
 # }
 
 name: Node API — Build & Deploy [Caller]
@@ -42,7 +43,7 @@ jobs:
       report_title: 'My Project API'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: ''
+      openapi_folder: 'open-api'
       dockerfile_folder: './docker'
       docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
@@ -58,29 +59,29 @@ jobs:
       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
 
-  # deploy:
-  #   name: Deploy to ACA
-  #   if: >-
-  #     github.event_name == 'workflow_dispatch' &&
-  #     inputs.build_mode == 'Build + Tag Validation + Deploy' &&
-  #     needs.build.outputs.image_exists == 'false'
-  #   needs: [build]
-  #   uses: felipementel/gh-actions/.github/workflows/node-sandbox-api-deploy-aca.yml@main
-  #   with:
-  #     environment: ${{ inputs.environment || 'development' }}
-  #     tag_version: ${{ needs.build.outputs.tag_version }}
-  #     image_name: ${{ github.event.repository.name }}
-  #     registry: ${{ vars.CONTAINER_REGISTRY }}
-  #     # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-  #     acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
-  #     health_check_path: '/health/live'
-  #     deploy_poll_max_attempts: '20'
-  #     deploy_poll_interval_seconds: '15'
-  #   permissions:
-  #     id-token: write
-  #     contents: read
-  #     packages: read
-  #   secrets:
-  #     AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
-  #     AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
-  #     AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+  deploy:
+    name: Deploy to ACA
+    if: >-
+      github.event_name == 'workflow_dispatch' &&
+      inputs.build_mode == 'Build + Tag Validation + Deploy' &&
+      needs.build.outputs.image_exists == 'false'
+    needs: [build]
+    uses: felipementel/gh-actions/.github/workflows/node-sandbox-api-deploy-aca.yml@main
+    with:
+      environment: ${{ inputs.environment || 'development' }}
+      tag_version: ${{ needs.build.outputs.tag_version }}
+      image_name: ${{ github.event.repository.name }}
+      registry: ${{ vars.CONTAINER_REGISTRY }}
+      # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
+      acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
+      health_check_path: '/health'
+      deploy_poll_max_attempts: '20'
+      deploy_poll_interval_seconds: '15'
+    permissions:
+      id-token: write
+      contents: read
+      packages: read
+    secrets:
+      AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+      AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+      AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}

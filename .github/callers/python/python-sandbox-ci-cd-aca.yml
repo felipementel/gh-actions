@@ -2,6 +2,7 @@
 #  "apiVersion": apps/v1.0.0
 #  "kind": "ci-cd"
 #  "stack": "python"
+#  "deploy": "aca"
 # }
 
 name: Python API — Build & Deploy [Caller]
