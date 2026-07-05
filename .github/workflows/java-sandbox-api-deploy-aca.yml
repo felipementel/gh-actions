@@ -103,6 +103,20 @@ jobs:
           poll_interval_seconds: ${{ inputs.deploy_poll_interval_seconds }}
           registry_pat: ${{ secrets.REGISTRY_PAT }}
 
+      - name: 🔬 OWASP ZAP Baseline
+        uses: felipementel/gh-actions/.github/actions/tools/security/owasp-zap@main
+        with:
+          url: https://${{ steps.deploy.outputs.FQDN }}
+          allow_issue_writing: 'false'
+          fail_action: 'false'
+          artifact_name: zap-report-${{ inputs.environment }}
+
+      - name: 🔬 Nuclei DAST Scan
+        uses: felipementel/gh-actions/.github/actions/tools/security/nuclei@main
+        with:
+          url: https://${{ steps.deploy.outputs.FQDN }}
+          artifact_name: nuclei-report-${{ inputs.environment }}
+
       - name: 📝 Deployment Summary
         uses: felipementel/gh-actions/.github/actions/azure/aca-summary@main
         with:

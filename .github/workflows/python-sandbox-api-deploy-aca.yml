@@ -272,6 +272,20 @@ jobs:
           echo "FQDN=$FQDN" >> $GITHUB_OUTPUT
           echo "STATE=$STATE" >> $GITHUB_OUTPUT
 
+      - name: 🔬 OWASP ZAP Baseline
+        uses: felipementel/gh-actions/.github/actions/tools/security/owasp-zap@main
+        with:
+          url: https://${{ steps.aca_details.outputs.FQDN }}
+          allow_issue_writing: 'false'
+          fail_action: 'false'
+          artifact_name: zap-report-${{ inputs.environment }}
+
+      - name: 🔬 Nuclei DAST Scan
+        uses: felipementel/gh-actions/.github/actions/tools/security/nuclei@main
+        with:
+          url: https://${{ steps.aca_details.outputs.FQDN }}
+          artifact_name: nuclei-report-${{ inputs.environment }}
+
       - name: 📝 Write deployment summary
         run: |
           SUMMARY='
