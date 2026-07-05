@@ -380,7 +380,7 @@ jobs:
   check_image:
     name: Check if image exists
     if: ${{ inputs.build_mode == 'Build + Tag Validation' || inputs.build_mode == 'Build + Tag Validation + Deploy' }}
-    environment: ${{ inputs.environment }}
+    # environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     outputs:
       image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
@@ -400,7 +400,7 @@ jobs:
   push_image:
     name: Push image to Registry
     if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image_exists == 'false' }}
-    environment: ${{ inputs.environment }}
+    # environment: ${{ inputs.environment }}
     # if: ${{ github.event.pull_request.merged && github.event.pull_request.state == 'closed' }}
     needs: [build, check_image]
     runs-on: ubuntu-latest
@@ -452,7 +452,7 @@ jobs:
     name: Notify when already image exists
     if: ${{ inputs.build_mode == 'Build + Tag Validation + Deploy' && needs.check_image.outputs.image_exists == 'true'}}
     needs: [build, check_image]
-    environment: ${{ inputs.environment }}
+    # environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     steps:
       - name: Write to workflow job summary
