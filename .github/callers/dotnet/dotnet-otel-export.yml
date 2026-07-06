@@ -24,6 +24,7 @@ on:
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
 
 jobs:
   otel_export:
@@ -41,4 +42,13 @@ jobs:
           otlpEndpoint: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
           otlpHeaders: ${{ secrets.GRAFANA_OTLP_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id }}
+
+      - name: 📊 Export pipeline trace to HoneyComb
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: grpc://api.honeycomb.io:443/
+          otlpHeaders: ${{ secrets.HONEYCOMB_OTLP_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id }}
           runId: ${{ github.event.workflow_run.id }}
