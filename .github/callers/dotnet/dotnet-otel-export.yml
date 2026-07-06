@@ -15,6 +15,12 @@ on:
       - '.NET API — Weekly Security Scan 🛡️'
     types:
       - completed
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Workflow run ID to export (optional)'
+        required: false
+        default: ''
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -35,3 +41,4 @@ jobs:
           otlpEndpoint: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
           otlpHeaders: ${{ secrets.GRAFANA_OTLP_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id }}
