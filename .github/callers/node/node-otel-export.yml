@@ -44,7 +44,7 @@ jobs:
           runId: ${{ github.event.workflow_run.id }}
 
       - name: 📊 Export pipeline trace to HoneyComb
-        uses: inception-health/otel-export-trace-action@latest
+        uses: inception-health/otel-export-trace-action@v1
         with:
           otlpEndpoint: grpc://api.honeycomb.io:443/
           otlpHeaders: ${{ secrets.HONEYCOMB_OTLP_HEADERS }}
