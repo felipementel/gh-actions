@@ -125,10 +125,10 @@ Arquivos prontos para copiar em repositórios consumers. Organizados por stack e
 
 | Caller | Stack | Trigger | Descrição |
 |--------|-------|---------|----------|
-| `dotnet-sandbox-ci-cd-aca.yml` | .NET | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
-| `java-sandbox-ci-cd-aca.yml` | Java | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
-| `python-sandbox-ci-cd-aca.yml` | Python | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
-| `node-sandbox-ci-cd-aca.yml` | Node | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
+| `dotnet-sandbox-ci-cd-aca.yml` | .NET | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
+| `java-sandbox-ci-cd-aca.yml` | Java | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
+| `python-sandbox-ci-cd-aca.yml` | Python | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
+| `node-sandbox-ci-cd-aca.yml` | Node | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
 | `dotnet-pr-check.yml` | .NET | `pull_request` | Validação de PRs |
 | `java-pr-check.yml` | Java | `pull_request` | Validação de PRs |
 | `python-pr-check.yml` | Python | `pull_request` | Validação de PRs |
@@ -137,10 +137,6 @@ Arquivos prontos para copiar em repositórios consumers. Organizados por stack e
 | `java-sandbox-security-weekly.yml` | Java | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
 | `python-sandbox-security-weekly.yml` | Python | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
 | `node-sandbox-security-weekly.yml` | Node | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
-| `dotnet-otel-export.yml` | .NET | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
-| `java-otel-export.yml` | Java | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
-| `python-otel-export.yml` | Python | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
-| `node-otel-export.yml` | Node | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
 
 ---
 
@@ -312,15 +308,17 @@ Arquivos prontos para copiar em repositórios consumers. Organizados por stack e
 | `AZURE_RESOURCE_GROUP_NAME` | ✅ | Nome base do Resource Group Azure |
 | `AZURE_ACAE_BASE` | ✅ | Nome base do Azure Container App Environment |
 
-### Callers — OTel Export (`*-otel-export.yml`)
+### Callers — OTel Export (inline no `*-sandbox-ci-cd-aca.yml`)
+
+O job `otel_export` está embutido diretamente em cada caller ci-cd. Não há arquivo separado.
 
 **Secrets** (Settings → Secrets and variables → Actions → Secrets):
 
 | Nome | Obrigatório | Descrição |
 |------|:-----------:|-----------|
-| `GRAFANA_OTLP_ENDPOINT` | ✅ | Endpoint OTLP do Grafana Cloud (ex: `https://otlp-gateway-prod-sa-east-1.grafana.net/otlp`) |
-| `GRAFANA_OTLP_HEADERS` | ✅ | Header de autenticação Grafana (`Authorization=Basic {base64(instanceId:token)}`) |
-| `HONEYCOMB_OTLP_HEADERS` | ✅ | Header de autenticação Honeycomb (`x-honeycomb-team={api-key}`) |
+| `OTLP_GRAFANA_ENDPOINT` | ✅ | Endpoint OTLP do Grafana Cloud (ex: `https://otlp-gateway-prod-sa-east-1.grafana.net/otlp`) |
+| `OTLP_GRAFANA_HEADERS` | ✅ | Header de autenticação Grafana (`Authorization=Basic {base64(instanceId:token)}`) |
+| `OTLP_HONEYCOMB_HEADERS` | ✅ | Header de autenticação Honeycomb (`x-honeycomb-team={api-key}`) |
 
 > Os secrets de OTel são idealmente cadastrados como **Organization Secrets** para aplicar automaticamente a todos os repositórios.
 

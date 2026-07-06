@@ -86,20 +86,30 @@ jobs:
       AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
       AZURE_SUBSCRIPTION_ID: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
-  _otel_trigger:
-    name: "[otel-trigger]"
+  otel_export:
+    name: OTel Export 📊
     if: always()
     needs: [build]
     runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
     permissions:
-      actions: write
+      actions: read
+      contents: read
+
     steps:
-      - name: 🔔 Trigger OTel export
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh workflow run node-otel-export.yml \
-            --repo "${{ github.repository }}" \
-            --ref "${{ github.ref_name }}" \
-            -f run_id="${{ github.run_id }}" \
-            || echo "::warning::OTel export workflow não encontrado (non-blocking)"
+      - name: 📊 Export to Grafana Cloud
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: ${{ secrets.OTLP_GRAFANA_ENDPOINT }}
+          otlpHeaders: ${{ secrets.OTLP_GRAFANA_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Export to HoneyComb
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: grpc://api.honeycomb.io:443/
+          otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
