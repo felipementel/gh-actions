@@ -74,7 +74,7 @@ jobs:
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
       acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
-      health_check_path: '/health'
+      health_check_path: '/health/live'
       deploy_poll_max_attempts: '20'
       deploy_poll_interval_seconds: '15'
     permissions:

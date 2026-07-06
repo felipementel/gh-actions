@@ -35,7 +35,7 @@ on:
         type: string
         description: 'HTTP path for post-deploy health check'
         required: false
-        default: '/health'
+        default: '/health/ready'
       deploy_poll_max_attempts:
         type: string
         description: 'Max polling attempts for revision readiness and health check'
