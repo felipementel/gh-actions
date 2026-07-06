@@ -24,7 +24,8 @@
 | [`tools/security/snyk-dotnet`](.github/actions/tools/security/snyk-dotnet) | Container monitor e scan de vulnerabilidades com **Snyk** (upload SARIF) |
 | [`tools/security/giteaks`](.github/actions/tools/security/giteaks) | Detecção de secrets no repositório com **GitLeaks** |
 | [`tools/security/safety-python`](.github/actions/tools/security/safety-python) | Verificação de vulnerabilidades em dependências Python com **Safety CLI** |
-| [`tools/security/owasp-zap`](.github/actions/tools/security/owasp-zap) | Baseline scan com **OWASP ZAP** |
+| [`tools/security/owasp-zap`](.github/actions/tools/security/owasp-zap) | Baseline scan passivo com **OWASP ZAP** (DAST) |
+| [`tools/security/nuclei`](.github/actions/tools/security/nuclei) | Scan baseado em templates de CVEs, misconfigs e exposições com **Nuclei** (DAST) |
 | [`tools/security/checkov`](.github/actions/tools/security/checkov) | Scan de políticas e compliance em IaC Terraform com **Checkov** |
 
 ### Code Quality
@@ -100,20 +101,46 @@
 | Workflow | Descrição |
 |----------|-----------|
 | [`dotnet-sandbox-api-build.yml`](.github/workflows/dotnet-sandbox-api-build.yml) | Pipeline DevSecOps para APIs .NET — build, testes, scans de segurança, push de imagem |
-| [`dotnet-sandbox-api-deploy-aca.yml`](.github/workflows/dotnet-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (.NET) |
+| [`dotnet-sandbox-api-deploy-aca.yml`](.github/workflows/dotnet-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (.NET) + OWASP ZAP + Nuclei DAST |
 | [`dotnet-pr-check.yml`](.github/workflows/dotnet-pr-check.yml) | Validação de PRs para projetos .NET |
 | [`java-sandbox-api-build.yml`](.github/workflows/java-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Java Spring Boot — build Maven, testes, scans de segurança, push de imagem |
-| [`java-sandbox-api-deploy-aca.yml`](.github/workflows/java-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Java) |
+| [`java-sandbox-api-deploy-aca.yml`](.github/workflows/java-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Java) + OWASP ZAP + Nuclei DAST |
 | [`java-pr-check.yml`](.github/workflows/java-pr-check.yml) | Validação de PRs para projetos Java |
 | [`python-sandbox-api-build.yml`](.github/workflows/python-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Python — build, testes, scans de segurança, push de imagem |
-| [`python-sandbox-api-deploy-aca.yml`](.github/workflows/python-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Python) |
+| [`python-sandbox-api-deploy-aca.yml`](.github/workflows/python-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Python) + OWASP ZAP + Nuclei DAST |
 | [`python-pr-check.yml`](.github/workflows/python-pr-check.yml) | Validação de PRs para projetos Python |
 | [`node-sandbox-api-build.yml`](.github/workflows/node-sandbox-api-build.yml) | Pipeline DevSecOps para APIs Node.js — build, testes, scans de segurança, push de imagem |
+| [`node-sandbox-api-deploy-aca.yml`](.github/workflows/node-sandbox-api-deploy-aca.yml) | Deploy de imagem para **Azure Container Apps** (Node.js) + OWASP ZAP + Nuclei DAST |
 | [`node-pr-check.yml`](.github/workflows/node-pr-check.yml) | Validação de PRs para projetos Node.js |
 | [`react-sandbox-web-build.yml`](.github/workflows/react-sandbox-web-build.yml) | Pipeline DevSecOps para frontends React — build, scans de segurança, upload de artefato |
 | [`react-sandbox-web-deploy-swa.yml`](.github/workflows/react-sandbox-web-deploy-swa.yml) | Deploy de artefato para **Azure Static Web Apps** + OWASP ZAP DAST |
 | [`react-pr-check.yml`](.github/workflows/react-pr-check.yml) | Validação de PRs para projetos React |
 | [`sandbox-console.yml`](.github/workflows/sandbox-console.yml) | Pipeline para aplicações console |
+
+---
+
+## Callers
+
+Arquivos prontos para copiar em repositórios consumers. Organizados por stack em `.github/callers/{stack}/`.
+
+| Caller | Stack | Trigger | Descrição |
+|--------|-------|---------|----------|
+| `dotnet-sandbox-ci-cd-aca.yml` | .NET | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
+| `java-sandbox-ci-cd-aca.yml` | Java | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
+| `python-sandbox-ci-cd-aca.yml` | Python | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
+| `node-sandbox-ci-cd-aca.yml` | Node | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA |
+| `dotnet-pr-check.yml` | .NET | `pull_request` | Validação de PRs |
+| `java-pr-check.yml` | Java | `pull_request` | Validação de PRs |
+| `python-pr-check.yml` | Python | `pull_request` | Validação de PRs |
+| `node-pr-check.yml` | Node | `pull_request` | Validação de PRs |
+| `dotnet-sandbox-security-weekly.yml` | .NET | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
+| `java-sandbox-security-weekly.yml` | Java | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
+| `python-sandbox-security-weekly.yml` | Python | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
+| `node-sandbox-security-weekly.yml` | Node | `schedule` (seg 08h BRT) | Scan semanal — Trivy SAST + OWASP ZAP + Nuclei DAST |
+| `dotnet-otel-export.yml` | .NET | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
+| `java-otel-export.yml` | Java | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
+| `python-otel-export.yml` | Python | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
+| `node-otel-export.yml` | Node | `workflow_run` | Exportação de traces para **Grafana Cloud** e **Honeycomb** via OTLP |
 
 ---
 
@@ -267,6 +294,35 @@
 | `AZURE_RESOURCE_GROUP` | ✅* | Nome do Resource Group do Azure Static Web App (necessário se `dist/config.json` tiver placeholders) |
 
 > \* Obrigatório somente quando o arquivo `dist/config.json` do build contiver placeholders `{{ }}` que precisam ser preenchidos via app settings do Azure.
+
+### Callers — Security Weekly (`*-sandbox-security-weekly.yml`)
+
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `AZURE_CLIENT_ID` | ✅ | Client ID do Service Principal Azure para autenticação OIDC |
+| `AZURE_TENANT_ID` | ✅ | Tenant ID do Azure AD para autenticação OIDC |
+| `AZURE_SUBSCRIPTION_ID` | ✅ | Subscription ID do Azure para autenticação OIDC |
+
+**Variables** (Settings → Secrets and variables → Actions → Variables):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `AZURE_RESOURCE_GROUP_NAME` | ✅ | Nome base do Resource Group Azure |
+| `AZURE_ACAE_BASE` | ✅ | Nome base do Azure Container App Environment |
+
+### Callers — OTel Export (`*-otel-export.yml`)
+
+**Secrets** (Settings → Secrets and variables → Actions → Secrets):
+
+| Nome | Obrigatório | Descrição |
+|------|:-----------:|-----------|
+| `GRAFANA_OTLP_ENDPOINT` | ✅ | Endpoint OTLP do Grafana Cloud (ex: `https://otlp-gateway-prod-sa-east-1.grafana.net/otlp`) |
+| `GRAFANA_OTLP_HEADERS` | ✅ | Header de autenticação Grafana (`Authorization=Basic {base64(instanceId:token)}`) |
+| `HONEYCOMB_OTLP_HEADERS` | ✅ | Header de autenticação Honeycomb (`x-honeycomb-team={api-key}`) |
+
+> Os secrets de OTel são idealmente cadastrados como **Organization Secrets** para aplicar automaticamente a todos os repositórios.
 
 ---
 

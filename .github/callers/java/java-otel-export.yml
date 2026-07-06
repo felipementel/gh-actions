@@ -5,7 +5,7 @@
 # }
 
 name: Java API — OTel Pipeline Export 📊
-run-name: "📊 OTel Export | ${{ github.event.workflow_run.name }}"
+run-name: "📊 OTel Export | ${{ github.event.workflow_run.name || format('run {0}', inputs.run_id) }}"
 
 on:
   workflow_run:
@@ -18,8 +18,8 @@ on:
   workflow_dispatch:
     inputs:
       run_id:
-        description: 'Workflow run ID to export (optional)'
-        required: false
+        description: 'Workflow run ID to export'
+        required: true
         default: ''
 
 env:
@@ -42,7 +42,7 @@ jobs:
           otlpEndpoint: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
           otlpHeaders: ${{ secrets.GRAFANA_OTLP_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          runId: ${{ github.event.workflow_run.id }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
 
       - name: 📊 Export pipeline trace to HoneyComb
         uses: inception-health/otel-export-trace-action@v1
@@ -50,4 +50,4 @@ jobs:
           otlpEndpoint: grpc://api.honeycomb.io:443/
           otlpHeaders: ${{ secrets.HONEYCOMB_OTLP_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          runId: ${{ github.event.workflow_run.id }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
