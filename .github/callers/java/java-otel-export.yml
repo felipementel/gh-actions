@@ -30,13 +30,22 @@ jobs:
       contents: read
 
     steps:
+      - name: 🏷️ Compute service name
+        id: svc
+        shell: bash
+        run: |
+          RAW="${{ github.event.workflow_run.name }}"
+          NAME="${RAW//|/-}"
+          NAME="${NAME// /}"
+          echo "value=java-${NAME}-${{ github.event.workflow_run.id }}" >> $GITHUB_OUTPUT
+
       - name: 📊 Export pipeline trace to Grafana Cloud
         uses: inception-health/otel-export-trace-action@v1
         with:
           otlpEndpoint: ${{ secrets.OTLP_GRAFANA_ENDPOINT }}
           otlpHeaders: ${{ secrets.OTLP_GRAFANA_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          otelServiceName: ${{ steps.svc.outputs.value }}
           runId: ${{ github.event.workflow_run.id }}
 
       - name: 📊 Export pipeline trace to HoneyComb
@@ -45,7 +54,7 @@ jobs:
           otlpEndpoint: grpc://api.honeycomb.io:443/
           otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          otelServiceName: ${{ steps.svc.outputs.value }}
           runId: ${{ github.event.workflow_run.id }}
 
       - name: 📊 Export pipeline trace to New Relic
@@ -54,5 +63,5 @@ jobs:
           otlpEndpoint: https://otlp.nr-data.net
           otlpHeaders: ${{ secrets.OTLP_NEWRELIC_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          otelServiceName: ${{ steps.svc.outputs.value }}
           runId: ${{ github.event.workflow_run.id }}
