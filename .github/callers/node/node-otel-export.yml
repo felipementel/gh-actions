@@ -10,8 +10,8 @@ run-name: "📊 OTel Export | ${{ github.event.workflow_run.name || format('run 
 on:
   workflow_run:
     workflows:
-      - 'Node API — Build & Deploy [Caller]'
-      - 'Node API — PR Check [Caller]'
+      - 'Node API — Build & Deploy'
+      - 'Node API — PR Check'
       - 'Node API — Weekly Security Scan 🟢🛡️'
     types:
       - completed

@@ -5,7 +5,7 @@
 # }
 
 
-name: .NET API - PR Check [Caller]
+name: .NET API - PR Check
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
 on:

@@ -5,7 +5,7 @@
 #  "deploy": "aca"
 # }
 
-name: .NET API — Build & Deploy [Caller]
+name: .NET API — Build & Deploy
 run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 on:

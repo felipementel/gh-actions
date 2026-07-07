@@ -5,7 +5,7 @@
 #  "deploy": "aca"
 # }
 
-name: Python API — Build & Deploy [Caller]
+name: Python API — Build & Deploy
 run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 on:

@@ -5,7 +5,7 @@
 # }
 
 
-name: Java API — PR Check [Caller]
+name: Java API — PR Check
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
 on:

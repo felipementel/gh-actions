@@ -5,7 +5,7 @@
 #  "deploy": "aca"
 # }
 
-name: Node API — Build & Deploy [Caller]
+name: Node API — Build & Deploy
 run-name: "${{ github.actor }} | ${{ inputs.build_mode }} | ${{ inputs.environment }}"
 
 on:
