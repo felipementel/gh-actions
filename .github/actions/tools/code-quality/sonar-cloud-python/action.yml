@@ -22,7 +22,7 @@ inputs:
     description: 'Paths to exclude from Sonar analysis (comma separated)'
     required: false
     default: ''
-  app_dir:
+  project_base_dir:
     description: 'Application source directory to analyze'
     required: false
     default: 'src'
@@ -44,7 +44,7 @@ runs:
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_project_key }}
           -Dsonar.organization=${{ inputs.sonar_organization }}
-          -Dsonar.sources=${{ inputs.app_dir }}
+          -Dsonar.sources=${{ inputs.project_base_dir }}
           -Dsonar.python.coverage.reportPaths=${{ inputs.coverage_report }}
           -Dsonar.exclusions=${{ inputs.sonar_exclusions }}
 
@@ -58,5 +58,5 @@ runs:
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_project_key }}
           -Dsonar.organization=${{ inputs.sonar_organization }}
-          -Dsonar.sources=${{ inputs.app_dir }}
+          -Dsonar.sources=${{ inputs.project_base_dir }}
           -Dsonar.exclusions=${{ inputs.sonar_exclusions }}

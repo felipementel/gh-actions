@@ -215,7 +215,7 @@ jobs:
       - name: Code Quality
         uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
-          app_dir: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Generate OpenAPI spec (FastAPI)
         run: |
@@ -342,7 +342,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          app_dir: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
   # Job 3: Validação de versão
   version_check:

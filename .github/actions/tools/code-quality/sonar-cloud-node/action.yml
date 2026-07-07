@@ -22,7 +22,7 @@ inputs:
     description: 'Paths to exclude from Sonar analysis (comma separated)'
     required: false
     default: ''
-  working_directory:
+  project_base_dir:
     description: 'Working directory where package.json and source are located (projectBaseDir for the scanner)'
     required: false
     default: '.'
@@ -41,7 +41,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
       with:
-        project_base_dir: ${{ inputs.working_directory }}
+        project_base_dir: ${{ inputs.project_base_dir }}
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_project_key }}
           -Dsonar.organization=${{ inputs.sonar_organization }}
@@ -55,7 +55,7 @@ runs:
         GITHUB_TOKEN: ${{ inputs.github_token }}
         SONAR_TOKEN: ${{ inputs.sonar_token }}
       with:
-        project_base_dir: ${{ inputs.working_directory }}
+        project_base_dir: ${{ inputs.project_base_dir }}
         args: >
           -Dsonar.projectKey=${{ inputs.sonar_project_key }}
           -Dsonar.organization=${{ inputs.sonar_organization }}

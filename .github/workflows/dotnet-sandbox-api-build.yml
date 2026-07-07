@@ -139,10 +139,6 @@ env:
   BOLD_YELLOW: '\033[1;33m'
   BOLD_BLUE: '\033[1;34m'
 
-  javaVersion: 23
-  javaDistro: zulu
-  nodeVersion: 24
-
 jobs:
   build:
     name: Build
@@ -243,8 +239,6 @@ jobs:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
           solution_file_name: ${{ inputs.solution_file_name }}
-          java_version: ${{ env.javaVersion }}
-          java_distro: ${{ env.javaDistro }}
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.dotnet_test.outputs.has_tests == 'true' }}

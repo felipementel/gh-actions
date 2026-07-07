@@ -6,7 +6,7 @@ inputs:
     description: 'Deployment environment (e.g., PRD, HML)'
     required: true
     default: 'DEV'
-  working_directory:
+  project_base_dir:
     description: 'Working directory where package.json is located'
     required: false
     default: './source'
@@ -38,9 +38,9 @@ runs:
       shell: bash
       run: |
         set -e
-        PACKAGE_JSON="${{ inputs.working_directory }}/package.json"
+        PACKAGE_JSON="${{ inputs.project_base_dir }}/package.json"
         if [ ! -f "$PACKAGE_JSON" ]; then
-          echo -e "❌ ${RED} package.json não encontrado em ${{ inputs.working_directory }}" >&2
+          echo -e "❌ ${RED} package.json não encontrado em ${{ inputs.project_base_dir }}" >&2
           exit 1
         fi
         version=$(node -p "require('./$PACKAGE_JSON').version")

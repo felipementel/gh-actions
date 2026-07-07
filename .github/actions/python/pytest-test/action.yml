@@ -2,7 +2,7 @@ name: 'Pytest Test & Coverage'
 description: 'Checks for Python test files, runs pytest with coverage, generates reports, and uploads artifacts.'
 
 inputs:
-  app_dir:
+  project_base_dir:
     description: 'Application source directory to measure coverage (e.g. src)'
     required: false
     default: 'src'
@@ -55,7 +55,7 @@ runs:
         mkdir -p ${{ inputs.tests_folder }}/results
 
         pytest -v \
-          --cov=${{ inputs.app_dir }} \
+          --cov=${{ inputs.project_base_dir }} \
           --cov-report=xml:${{ inputs.tests_folder }}/results/coverage.xml \
           --cov-report=html:${{ inputs.tests_folder }}/results/htmlcov \
           --cov-report=term-missing \

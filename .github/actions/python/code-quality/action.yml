@@ -2,7 +2,7 @@ name: Python Code Quality
 description: Run isort, black, flake8, mypy and bandit checks
 
 inputs:
-  app_dir:
+  project_base_dir:
     description: 'Application source directory (e.g. src)'
     required: false
     default: 'src'
@@ -18,26 +18,26 @@ runs:
     - name: Code Quality - isort
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m isort --check-only --settings-path ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
+        python${{ inputs.python_version }} -m isort --check-only --settings-path ${{ inputs.project_base_dir }}/pyproject.toml ${{ inputs.project_base_dir }}/src
 
     - name: Code Quality - black
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m black --check --config ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
+        python${{ inputs.python_version }} -m black --check --config ${{ inputs.project_base_dir }}/pyproject.toml ${{ inputs.project_base_dir }}/src
 
     - name: Code Quality - flake8
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m flake8 --toml-config ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
+        python${{ inputs.python_version }} -m flake8 --toml-config ${{ inputs.project_base_dir }}/pyproject.toml ${{ inputs.project_base_dir }}/src
 
     - name: Code Quality - mypy
       shell: bash
       env:
-        MYPYPATH: ${{ inputs.app_dir }}/src
+        MYPYPATH: ${{ inputs.project_base_dir }}/src
       run: |
-        python${{ inputs.python_version }} -m mypy --config-file ${{ inputs.app_dir }}/pyproject.toml ${{ inputs.app_dir }}/src
+        python${{ inputs.python_version }} -m mypy --config-file ${{ inputs.project_base_dir }}/pyproject.toml ${{ inputs.project_base_dir }}/src
 
     - name: Code Quality - bandit
       shell: bash
       run: |
-        python${{ inputs.python_version }} -m bandit -c ${{ inputs.app_dir }}/pyproject.toml -r ${{ inputs.app_dir }}/src
+        python${{ inputs.python_version }} -m bandit -c ${{ inputs.project_base_dir }}/pyproject.toml -r ${{ inputs.project_base_dir }}/src

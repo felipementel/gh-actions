@@ -155,7 +155,7 @@ jobs:
         id: get_package_data
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🔍 Check if tag already exists
         uses: felipementel/gh-actions/.github/actions/check-tag-exists@main
@@ -218,7 +218,7 @@ jobs:
           VITE_APPLICATION_ID: ${{ vars.VITE_APPLICATION_ID }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Admin Plataforma
@@ -231,7 +231,7 @@ jobs:
           VITE_DEBUG: ${{ vars.VITE_DEBUG }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Slider
@@ -243,7 +243,7 @@ jobs:
           AZURE_IMGS_CONTAINER_URL: ${{ vars.AZURE_IMGS_CONTAINER_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Plataforma (principal)
@@ -277,7 +277,7 @@ jobs:
           VITE_POLLING_INTERVAL_SECONDS: ${{ vars.VITE_POLLING_INTERVAL_SECONDS }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: Create .env for Report Design
@@ -288,7 +288,7 @@ jobs:
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: Build
@@ -325,7 +325,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Summary
         run: |

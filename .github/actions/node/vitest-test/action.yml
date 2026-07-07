@@ -2,7 +2,7 @@ name: 'Vitest Test & Coverage'
 description: 'Checks for TypeScript/JavaScript test files, runs Vitest with coverage, and uploads artifacts.'
 
 inputs:
-  working_directory:
+  project_base_dir:
     description: 'Working directory where package.json and vitest.config.ts are located'
     required: false
     default: '.'
@@ -33,7 +33,7 @@ runs:
       id: check_tests
       shell: bash
       run: |
-        if find "${{ inputs.working_directory }}/${{ inputs.tests_folder }}" -type f \( -name '*.test.ts' -o -name '*.spec.ts' -o -name '*.test.js' -o -name '*.spec.js' \) 2>/dev/null | grep -q .; then
+        if find "${{ inputs.project_base_dir }}/${{ inputs.tests_folder }}" -type f \( -name '*.test.ts' -o -name '*.spec.ts' -o -name '*.test.js' -o -name '*.spec.js' \) 2>/dev/null | grep -q .; then
           echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
           echo -e "\033[0;32m✅ Arquivos de teste encontrados."
         else
@@ -44,7 +44,7 @@ runs:
     - name: 🧪 Run Vitest with coverage
       if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
       shell: bash
-      working-directory: ${{ inputs.working_directory }}
+      working-directory: ${{ inputs.project_base_dir }}
       run: npm run test
 
     - name: 🧪📤 Upload coverage report artifact
@@ -52,4 +52,4 @@ runs:
       uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
       with:
         name: Coverage-Report-${{ inputs.run_number }}-${{ inputs.run_id }}
-        path: ${{ inputs.working_directory }}/coverage/
+        path: ${{ inputs.project_base_dir }}/coverage/

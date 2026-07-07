@@ -172,7 +172,9 @@ env:
   BOLD_GREEN: '\033[1;32m'
   BOLD_YELLOW: '\033[1;33m'
 
-  node_version: 24
+  javaVersion: 23
+  javaDistro: zulu
+  nodeVersion: 24
 
 jobs:
   build:
@@ -314,7 +316,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          app_dir: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
@@ -337,7 +339,7 @@ jobs:
       - name: Code Quality
         uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
-          app_dir: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name:  Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main

@@ -3,7 +3,7 @@ description: 'Creates .env file with Admin Plataforma specific environment varia
 author: 'GreenNexus-Core'
 
 inputs:
-  working_directory:
+  project_base_dir:
     description: 'Working directory where .env file will be created'
     required: true
     default: './source'
@@ -17,7 +17,7 @@ runs:
   steps:
     - name: Create .env file for Admin Plataforma
       shell: bash
-      working-directory: ${{ inputs.working_directory }}
+      working-directory: ${{ inputs.project_base_dir }}
       run: |
         echo "🔧 Creating .env file for Admin Plataforma..."
         cat > .env <<EOF

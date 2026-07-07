@@ -119,7 +119,9 @@ env:
   BOLD_GREEN: '\033[1;32m'
   BOLD_YELLOW: '\033[1;33m'
 
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  javaVersion: 23
+  javaDistro: zulu
+  nodeVersion: 24
 
 jobs:
   build:
@@ -162,7 +164,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/node/get-package-data@main
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🔍 Check Tag
         id: tag_check
@@ -221,7 +223,7 @@ jobs:
         id: vitest_test
         uses: felipementel/gh-actions/.github/actions/node/vitest-test@main
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           tests_folder: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
           run_number: ${{ github.run_number }}
@@ -245,7 +247,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.vitest_test.outputs.has_tests == 'true' }}

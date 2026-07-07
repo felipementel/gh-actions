@@ -147,7 +147,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/node/get-package-data@main
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🔍 Check Tag
         id: tag_check
@@ -206,7 +206,7 @@ jobs:
         id: vitest_test
         uses: felipementel/gh-actions/.github/actions/node/vitest-test@main
         with:
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           tests_folder: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
           run_number: ${{ github.run_number }}
@@ -221,7 +221,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          working_directory: ${{ inputs.project_base_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: 🐋 Docker setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main

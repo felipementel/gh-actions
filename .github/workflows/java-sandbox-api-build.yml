@@ -142,6 +142,8 @@ env:
   BOLD_YELLOW: '\033[1;33m'
   BOLD_BLUE: '\033[1;34m'
 
+  javaVersion: 23
+  javaDistro: zulu
   nodeVersion: 24
 
 jobs:
@@ -235,7 +237,6 @@ jobs:
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
-          java_version: ${{ inputs.java_version }}
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.maven_test.outputs.has_tests == 'true' }}
