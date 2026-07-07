@@ -99,32 +99,6 @@ on:
         description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
         default: ''
-      docker_build_context:
-        description: 'Docker build context (relative to repo root)'
-        required: false
-        type: string
-        default: './source'
-      openapi_folder:
-        description: 'Path to folder that will receive the exported OpenAPI JSON (e.g. output_openapi). Leave empty to skip Spectral linting.'
-        required: false
-        type: string
-        default: ''
-      sonar_exclusions:
-        description: 'Paths to exclude from SonarCloud analysis (comma separated)'
-        required: false
-        type: string
-        default: ''
-      #registry
-      registry:
-        type: string
-        description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
-        required: false
-        default: 'ghcr.io'
-      registry_username:
-        type: string
-        description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
-        required: false
-        default: ''
     secrets:
       GITLEAKS_LICENSE:
         required: true
