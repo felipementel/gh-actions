@@ -44,7 +44,7 @@ jobs:
         }}
       environment: ${{ inputs.environment || 'development' }}
       python_version: ${{ vars.BUILD_VERSION }}
-      project_name: ${{ github.event.repository.name }}
+      # project_name: ${{ github.event.repository.name }}
       image_name: ${{ github.event.repository.name }}
       project_base_dir: './source'
       main_file: 'main.py'
