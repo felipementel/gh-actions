@@ -1,0 +1,61 @@
+# {
+#  "apiVersion": apps/v1.0.0
+#  "kind": "otel-export"
+#  "stack": "node"
+# }
+
+name: Node API — OTel Pipeline Export 📊
+run-name: "📊 OTel Export | ${{ github.event.workflow_run.name || format('run {0}', inputs.run_id) }}"
+
+on:
+  workflow_run:
+    workflows:
+      - 'Node API — Build & Deploy'
+      - 'Node API — PR Check'
+      - 'Node API — Weekly Security Scan 🟢🛡️'
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: 'Workflow run ID to export'
+        required: true
+        default: ''
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: 'true'
+
+jobs:
+  otel_export:
+    name: Export to Grafana Cloud
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: 📊 Export pipeline trace to Grafana Cloud
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: ${{ secrets.OTLP_GRAFANA_ENDPOINT }}
+          otlpHeaders: ${{ secrets.OTLP_GRAFANA_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+
+      - name: 📊 Export pipeline trace to HoneyComb
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: grpc://api.honeycomb.io:443/
+          otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+
+      - name: 📊 Export pipeline trace to New Relic
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: https://otlp.nr-data.net
+          otlpHeaders: ${{ secrets.OTLP_NEWRELIC_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
