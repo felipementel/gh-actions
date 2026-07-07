@@ -125,10 +125,10 @@ Arquivos prontos para copiar em repositórios consumers. Organizados por stack e
 
 | Caller | Stack | Trigger | Descrição |
 |--------|-------|---------|----------|
-| `dotnet-sandbox-ci-cd-aca.yml` | .NET | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
-| `java-sandbox-ci-cd-aca.yml` | Java | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
-| `python-sandbox-ci-cd-aca.yml` | Python | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
-| `node-sandbox-ci-cd-aca.yml` | Node | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb) |
+| `dotnet-sandbox-ci-cd-aca.yml` | .NET | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb + New Relic) |
+| `java-sandbox-ci-cd-aca.yml` | Java | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb + New Relic) |
+| `python-sandbox-ci-cd-aca.yml` | Python | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb + New Relic) |
+| `node-sandbox-ci-cd-aca.yml` | Node | `push` / `workflow_dispatch` | CI/CD completo — build + deploy ACA + OTel export (Grafana + Honeycomb + New Relic) |
 | `dotnet-pr-check.yml` | .NET | `pull_request` | Validação de PRs |
 | `java-pr-check.yml` | Java | `pull_request` | Validação de PRs |
 | `python-pr-check.yml` | Python | `pull_request` | Validação de PRs |
@@ -319,6 +319,7 @@ O job `otel_export` está embutido diretamente em cada caller ci-cd. Não há ar
 | `OTLP_GRAFANA_ENDPOINT` | ✅ | Endpoint OTLP do Grafana Cloud (ex: `https://otlp-gateway-prod-sa-east-1.grafana.net/otlp`) |
 | `OTLP_GRAFANA_HEADERS` | ✅ | Header de autenticação Grafana (`Authorization=Basic {base64(instanceId:token)}`) |
 | `OTLP_HONEYCOMB_HEADERS` | ✅ | Header de autenticação Honeycomb (`x-honeycomb-team={api-key}`) |
+| `OTLP_NEWRELIC_HEADERS` | ✅ | Header de autenticação New Relic (`api-key={INGEST_LICENSE_KEY}`) |
 
 > Os secrets de OTel são idealmente cadastrados como **Organization Secrets** para aplicar automaticamente a todos os repositórios.
 

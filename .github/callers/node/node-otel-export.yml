@@ -39,8 +39,8 @@ jobs:
       - name: 📊 Export pipeline trace to Grafana Cloud
         uses: inception-health/otel-export-trace-action@v1
         with:
-          otlpEndpoint: ${{ secrets.GRAFANA_OTLP_ENDPOINT }}
-          otlpHeaders: ${{ secrets.GRAFANA_OTLP_HEADERS }}
+          otlpEndpoint: ${{ secrets.OTLP_GRAFANA_ENDPOINT }}
+          otlpHeaders: ${{ secrets.OTLP_GRAFANA_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           runId: ${{ github.event.workflow_run.id || inputs.run_id }}
 
@@ -48,6 +48,14 @@ jobs:
         uses: inception-health/otel-export-trace-action@v1
         with:
           otlpEndpoint: grpc://api.honeycomb.io:443/
-          otlpHeaders: ${{ secrets.HONEYCOMB_OTLP_HEADERS }}
+          otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
+          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+
+      - name: 📊 Export pipeline trace to New Relic
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: https://otlp.nr-data.net
+          otlpHeaders: ${{ secrets.OTLP_NEWRELIC_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
           runId: ${{ github.event.workflow_run.id || inputs.run_id }}

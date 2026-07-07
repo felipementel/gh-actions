@@ -117,3 +117,10 @@ jobs:
           otlpEndpoint: grpc://api.honeycomb.io:443/
           otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Export to New Relic
+        uses: inception-health/otel-export-trace-action@v1
+        with:
+          otlpEndpoint: https://otlp.nr-data.net
+          otlpHeaders: ${{ secrets.OTLP_NEWRELIC_HEADERS }}
+          githubToken: ${{ secrets.GITHUB_TOKEN }}
