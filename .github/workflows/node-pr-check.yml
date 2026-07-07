@@ -17,7 +17,7 @@ on:
         description: 'Node.js version to use'
         required: false
         default: '24.x'
-      working_directory:
+      project_base_dir:
         type: string
         description: 'Working directory where package.json is located'
         required: false
@@ -31,7 +31,7 @@ on:
         type: string
         description: 'Message to be displayed in the unit test report title'
         required: false
-        default: 'Canal DEPLOY'
+        default: 'Sky Platform'
       sonar_exclusions:
         type: string
         description: 'Paths to exclude from SonarCloud analysis (comma separated)'
@@ -47,6 +47,11 @@ on:
         description: 'Path to folder containing OpenAPI specification files (leave empty to skip Spectral linting)'
         required: false
         default: ''
+      docker_file_full_path:
+        type: string
+        description: 'Full path to the Dockerfile (e.g. docker/Dockerfile)'
+        required: false
+        default: ''
       dockerfile_folder:
         type: string
         description: 'Folder containing the Dockerfile (relative to repo root)'
@@ -57,6 +62,17 @@ on:
         required: false
         type: string
         default: '.'
+      docker_setup:
+        type: boolean
+        description: 'Whether to set up Docker for multi-platform builds'
+        required: false
+        default: false
+      coverage_threshold:
+        description: 'Minimum coverage percentage required (0-100)'
+        required: false
+        type: number
+        default: 0
+      #registry
       registry:
         type: string
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
@@ -131,14 +147,14 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/node/get-package-data@main
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
 
       - name: 🔍 Check Tag
         id: tag_check
         uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
-          version_file: ${{ inputs.working_directory }}/package.json
+          version_file: ${{ inputs.project_base_dir }}/package.json
           fail_on_exists: false
 
       - name: 🛠️ Setup Node.js ${{ inputs.node_version }}
@@ -146,7 +162,7 @@ jobs:
         with:
           node_version: ${{ inputs.node_version }}
           cache: 'npm'
-          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
+          cache_dependency_path: '${{ inputs.project_base_dir }}/package-lock.json'
 
       - name: ✅ Check Node.js version in use
         run: node --version && npm --version
@@ -162,7 +178,7 @@ jobs:
           notify_user_list: '@felipementel'
 
       - name: 📦 Install dependencies
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
           if [ -f package-lock.json ]; then
             echo -e "✅${GREEN} package-lock.json encontrado: usando ci"
@@ -173,24 +189,24 @@ jobs:
           fi
 
       - name: 🔍 npm audit (dependency vulnerabilities)
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
           echo "🔍 Checking for known vulnerabilities in dependencies..."
           npm audit --audit-level=high || echo -e "⚠️${YELLOW} npm audit found vulnerabilities (non-blocking)"
 
       - name: 🏗️ TypeScript type check
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: npm run check-types
 
       - name: 🔍 ESLint
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: npm run lint || echo -e "⚠️${YELLOW} ESLint warnings (non-blocking)"
 
       - name: 🧪 Vitest Test & Coverage
         id: vitest_test
         uses: felipementel/gh-actions/.github/actions/node/vitest-test@main
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           tests_folder: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
           run_number: ${{ github.run_number }}
@@ -205,7 +221,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
 
       - name: 🐋 Docker setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
@@ -228,7 +244,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
-          scan_ref: '${{ inputs.working_directory }}'
+          scan_ref: '${{ inputs.project_base_dir }}'
           scanners: 'vuln,misconfig,secret'
           format: 'sarif'
           output_file: 'trivy-fs-results.sarif'
@@ -242,7 +258,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
-          scan_ref: '${{ inputs.working_directory }}'
+          scan_ref: '${{ inputs.project_base_dir }}'
           scanners: 'license'
           format: 'sarif'
           output_file: 'trivy-license-results.sarif'

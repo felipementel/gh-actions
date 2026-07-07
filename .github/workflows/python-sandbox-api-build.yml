@@ -5,32 +5,29 @@ on:
   workflow_call:
     inputs:
       build_mode:
-        description: "Which action do you want?"
-        required: false
+        description: "Qual ação deseja fazer?"
+        required: true
         default: 'Build'
         type: string
       environment:
         type: string
         description: 'Environment to run the workflow'
         required: true
-        default: 'DEV'
+        default: 'development'
       python_version:
         type: string
         description: 'Python version to use in the workflow'
         required: false
         default: '3.14'
-      project_name:
+      project_base_dir:
         type: string
-        description: 'Project name'
-        required: true
-      image_name:
-        type: string
-        description: 'Docker image name'
-        required: true
-      env_map_file:
-        description: 'Env/Secret mapping file'
+        description: 'Path to project root (containing pyproject.toml)'
         required: false
+        default: 'source'
+      main_project:
         type: string
+        description: 'Project name used in SonarCloud and reporting'
+        required: false
         default: ''
       main_file:
         type: string
@@ -42,17 +39,71 @@ on:
         required: false
         type: string
         default: 'source/'
-      app_dir:
-        description: 'Application directory (app or src)'
+      env_map_file:
+        description: 'Env/Secret mapping file'
         required: false
         type: string
-        default: 'source'
+        default: ''
+      tests_folder:
+        type: string
+        description: 'The main test folder'
+        required: false
+        default: 'tests'
+      report_title:
+        type: string
+        description: 'Message to be displayed in the unit test report title'
+        required: false
+        default: 'Sky Platform'
+      sonar_exclusions:
+        type: string
+        description: 'Paths to exclude from SonarCloud analysis (comma separated)'
+        required: false
+        default: ''
+      image_name:
+        type: string
+        description: 'Docker image name'
+        required: true
+      openapi_folder:
+        description: 'Path to folder that will receive the exported OpenAPI JSON. Leave empty to skip Spectral linting.'
+        required: false
+        type: string
+        default: ''
+      docker_file_full_path:
+        type: string
+        description: 'Full path to the Dockerfile (e.g. docker/Dockerfile)'
+        required: false
+        default: ''
+      dockerfile_folder:
+        description: 'Folder containing the Dockerfile (relative to repo root)'
+        required: false
+        type: string
+        default: 'docker'
+      docker_build_context:
+        description: 'Docker build context (relative to repo root)'
+        required: false
+        type: string
+        default: '.'
+      docker_setup:
+        description: 'Whether to set up Docker (QEMU + Buildx) for multi-platform builds'
+        required: false
+        type: boolean
+        default: false
       coverage_threshold:
         description: 'Minimum coverage percentage required (0-100)'
         required: false
         type: number
         default: 0
-      dockerfile_folder:
+      #registry
+      registry:
+        type: string
+        description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
+        required: false
+        default: 'ghcr.io'
+      registry_username:
+        type: string
+        description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
+        required: false
+        default: ''
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         type: string
@@ -164,7 +215,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/python/get-version@main
         id: get_version
         with:
-          project_base_dir: ${{ inputs.app_dir }}
+          project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: 🏷️ Check Tag
@@ -172,7 +223,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
-          version_file: ${{ inputs.app_dir }}/pyproject.toml
+          version_file: ${{ inputs.project_base_dir }}/pyproject.toml
           fail_on_exists: true
 
       - name: 🐍 Set up Python ${{ inputs.python_version }}
@@ -189,7 +240,7 @@ jobs:
       - name: 📦 Install dependencies
         env:
           REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
-        working-directory: ${{ inputs.app_dir }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
           python -m pip install --upgrade pip
           git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
@@ -216,7 +267,7 @@ jobs:
         id: check_tests
         shell: bash
         run: |
-          if find . -name "test_*.py" -o -name "*_test.py" | grep -q .; then
+          if find ${{ inputs.project_base_dir }} -name "test_*.py" -o -name "*_test.py" | grep -q .; then
             echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
             echo -e "✅${GREEN} Arquivos de teste encontrados."
           else
@@ -237,12 +288,12 @@ jobs:
           # Run unit tests only with coverage
           echo -e "🧪${GREEN} Running unit tests with coverage..."
           python -m pytest -v \
-            --cov=${{ inputs.app_dir }} \
+            --cov=${{ inputs.project_base_dir }} \
             --cov-report=html:tests/results/htmlcov \
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=term-missing \
             --cov-fail-under=${{ inputs.coverage_threshold }} \
-            ${{ inputs.app_dir }}/tests/
+            ${{ inputs.project_base_dir }}/tests/
 
       - name: 📊 Upload coverage to Codecov
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
@@ -263,7 +314,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          app_dir: ${{ inputs.app_dir }}
+          app_dir: ${{ inputs.project_base_dir }}
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
@@ -278,15 +329,15 @@ jobs:
         with:
           name: coverage-reports-${{ github.run_number }}
           path: |
-            ${{ inputs.app_dir }}/tests/results/htmlcov/
-            ${{ inputs.app_dir }}/tests/results/coverage.xml
+            ${{ inputs.project_base_dir }}/tests/results/htmlcov/
+            ${{ inputs.project_base_dir }}/tests/results/coverage.xml
             coverage-badge.md
           retention_days: 30
 
       - name: Code Quality
         uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
-          app_dir: ${{ inputs.app_dir }}
+          app_dir: ${{ inputs.project_base_dir }}
 
       - name:  Docker Build (local, for Security scan)
         uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
@@ -363,7 +414,7 @@ jobs:
           MAIN_MODULE=$(basename "${{ inputs.main_file }}" .py)
           python -c "
           import json, sys, importlib
-          sys.path.insert(0, '${{ inputs.app_dir }}')
+          sys.path.insert(0, '${{ inputs.project_base_dir }}')
           mod = importlib.import_module('${MAIN_MODULE}')
           with open('./${{ inputs.openapi_folder }}/openapi.json', 'w') as f:
               json.dump(mod.app.openapi(), f, indent=2)

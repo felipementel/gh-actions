@@ -15,12 +15,6 @@ on:
       - 'Java API — Weekly Security Scan 🟢🛡️'
     types:
       - completed
-  workflow_dispatch:
-    inputs:
-      run_id:
-        description: 'Workflow run ID to export'
-        required: true
-        default: ''
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
@@ -42,7 +36,8 @@ jobs:
           otlpEndpoint: ${{ secrets.OTLP_GRAFANA_ENDPOINT }}
           otlpHeaders: ${{ secrets.OTLP_GRAFANA_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          runId: ${{ github.event.workflow_run.id }}
 
       - name: 📊 Export pipeline trace to HoneyComb
         uses: inception-health/otel-export-trace-action@v1
@@ -50,7 +45,8 @@ jobs:
           otlpEndpoint: grpc://api.honeycomb.io:443/
           otlpHeaders: ${{ secrets.OTLP_HONEYCOMB_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          runId: ${{ github.event.workflow_run.id }}
 
       - name: 📊 Export pipeline trace to New Relic
         uses: inception-health/otel-export-trace-action@v1
@@ -58,4 +54,5 @@ jobs:
           otlpEndpoint: https://otlp.nr-data.net
           otlpHeaders: ${{ secrets.OTLP_NEWRELIC_HEADERS }}
           githubToken: ${{ secrets.GITHUB_TOKEN }}
-          runId: ${{ github.event.workflow_run.id || inputs.run_id }}
+          otelServiceName: ${{ format('java-{0}-{1}', github.event.workflow_run.name, github.event.workflow_run.id) }}
+          runId: ${{ github.event.workflow_run.id }}

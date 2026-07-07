@@ -44,12 +44,12 @@ on:
         type: string
         description: 'Message to be displayed in the unit test report title'
         required: true
-        default: 'Canal DEPLOY'
+        default: 'Sky Platform'
       #build use
       sonar_exclusions:
         type: string
         description: 'Path to exclusion from sonar, like migrations. Use comma separation'
-        required: true
+        required: false
         default: ""
       #push-image
       image_name:
@@ -59,8 +59,8 @@ on:
         default: ""
       openapi_folder:
         type: string
-        description: 'Path to the folder containing OpenAPI specification files. This folder should include all necessary YAML or JSON files for API documentation.'
-        required: true
+        description: 'Path to the folder containing OpenAPI specification files.'
+        required: false
         default: ""
       docker_file_full_path:
         type: string
@@ -82,6 +82,11 @@ on:
         description: 'Whether to set up Docker for the Snyk container scan'
         required: false
         default: false
+      coverage_threshold:
+        description: 'Minimum coverage percentage required (0-100)'
+        required: false
+        type: number
+        default: 0
       #registry
       registry:
         type: string

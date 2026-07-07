@@ -13,7 +13,7 @@ inputs:
   report_title:
     description: 'Title for the coverage report artifact'
     required: false
-    default: 'Canal DEPLOY'
+    default: 'Sky Platform'
   run_number:
     description: 'The github.run_number value'
     required: true

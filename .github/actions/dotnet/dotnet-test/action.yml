@@ -9,7 +9,7 @@ inputs:
   report_title:
     description: 'Title for the coverage report'
     required: false
-    default: 'Canal DEPLOY'
+    default: 'Sky Platform'
   sonar_exclusions:
     description: 'Class filters for coverage report (comma separated)'
     required: false

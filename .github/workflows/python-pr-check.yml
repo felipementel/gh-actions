@@ -3,28 +3,48 @@ name: Pull Request Validation - Python
 on:
   workflow_call:
     inputs:
-      sparse_checkout:
-        description: 'Sparse checkout pattern'
-        required: false
+      environment:
         type: string
-        default: 'src/'
+        description: 'Environment to run the workflow'
+        required: true
+        default: 'development'
       python_version:
         description: 'Python version to use'
         required: false
         type: string
         default: '3.14'
-      app_dir:
-        description: 'Application directory (app or src)'
+      project_base_dir:
+        description: 'Path to project root (containing pyproject.toml)'
         required: false
         type: string
-        default: 'src'
-      coverage_threshold:
-        description: 'Minimum coverage percentage required (0-100)'
+        default: 'source'
+      main_project:
+        description: 'Project name used in SonarCloud and reporting'
         required: false
-        type: number
-        default: 80
-      project_name:
-        description: 'Project name for Docker image validation'
+        type: string
+        default: ''
+      main_file:
+        type: string
+        description: 'Main Python file'
+        required: false
+        default: 'main.py'
+      sparse_checkout:
+        description: 'Sparse checkout pattern'
+        required: false
+        type: string
+        default: 'source/'
+      tests_folder:
+        description: 'The main test folder'
+        required: false
+        type: string
+        default: 'tests'
+      report_title:
+        type: string
+        description: 'Message to be displayed in the unit test report title'
+        required: false
+        default: 'Sky Platform'
+      sonar_exclusions:
+        description: 'Paths to exclude from SonarCloud analysis (comma separated)'
         required: false
         type: string
         default: ''
@@ -33,10 +53,46 @@ on:
         required: false
         type: string
         default: ''
-      sonar_exclusions:
-        description: 'Paths to exclude from SonarCloud analysis (comma separated)'
+      openapi_folder:
+        description: 'Path to folder that will receive the exported OpenAPI JSON. Leave empty to skip Spectral linting.'
         required: false
         type: string
+        default: ''
+      docker_file_full_path:
+        type: string
+        description: 'Full path to the Dockerfile (e.g. docker/Dockerfile)'
+        required: false
+        default: ''
+      dockerfile_folder:
+        description: 'Folder containing the Dockerfile (relative to repo root)'
+        required: false
+        type: string
+        default: 'docker'
+      docker_build_context:
+        description: 'Docker build context (relative to repo root)'
+        required: false
+        type: string
+        default: '.'
+      docker_setup:
+        description: 'Whether to set up Docker for multi-platform builds'
+        required: false
+        type: boolean
+        default: false
+      coverage_threshold:
+        description: 'Minimum coverage percentage required (0-100)'
+        required: false
+        type: number
+        default: 0
+      #registry
+      registry:
+        type: string
+        description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
+        required: false
+        default: 'ghcr.io'
+      registry_username:
+        type: string
+        description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
+        required: false
         default: ''
     secrets:
       SONAR_TOKEN:
@@ -55,12 +111,6 @@ on:
         required: false
         description: 'Safety API Key'
   workflow_dispatch:
-    inputs:
-      git_leaks:
-        description: 'Enable Gitleaks security scan'
-        required: false
-        type: boolean
-        default: true
 
 env:
   # Colors for output
@@ -165,18 +215,18 @@ jobs:
       - name: Code Quality
         uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
-          app_dir: ${{ inputs.app_dir }}
+          app_dir: ${{ inputs.project_base_dir }}
 
       - name: Generate OpenAPI spec (FastAPI)
         run: |
-          export PYTHONPATH=$PYTHONPATH:$(pwd)/${{ inputs.app_dir }}
-          if [ -f "${{ inputs.app_dir }}/.env.example" ]; then
-            cp "${{ inputs.app_dir }}/.env.example" "${{ inputs.app_dir }}/.env"
+          export PYTHONPATH=$PYTHONPATH:$(pwd)/${{ inputs.project_base_dir }}
+          if [ -f "${{ inputs.project_base_dir }}/.env.example" ]; then
+            cp "${{ inputs.project_base_dir }}/.env.example" "${{ inputs.project_base_dir }}/.env"
           fi
           export LOG_DIR="${{ github.workspace }}/.logs"
           mkdir -p "$LOG_DIR"
           python - << 'EOF'
-          from ${{ inputs.app_dir }}.main import app
+          from ${{ inputs.project_base_dir }}.main import app
           import json
           with open("openapi.json", "w") as f:
               json.dump(app.openapi(), f, indent=2)
@@ -252,7 +302,7 @@ jobs:
           # Run unit tests only with coverage
           echo -e "🧪${BLUE} Running unit tests with coverage..."
           pytest -v \
-            --cov=${{ inputs.app_dir }} \
+            --cov=${{ inputs.project_base_dir }} \
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=html:tests/results/htmlcov \
             --cov-report=term-missing \
@@ -292,7 +342,7 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          app_dir: ${{ inputs.app_dir }}
+          app_dir: ${{ inputs.project_base_dir }}
 
   # Job 3: Validação de versão
   version_check:
@@ -446,12 +496,12 @@ jobs:
           # Check if .bandit config file exists
           if [ -f ".bandit" ]; then
             echo -e "${GREEN}Using .bandit configuration file"
-            bandit -r ${{ inputs.app_dir }} -c .bandit -f json -o bandit-report.json || true
-            bandit -r ${{ inputs.app_dir }} -c .bandit -f screen
+            bandit -r ${{ inputs.project_base_dir }} -c .bandit -f json -o bandit-report.json || true
+            bandit -r ${{ inputs.project_base_dir }} -c .bandit -f screen
           else
             echo -e "${YELLOW}No .bandit config found, using default settings"
-            bandit -r ${{ inputs.app_dir }} -f json -o bandit-report.json || true
-            bandit -r ${{ inputs.app_dir }} -f screen
+            bandit -r ${{ inputs.project_base_dir }} -f json -o bandit-report.json || true
+            bandit -r ${{ inputs.project_base_dir }} -f screen
           fi
 
       # https://www.getsafety.com/pricing

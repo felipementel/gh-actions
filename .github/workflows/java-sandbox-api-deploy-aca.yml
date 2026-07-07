@@ -56,9 +56,18 @@ on:
       AZURE_SUBSCRIPTION_ID:
         required: true
         description: 'Azure Subscription ID for OIDC authentication'
-      REGISTRY_PAT:
-        required: false
-        description: 'Registry password/token.'
+
+env:
+  # Colors for output
+  RED: '\033[0;31m'
+  GREEN: '\033[0;32m'
+  YELLOW: '\033[0;33m'
+  BLUE: '\033[0;34m'
+  RESET: '\033[0m'
+  BOLD: '\033[1m'
+
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
 jobs:
   deploy_aca:
     name: Deploy to Azure Container Apps

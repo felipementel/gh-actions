@@ -3,12 +3,17 @@ name: Pull Request Validation - React
 on:
   workflow_call:
     inputs:
+      environment:
+        description: 'Environment to use for variables (DEV, HML, PRD)'
+        required: false
+        type: string
+        default: 'development'
       node_version:
         description: 'Node.js version to use'
         required: false
         type: string
         default: '24.x'
-      working_directory:
+      project_base_dir:
         description: 'Working directory where package.json is located'
         required: false
         type: string
@@ -18,11 +23,6 @@ on:
         required: false
         type: string
         default: 'source/'
-      environment:
-        description: 'Environment to use for variables (DEV, HML, PRD)'
-        required: false
-        type: string
-        default: 'DEV'
       sonar_exclusions:
         description: 'Paths to exclude from SonarCloud analysis (comma separated)'
         required: false
@@ -155,7 +155,7 @@ jobs:
         id: get_package_data
         with:
           environment: ${{ inputs.environment }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
 
       - name: 🔍 Check if tag already exists
         uses: felipementel/gh-actions/.github/actions/check-tag-exists@main
@@ -168,11 +168,11 @@ jobs:
         with:
           node_version: ${{ inputs.node_version }}
           cache: 'npm'
-          cache_dependency_path: '${{ inputs.working_directory }}/package-lock.json'
+          cache_dependency_path: '${{ inputs.project_base_dir }}/package-lock.json'
 
       - name: Show npm version
         run: npm --version
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       - name: Install dependencies
         run: |
@@ -183,21 +183,21 @@ jobs:
             echo -e "${YELLOW} ⚠️ package-lock.json ausente: usando install"
             npm install
           fi
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       - name: 🔍 npm audit (dependency vulnerabilities)
         run: |
           echo "🔍 Checking for known vulnerabilities in dependencies..."
           npm audit --audit-level=high || echo -e " ${YELLOW} ⚠️ npm audit found vulnerabilities (non-blocking)"
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       - name: Run ESLint
         run: npm run lint || echo -e " ${YELLOW} ⚠️ ESLint warnings (não bloqueou)"
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       - name: Check formatting (Prettier)
         run: npx prettier --check "src/**/*.{ts,tsx,js,jsx,css}"
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       # ENV para o Data Processor
       - name: Create .env for Data Processor
@@ -218,7 +218,7 @@ jobs:
           VITE_APPLICATION_ID: ${{ vars.VITE_APPLICATION_ID }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Admin Plataforma
@@ -231,7 +231,7 @@ jobs:
           VITE_DEBUG: ${{ vars.VITE_DEBUG }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Slider
@@ -243,7 +243,7 @@ jobs:
           AZURE_IMGS_CONTAINER_URL: ${{ vars.AZURE_IMGS_CONTAINER_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       # ENV para o Plataforma (principal)
@@ -277,7 +277,7 @@ jobs:
           VITE_POLLING_INTERVAL_SECONDS: ${{ vars.VITE_POLLING_INTERVAL_SECONDS }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: Create .env for Report Design
@@ -288,12 +288,12 @@ jobs:
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
           VITE_APPLICATIONINSIGHTS_CONNECTION_STRING: ${{ secrets.APPLICATIONINSIGHTS_CONNECTION_STRING }}
         with:
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: Build
         run: npm run build
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       - name: Verify build output
         run: |
@@ -301,7 +301,7 @@ jobs:
           test -f dist/index.html || (echo -e "${RED} ❌ index.html não encontrado" && exit 1)
           echo -e "${GREEN} ✅ Build OK"
           ls -la dist/
-        working-directory: ${{ inputs.working_directory }}
+        working-directory: ${{ inputs.project_base_dir }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - filesystem scan vuln, secret, misconfig)
@@ -325,11 +325,11 @@ jobs:
           sonar_token: ${{ secrets.SONAR_TOKEN }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
-          working_directory: ${{ inputs.working_directory }}
+          working_directory: ${{ inputs.project_base_dir }}
 
       - name: Summary
         run: |
-          APP_VERSION=$(node -p "require('${{ inputs.working_directory }}/package.json').version")
+          APP_VERSION=$(node -p "require('${{ inputs.project_base_dir }}/package.json').version")
           echo "## ✅ Build Completed Successfully" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "| Property | Value |" >> $GITHUB_STEP_SUMMARY

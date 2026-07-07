@@ -5,7 +5,7 @@ inputs:
   project_base_dir:
     description: 'Path to the project base directory (containing pom.xml)'
     required: false
-    default: './src'
+    default: './source'
   tests_folder:
     description: 'The main test folder (used to locate test classes)'
     required: false
@@ -13,7 +13,7 @@ inputs:
   report_title:
     description: 'Title for the coverage report'
     required: false
-    default: 'Canal DEPLOY'
+    default: 'Sky Platform'
   sonar_exclusions:
     description: 'Class filters for coverage report (comma separated)'
     required: false
@@ -37,7 +37,7 @@ runs:
       id: check_tests
       shell: bash
       run: |
-        if find . -type f \( -name '*Test.java' -o -name '*Tests.java' -o -name '*IT.java' \) | grep -q .; then
+        if find "${{ inputs.project_base_dir }}" -type f \( -name '*Test.java' -o -name '*Tests.java' -o -name '*IT.java' \) | grep -q .; then
           echo "HAS_TESTS=true" >> "$GITHUB_OUTPUT"
           echo -e "\033[0;32m✅ Classes de teste encontradas."
         else

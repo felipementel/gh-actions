@@ -45,7 +45,7 @@ on:
         type: string
         description: 'Message to be displayed in the summary'
         required: false
-        default: 'Canal DEPLOY - O melhor canal sobre .NET, Azure, DevOps e IA'
+        default: 'Sky Platform'
       #build config
       dotnet_version:
         type: string
@@ -71,7 +71,7 @@ on:
         type: string
         description: 'Message to be displayed in the unit test report title'
         required: true
-        default: 'Canal DEPLOY'
+        default: 'Sky Platform'
       #build use
       sonar_exclusions:
         type: string

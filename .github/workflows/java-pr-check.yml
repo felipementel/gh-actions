@@ -41,22 +41,27 @@ on:
       report_title:
         type: string
         description: 'Message to be displayed in the unit test report title'
-        required: true
-        default: 'Canal DEPLOY'
-      openapi_folder:
-        type: string
-        description: 'Path to folder containing OpenAPI specification files'
-        required: true
-        default: ""
-      #build use
+        required: false
+        default: 'Sky Platform'
       sonar_exclusions:
         type: string
         description: 'Path to exclusion from sonar, like migrations. Use comma separation'
+        required: false
+        default: ""
+      #push-image
+      image_name:
+        type: string
+        description: 'Image name to publish at github packages'
         required: true
+        default: ""
+      openapi_folder:
+        type: string
+        description: 'Path to folder containing OpenAPI specification files. Leave empty to skip Spectral linting.'
+        required: false
         default: ""
       docker_file_full_path:
         type: string
-        description: 'Full path to the Dockerfile to be used in the container scan (e.g. docker/Dockerfile)'
+        description: 'Full path to the Dockerfile (e.g. docker/Dockerfile)'
         required: false
         default: ''
       dockerfile_folder:
@@ -69,12 +74,17 @@ on:
         description: 'Docker build context (e.g. .)'
         required: false
         default: ''
-      #push-image
-      image_name:
-        type: string
-        description: 'Image name to publish at github packages'
-        required: true
-        default: ""
+      docker_setup:
+        type: boolean
+        description: 'Whether to set up Docker for multi-platform builds'
+        required: false
+        default: false
+      coverage_threshold:
+        description: 'Minimum coverage percentage required (0-100)'
+        required: false
+        type: number
+        default: 0
+      #registry
       registry:
         type: string
         description: 'Container registry URL (e.g. ghcr.io, docker.io, myacr.azurecr.io)'
