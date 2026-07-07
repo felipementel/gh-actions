@@ -1,18 +1,18 @@
 # {
 #  "apiVersion": apps/v1.0.0
 #  "kind": "otel-export"
-#  "stack": "node"
+#  "stack": ".NET"
 # }
 
-name: Node API — OTel Pipeline Export 📊
+name: .NET API — OTel Pipeline Export 📊
 run-name: "📊 OTel Export | ${{ github.event.workflow_run.name || format('run {0}', inputs.run_id) }}"
 
 on:
   workflow_run:
     workflows:
-      - 'Node API — Build & Deploy'
-      - 'Node API — PR Check'
-      - 'Node API — Weekly Security Scan 🟢🛡️'
+      - '.NET API — Build & Deploy'
+      - '.NET API — PR Check'
+      - '.NET API — Weekly Security Scan 🟢🛡️'
     types:
       - completed
   workflow_dispatch:
