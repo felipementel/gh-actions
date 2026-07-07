@@ -17,10 +17,6 @@ inputs:
   image_name:
     description: 'Image name for container scan'
     required: true
-  docker_file_full_path:
-    description: 'Full path to the Dockerfile to be used in the container scan (e.g. src/Project/Project/Dockerfile)'
-    required: false
-    default: ''
   docker_build_context:
     description: 'Docker build context (e.g. src/Project/Project or .)'
     required: false
@@ -59,7 +55,7 @@ runs:
           ${{ inputs.image_name }} \
           --app-vulns \
           --exclude-base-image-vulns \
-          --file=${{ inputs.docker_file_full_path }}
+          --file=${{ inputs.dockerfile_folder }}/Dockerfile 
 
     - name: 🍵 Run Snyk to check for vulnerabilities
       shell: bash

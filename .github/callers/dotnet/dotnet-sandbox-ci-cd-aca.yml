@@ -46,7 +46,7 @@ jobs:
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
       openapi_folder: 'open-api'
-      docker_file_full_path: 'docker/Dockerfile'
+      dockerfile_folder: './docker'
       docker_build_context: '.'
       registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:

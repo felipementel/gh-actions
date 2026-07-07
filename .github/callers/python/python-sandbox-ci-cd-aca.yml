@@ -54,7 +54,7 @@ jobs:
         docker/
         tests/
       coverage_threshold: 80
-      dockerfile_folder: './Docker/'
+      dockerfile_folder: './docker'
       docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)

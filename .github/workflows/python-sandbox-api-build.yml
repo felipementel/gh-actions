@@ -103,7 +103,7 @@ on:
         description: 'Docker build context (relative to repo root)'
         required: false
         type: string
-        default: '.'
+        default: './source'
       openapi_folder:
         description: 'Path to folder that will receive the exported OpenAPI JSON (e.g. output_openapi). Leave empty to skip Spectral linting.'
         required: false
