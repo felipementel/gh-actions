@@ -62,11 +62,6 @@ on:
         description: 'Path to the folder containing OpenAPI specification files.'
         required: false
         default: ""
-      docker_file_full_path:
-        type: string
-        description: 'Full path to the Dockerfile to be used in the container scan (e.g. src/Project/Project/Dockerfile)'
-        required: false
-        default: ''
       dockerfile_folder:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
@@ -254,7 +249,7 @@ jobs:
           registry_username: ${{ inputs.registry_username || github.actor }}
           image_name: ${{ inputs.image_name }}
           tag_version: ${{ steps.get_version.outputs.TAG }}
-          dockerfile: ${{ inputs.docker_file_full_path }}
+          dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
           context: ${{ inputs.docker_build_context }}
           platforms: 'linux/amd64'
           push: 'false'
@@ -268,7 +263,7 @@ jobs:
       #     mainProject: ${{ inputs.main_project }}
       #     solutionFileName: ${{ inputs.solution_file_name }}
       #     imageName: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/deploy.${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
-      #     docker-file-full-path: ${{ inputs.docker_file_full_path }}
+      #     dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
       #     docker-build-context: ${{ inputs.docker_build_context }}
 
       - name: 🍵 Safety Python Dependency Check
@@ -431,7 +426,7 @@ jobs:
           registry_username: ${{ inputs.registry_username || github.actor }}
           image_name: ${{ inputs.image_name }}
           tag_version: ${{ needs.build.outputs.tag_version }}
-          dockerfile: ${{ inputs.docker_file_full_path }}
+          dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
           context: ${{ inputs.docker_build_context }}
           platforms: 'linux/amd64'
           push: 'true'

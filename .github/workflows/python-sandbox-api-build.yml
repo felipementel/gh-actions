@@ -68,11 +68,6 @@ on:
         required: false
         type: string
         default: ''
-      docker_file_full_path:
-        type: string
-        description: 'Full path to the Dockerfile (e.g. docker/Dockerfile)'
-        required: false
-        default: ''
       dockerfile_folder:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
@@ -104,10 +99,6 @@ on:
         description: 'Registry username / org. Defaults to github.actor when empty (suitable for ghcr.io)'
         required: false
         default: ''
-        description: 'Folder containing the Dockerfile (relative to repo root)'
-        required: false
-        type: string
-        default: 'docker'
       docker_build_context:
         description: 'Docker build context (relative to repo root)'
         required: false
