@@ -5,7 +5,7 @@
 # }
 
 
-name: Python API - PR Check
+name: Python API — PR Check
 run-name: "${{ github.actor }} | PR Check | ${{ github.ref_name }}"
 
 on:
