@@ -10,19 +10,13 @@ run-name: "🛡️ Weekly Security Scan | ${{ github.actor }}"
 on:
   schedule:
     - cron: '0 11 * * 1'  # Every Monday at 08:00 BRT (UTC-3)
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Ambiente para DAST"
-        required: true
-        default: 'development'
-        type: environment
+  workflow_dispatch: {}
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  trivy_sast:
+  sast:
     name: SAST — Trivy
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -71,10 +65,14 @@ jobs:
           category: 'trivy-weekly-license'
 
   dast:
-    name: DAST — ZAP + Nuclei
+    name: DAST — ZAP + Nuclei (${{ matrix.environment }})
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    environment: ${{ inputs.environment || 'development' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        environment: [development, staging, production]
+    environment: ${{ matrix.environment }}
     permissions:
       id-token: write
       contents: read
@@ -91,7 +89,7 @@ jobs:
         id: naming
         uses: felipementel/gh-actions/.github/actions/azure/aca-naming@main
         with:
-          environment: ${{ inputs.environment || 'development' }}
+          environment: ${{ matrix.environment }}
           azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
           acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
           repo_name: ${{ github.event.repository.name }}
@@ -113,10 +111,10 @@ jobs:
           url: https://${{ steps.fqdn.outputs.FQDN }}
           allow_issue_writing: 'false'
           fail_action: 'false'
-          artifact_name: zap-weekly-report-${{ inputs.environment || 'development' }}
+          artifact_name: zap-weekly-report-${{ matrix.environment }}
 
       - name: 🔬 Nuclei DAST Scan
         uses: felipementel/gh-actions/.github/actions/tools/security/nuclei@main
         with:
           url: https://${{ steps.fqdn.outputs.FQDN }}
-          artifact_name: nuclei-weekly-report-${{ inputs.environment || 'development' }}
+          artifact_name: nuclei-weekly-report-${{ matrix.environment }}

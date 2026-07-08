@@ -29,7 +29,7 @@ jobs:
     name: PR Check
     uses: felipementel/gh-actions/.github/workflows/python-pr-check.yml@main
     with:
-      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'DEV' }}
+      environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'development' }}
       tests_folder: 'tests'
       python_version: ${{ vars.BUILD_VERSION }}
       project_base_dir: './source'

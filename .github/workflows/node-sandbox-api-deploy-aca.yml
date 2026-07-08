@@ -6,9 +6,8 @@ on:
     inputs:
       environment:
         type: string
-        description: 'Deployment environment (dev, hml, prd)'
+        description: 'Deployment environment (development, staging, production)'
         required: true
-        default: 'development'
       tag_version:
         type: string
         description: 'Image tag version to deploy (e.g. 1.0.0)'

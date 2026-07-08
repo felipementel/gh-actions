@@ -5,10 +5,9 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Environment to build for (DEV, HML, PRD)'
+        description: 'Environment to build for (development, staging, production)'
         required: false
         type: string
-        default: 'DEV'
       node_version:
         description: 'Node.js version to use'
         required: false
@@ -276,7 +275,7 @@ jobs:
               echo -e "🏗️${GREEN} Building for DEVELOPMENT environment..."
               npm run build:dev
               ;;
-            "HML")
+            "HOM")
               echo -e "🏗️${GREEN} Building for STAGING environment..."
               npm run build:staging
               ;;

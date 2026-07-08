@@ -3,9 +3,8 @@ description: Composite action to get React app version from package.json
 
 inputs:
   environment:
-    description: 'Deployment environment (e.g., PRD, HML)'
+    description: 'Deployment environment (development, staging, production)'
     required: true
-    default: 'DEV'
   project_base_dir:
     description: 'Working directory where package.json is located'
     required: false
@@ -66,7 +65,7 @@ runs:
           echo -e "🔧 ${YELLOW} Aplicando sufixo -dev (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         elif [ "${ENVIRONMENT,,}" == "staging" ]; then
           tag="${tag}-stg"
-          echo -e "🛡️ ${YELLOW} Aplicando sufixo -sandbox (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
+          echo -e "🛡️ ${YELLOW} Aplicando sufixo -stg (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         else
           echo -e "✅ ${GREEN} Sem sufixo (env=$ENVIRONMENT, branch=$BRANCH_NAME)"
         fi

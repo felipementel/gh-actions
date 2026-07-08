@@ -4,7 +4,7 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Environment to use for variables (DEV, HML, PRD)'
+        description: 'Environment to use for variables (development, staging, production)'
         required: false
         type: string
         default: 'development'
@@ -53,10 +53,9 @@ on:
         type: string
         default: 'source/'
       environment:
-        description: 'Environment to use for variables (DEV, HML, PRD)'
+        description: 'Environment to use for variables (development, staging, production)'
         required: false
         type: string
-        default: 'DEV'
       git_leaks:
         description: 'Enable Gitleaks security scan'
         required: false

@@ -6,9 +6,8 @@ on:
     inputs:
       environment:
         type: string
-        description: 'Deployment environment (DEV, HML, PRD)'
-        required: true
-        default: 'DEV'
+        description: 'Deployment environment (development, staging, production)'
+        required: true        
       tag_version:
         type: string
         description: 'Image tag version to deploy (e.g. 1.2.3)'
@@ -99,7 +98,7 @@ jobs:
               ENV_SUFFIX="dev"
               ;;
             hml|homolog|homologacao|staging)
-              ENV_SUFFIX="hml"
+              ENV_SUFFIX="hom"
               ;;
             prd|prod|production)
               ENV_SUFFIX="prd"

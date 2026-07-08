@@ -3,7 +3,7 @@ description: Computes Azure Container Apps resource names (ACA, ACAE, RG) from r
 
 inputs:
   environment:
-    description: 'Deployment environment (dev, hml, prd and variants)'
+    description: 'Deployment environment (development, staging, production)'
     required: true
   azure_resource_group:
     description: 'Base resource group name (env suffix will be appended for non-prd)'
@@ -27,7 +27,7 @@ outputs:
     description: 'Azure Resource Group name'
     value: ${{ steps.naming.outputs.AZURE_RG_NAME }}
   ENV_SUFFIX:
-    description: 'Normalized environment suffix (dev, hml, prd)'
+    description: 'Normalized environment suffix (dev, hom, prd)'
     value: ${{ steps.naming.outputs.ENV_SUFFIX }}
 
 runs:
@@ -45,7 +45,7 @@ runs:
             ENV_SUFFIX="dev"
             ;;
           hml|homolog|homologacao|staging)
-            ENV_SUFFIX="hml"
+            ENV_SUFFIX="hom"
             ;;
           prd|prod|production)
             ENV_SUFFIX="prd"

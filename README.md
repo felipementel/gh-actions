@@ -142,7 +142,7 @@ Arquivos prontos para copiar em repositórios consumers. Organizados por stack e
 
 ## Configuração do Repositório Caller
 
-> **Pré-requisito:** Os **Environments** do GitHub (`DEV`, `HML`, `PRD` etc.) devem estar criados no repositório caller antes de executar qualquer pipeline de deploy. Acesse **Settings → Environments** e crie os ambientes correspondentes aos valores passados no input `environment`.
+> **Pré-requisito:** Os **Environments** do GitHub (`DEV`, `HOM`, `PRD` etc.) devem estar criados no repositório caller antes de executar qualquer pipeline de deploy. Acesse **Settings → Environments** e crie os ambientes correspondentes aos valores passados no input `environment`.
 
 ### `dotnet-sandbox-api-build.yml`
 

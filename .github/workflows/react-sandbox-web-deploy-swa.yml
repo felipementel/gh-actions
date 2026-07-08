@@ -5,10 +5,9 @@ on:
   workflow_call:
     inputs:
       environment:
-        description: 'Deployment environment (DEV, HML, PRD)'
+        description: 'Deployment environment (development, staging, production)'
         required: false
         type: string
-        default: 'DEV'
       app_name:
         description: 'Application name (from build output, used in ZAP artifact name)'
         required: true
@@ -131,7 +130,7 @@ jobs:
 
           if [ -z "${AZURE_STATIC_WEBAPP_NAME:-}" ] || [ -z "${AZURE_RESOURCE_GROUP:-}" ]; then
             echo -e "${RED} ❌ dist/config.json still has placeholders, but AZURE_STATIC_WEBAPP_NAME/AZURE_RESOURCE_GROUP are not set as GitHub Environment variables."
-            echo -e "${YELLOW} ➡️ Define vars.AZURE_STATIC_WEBAPP_NAME and vars.AZURE_RESOURCE_GROUP in the GitHub Environment used by this deployment (DEV/HML/PRD)."
+            echo -e "${YELLOW} ➡️ Define vars.AZURE_STATIC_WEBAPP_NAME and vars.AZURE_RESOURCE_GROUP in the GitHub Environment used by this deployment (DEV/HOM/PRD)."
             exit 1
           fi
 

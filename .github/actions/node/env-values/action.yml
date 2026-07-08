@@ -8,9 +8,8 @@ inputs:
     required: true
     default: './source'
   environment:
-    description: 'Environment name (DEV, HML, PRD)'
+    description: 'Environment name (development, staging, production)'
     required: true
-    default: 'DEV'
 
 runs:
   using: 'composite'

@@ -6,7 +6,7 @@ on:
     inputs:
       environment:
         type: string
-        description: 'Deployment environment (dev, hml, prd)'
+        description: 'Deployment environment (development, staging, production)'
         required: true
         default: 'development'
       tag_version:
