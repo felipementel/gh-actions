@@ -165,7 +165,7 @@ jobs:
           ref: ${{ github.ref }}
           fetch_depth: 0
           sparse_checkout: |
-            source/
+            src/
             tests/
             docker/
           sparse_checkout_cone_mode: false
