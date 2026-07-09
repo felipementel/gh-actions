@@ -60,7 +60,7 @@ runs:
   using: 'composite'
   steps:
     - name: Manual Trivy Setup
-      uses: aquasecurity/setup-trivy
+      uses: aquasecurity/setup-trivy@0.3
       with:
         cache: true
         version: v0.72.0
