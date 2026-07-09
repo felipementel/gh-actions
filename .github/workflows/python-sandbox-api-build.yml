@@ -365,13 +365,6 @@ jobs:
           trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-image'
 
-      - name: 🏷️ Create Tag
-        id: github_tag
-        if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
-        with:
-          tag: ${{ steps.get_version.outputs.TAG }}
-
       - name: 🔨 Export OpenAPI JSON from FastAPI
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
@@ -387,12 +380,23 @@ jobs:
           print('OpenAPI JSON exported successfully')
           "
 
+      - name: 📤 Upload OpenAPI artifacts
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        with:
+          name: OpenAPI-Specs
+          path: |
+            ${{ inputs.openapi_folder }}/*.json
+            ${{ inputs.openapi_folder }}/*.yaml
+            ${{ inputs.openapi_folder }}/*.yml
+
+
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./${{ inputs.openapi_folder }}
-          node_version: ${{ env.node_version }}
+          node_version: ${{ env.nodeVersion }}
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -411,6 +415,13 @@ jobs:
           - ✅ Testes executados (se disponíveis)
           - ✅ Linting executado'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
 
   check_image:
     name: Check if Docker image exists

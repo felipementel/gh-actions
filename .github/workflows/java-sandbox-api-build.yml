@@ -291,13 +291,6 @@ jobs:
           trivyignores: ${{ hashFiles('.trivyignore.yaml') != '' && '.trivyignore.yaml' || '' }}
           category: 'trivy-image'
 
-      - name: 🏷️ Create Tag
-        id: github_tag
-        if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
-        with:
-          tag: ${{ steps.get_version.outputs.TAG }}
-
       - name: 🚀 Maven build to generate OpenAPI JSON
         if: ${{ inputs.openapi_folder != '' }}
         shell: bash
@@ -319,7 +312,7 @@ jobs:
             exit 1
           fi
 
-      - name: Upload OpenAPI artifacts
+      - name: 📤 Upload OpenAPI artifacts
         if: ${{ inputs.openapi_folder != '' }}
         uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
@@ -345,6 +338,13 @@ jobs:
           | ${{ steps.get_version.outputs.tag }} | ${{ steps.get_env.outputs.now }} | \n
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
 
   check_image:
     name: Check if image exists

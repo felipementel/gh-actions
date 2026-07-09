@@ -250,42 +250,7 @@ jobs:
           coverage_file: ${{ inputs.project_base_dir }}/coverage/clover.xml
           coverage_format: clover
 
-      - name: 🔍 Generate OpenAPI JSON
-        if: ${{ inputs.openapi_folder != '' }}
-        working-directory: ${{ inputs.project_base_dir }}
-        run: npm run generate:openapi
-
-      - name: 🔍 Check OpenAPI files
-        if: ${{ inputs.openapi_folder != '' }}
-        shell: bash
-        run: |
-          openapi_path="${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}"
-
-          if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
-            echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
-          else
-            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your source contains the expected OpenAPI JSON/YAML files."
-            exit 1
-          fi
-
-      - name: 📤 Upload OpenAPI artifacts
-        if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
-        with:
-          name: OpenAPI-Specs
-          path: |
-            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.json
-            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.yaml
-            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.yml
-
-      - name: 🚀 Spectral OpenAPI Lint
-        if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
-        with:
-          openapi_files_path: ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}
-          node_version: ${{ inputs.node_version }}
-
-      - name: 🐳 Docker setup
+      - name: � Docker setup
         uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🐳 Docker Build (local, for Security scan)
@@ -343,12 +308,40 @@ jobs:
           trivyignores: ${{ steps.check_trivyignore.outputs.path }}
           category: 'trivy-image'
 
-      - name: 🏷️ Create Tag
-        id: github_tag
-        if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+      - name: 🔍 Generate OpenAPI JSON
+        if: ${{ inputs.openapi_folder != '' }}
+        working-directory: ${{ inputs.project_base_dir }}
+        run: npm run generate:openapi
+
+      - name: 🔍 Check OpenAPI files
+        if: ${{ inputs.openapi_folder != '' }}
+        shell: bash
+        run: |
+          openapi_path="${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}"
+
+          if find "$openapi_path" -maxdepth 1 -type f \( -name '*.json' -o -name '*.yaml' -o -name '*.yml' \) | grep -q .; then
+            echo -e "${GREEN}✅ OpenAPI specification files found in ${openapi_path}."
+          else
+            echo -e "${YELLOW}⚠️ No OpenAPI specification files found in ${openapi_path}. Please ensure your source contains the expected OpenAPI JSON/YAML files."
+            exit 1
+          fi
+
+      - name: 📤 Upload OpenAPI artifacts
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
-          tag: ${{ steps.get_version.outputs.TAG }}
+          name: OpenAPI-Specs
+          path: |
+            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.json
+            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.yaml
+            ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}/*.yml
+
+      - name: 🚀 Spectral OpenAPI Lint
+        if: ${{ inputs.openapi_folder != '' }}
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        with:
+          openapi_files_path: ${{ inputs.project_base_dir }}/${{ inputs.openapi_folder }}
+          node_version: ${{ inputs.node_version }}
 
       - name: 🧾 Write to workflow job summary
         run: |
@@ -359,6 +352,13 @@ jobs:
           | ${{ steps.get_version.outputs.TAG }} | ${{ steps.get_env.outputs.NOW }} | \n
           \n'
           echo "$SUMMARY" >> $GITHUB_STEP_SUMMARY
+
+      - name: 🏷️ Create Tag
+        id: github_tag
+        if: ${{ inputs.build_mode != 'Build' }}
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        with:
+          tag: ${{ steps.get_version.outputs.TAG }}
 
   check_image:
     name: Check if image exists
