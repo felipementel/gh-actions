@@ -102,9 +102,6 @@ on:
       SONAR_TOKEN:
         required: true
         description: 'Sonar Token'
-      SAFETY_API_KEY:
-        required: true
-        description: 'Safety API Key'
       REGISTRY_PAT:
         required: false
         description: 'Registry PAT'
@@ -253,22 +250,6 @@ jobs:
           platforms: 'linux/amd64'
           push: 'false'
           load: 'true'
-
-      # - name: 🍵 Snyk Security Scan
-      #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
-      #   with:
-      #     snyk-token: ${{ secrets.SNYK_API_KEY }}
-      #     projectBaseDir: ${{ inputs.project_base_dir }}
-      #     mainProject: ${{ inputs.main_project }}
-      #     solutionFileName: ${{ inputs.solution_file_name }}
-      #     imageName: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/deploy.${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
-      #     dockerfile: ${{ inputs.dockerfile_folder }}/Dockerfile
-      #     docker-build-context: ${{ inputs.docker_build_context }}
-
-      - name: 🍵 Safety Python Dependency Check
-        uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
-        with:
-          api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)

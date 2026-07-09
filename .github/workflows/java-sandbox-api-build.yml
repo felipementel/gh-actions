@@ -102,9 +102,6 @@ on:
       SONAR_TOKEN:
         required: true
         description: 'Sonar Token'
-      SAFETY_API_KEY:
-        required: true
-        description: 'Safety API Key'
       REGISTRY_PAT:
         required: false
         description: 'Registry PAT'
@@ -251,11 +248,6 @@ jobs:
           platforms: 'linux/amd64'
           push: 'false'
           load: 'true'
-
-      - name: 🍵 Safety Python Dependency Check
-        uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
-        with:
-          api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
