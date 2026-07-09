@@ -13,7 +13,6 @@ on:
         type: string
         description: 'Environment to run the workflow'
         required: true
-        default: 'development'
       python_version:
         type: string
         description: 'Python version to use in the workflow'

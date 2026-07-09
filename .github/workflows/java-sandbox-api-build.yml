@@ -13,7 +13,6 @@ on:
         type: string
         description: 'Environment to run the workflow'
         required: true
-        default: 'development'
       tests_folder:
         type: string
         description: 'The main test folder'

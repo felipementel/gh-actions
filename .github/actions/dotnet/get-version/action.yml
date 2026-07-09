@@ -13,7 +13,6 @@ inputs:
   environment:
     description: 'Deployment environment (e.g., development, staging, production)'
     required: true
-    default: 'development'
 
 outputs:
   TAG:

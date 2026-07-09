@@ -15,13 +15,6 @@ on:
       - 'tests/**'
       - 'docker/**'
       - '.github/workflows/**'
-  workflow_dispatch:
-    inputs:
-      environment:
-        description: "Selecione o ambiente de implantação"
-        required: true
-        default: 'development'
-        type: environment
 
 jobs:
   pr_check:

@@ -7,7 +7,6 @@ on:
         description: 'Environment to use for variables (development, staging, production)'
         required: false
         type: string
-        default: 'development'
       node_version:
         description: 'Node.js version to use'
         required: false
