@@ -135,7 +135,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -147,7 +147,7 @@ jobs:
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        uses: ./.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
@@ -169,7 +169,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -181,7 +181,7 @@ jobs:
           exit_code: '1'
 
       - name: 🔎 Trivy - License Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -215,7 +215,7 @@ jobs:
           uv sync --extra dev
 
       - name: Code Quality
-        uses: felipementel/gh-actions/.github/actions/python/code-quality@main
+        uses: ./.github/actions/python/code-quality@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
 
@@ -236,7 +236,7 @@ jobs:
           EOF
 
       - name: Upload OpenAPI spec artifact
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: openapi-${{ github.run_number }}.json
           path: |
@@ -262,7 +262,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
             source/
@@ -327,7 +327,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/codecov/codecov-action@main
+        uses: ./.github/actions/_wrapper/codecov/codecov-action@main
         with:
           files: ./tests/results/coverage.xml
           flags: unittests
@@ -337,21 +337,21 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: github.ref == 'refs/heads/main'
-        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        uses: ./.github/actions/tools/coverage-badge@main
         with:
           coverage_file: tests/results/coverage.xml
           coverage_format: cobertura
 
       - name: Archive coverage HTML report
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: coverage-report-unit
           path: tests/results/htmlcov/
           retention_days: 30
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-python@main
+        uses: ./.github/actions/tools/code-quality/sonar-cloud-python@main
         with:
           has_tests: ${{ steps.check_tests.outputs.HAS_TESTS }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -371,10 +371,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: 🏷️ Extract Application Version
-        uses: felipementel/gh-actions/.github/actions/python/get-version@main
+        uses: ./.github/actions/python/get-version@main
         id: get_version
         with:
           environment: DEV
@@ -389,14 +389,14 @@ jobs:
           echo -e "${GREEN}✅ Version format is valid: $VERSION"
 
       - name: 🔍 Check if tag already exists
-        uses: felipementel/gh-actions/.github/actions/check-tag-exists@main
+        uses: ./.github/actions/check-tag-exists@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: pyproject.toml
 
       - name: 🔐 Log in to GHCR for image validation
         if: ${{ inputs.image_name != '' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
+        uses: ./.github/actions/_wrapper/docker/login-action@main
         with:
           registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
@@ -455,7 +455,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -502,7 +502,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: Set up Python
         uses: actions/setup-python@v6
@@ -569,7 +569,7 @@ jobs:
       #     pip-audit
 
       - name: Upload security reports
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: security-reports
           path: |
@@ -597,7 +597,7 @@ jobs:
 
       - name: 🔍 Trivy - Scan Docker image
         if: ${{ inputs.image_name != '' && env.IMAGE_BUILT == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/trivy-scan@main
+        uses: ./.github/actions/trivy-scan@main
         with:
           scan_type: 'image'
           image_ref: scan-image:pr-${{ github.event.pull_request.number }}
@@ -646,7 +646,7 @@ jobs:
           fi
 
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
             source/

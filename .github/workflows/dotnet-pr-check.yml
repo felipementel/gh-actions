@@ -145,7 +145,7 @@ jobs:
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: 📥 Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -157,21 +157,21 @@ jobs:
 
       - name: 🔍 Get-Version from csproj
         id: get_version
-        uses: felipementel/gh-actions/.github/actions/dotnet/get-version@main
+        uses: ./.github/actions/dotnet/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
+        uses: ./.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
           fail_on_exists: false
 
       - name: 🛠️ Setup .NET version ${{ inputs.dotnet_version }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-dotnet@main
+        uses: ./.github/actions/_wrapper/github/setup-dotnet@main
         with:
           dotnet_version: ${{ inputs.dotnet_version }}
 
@@ -181,24 +181,24 @@ jobs:
           $DOTNET_ROOT/dotnet --info
 
       - name: 🧱📤 Git Leaks
-        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        uses: ./.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
 
       # - name: Owasp Dependency Check
-      #   uses: felipementel/gh-actions/.github/actions/tools-owasp-zap@main
+      #   uses: ./.github/actions/tools-owasp-zap@main
       #   with:
       #     projectBaseDir: ${{ inputs.project_base_dir }}
       #     mainProject: ${{ inputs.main_project }}
       #     solutionFileName: ${{ inputs.solution_file_name }}
 
       - name: 🐋 Docker setup
-        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
+        uses: ./.github/actions/tools/docker/setup@main
 
       - name: 🧪 Dotnet Test & Coverage
         id: dotnet_test
-        uses: felipementel/gh-actions/.github/actions/dotnet/dotnet-test@main
+        uses: ./.github/actions/dotnet/dotnet-test@main
         with:
           tests_folder: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
@@ -207,7 +207,7 @@ jobs:
           run_id: ${{ github.run_id }}
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
+        uses: ./.github/actions/tools/code-quality/sonar-cloud-dotnet@main
         with:
           has_tests: ${{ steps.dotnet_test.outputs.has_tests }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -222,7 +222,7 @@ jobs:
           java_distro: ${{ env.javaDistro }}
 
       - name: 🐳 Docker Build (local, for Security scan)
-        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        uses: ./.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -235,7 +235,7 @@ jobs:
           load: 'true'
 
       # - name: 🍵 Snyk Security Scan
-      #   uses: felipementel/gh-actions/.github/actions/tools/security/snyk-dotnet@main
+      #   uses: ./.github/actions/tools/security/snyk-dotnet@main
       #   with:
       #     snyk-token: ${{ secrets.SNYK_API_KEY }}
       #     projectBaseDir: ${{ inputs.project_base_dir }}
@@ -246,13 +246,13 @@ jobs:
       #     docker-build-context: ${{ inputs.docker_build_context }}
 
       - name: 🍵 Safety Python Dependency Check
-        uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
+        uses: ./.github/actions/tools/security/safety-python@main
         with:
           api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -266,7 +266,7 @@ jobs:
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -280,7 +280,7 @@ jobs:
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)fel
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
           scan_type: 'image'
@@ -318,7 +318,7 @@ jobs:
 
       - name: Upload OpenAPI artifacts
         if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
           path: |
@@ -328,7 +328,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        uses: ./.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./output_build/${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
@@ -353,7 +353,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
+        uses: ./.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}

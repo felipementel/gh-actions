@@ -163,7 +163,7 @@ jobs:
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: 📥 Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -176,21 +176,21 @@ jobs:
 
       - name: 🔍 Get-Version from pom.xml
         id: get_version
-        uses: felipementel/gh-actions/.github/actions/java/get-version@main
+        uses: ./.github/actions/java/get-version@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           environment: ${{ inputs.environment }}
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
+        uses: ./.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/pom.xml
           fail_on_exists: true
 
       - name: 🛠️ Setup Java version ${{ inputs.java_version }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-java@main
+        uses: ./.github/actions/_wrapper/github/setup-java@main
         with:
           java_version: ${{ inputs.java_version }}
           distribution: ${{ inputs.java_distribution }}
@@ -198,17 +198,17 @@ jobs:
           cache_dependency_path: '**/pom.xml'
 
       - name: 🧱📤 Git Leaks
-        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        uses: ./.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
 
       - name: 🐋 Docker setup
-        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
+        uses: ./.github/actions/tools/docker/setup@main
 
       - name: 🧪 Maven Test & Coverage
         id: maven_test
-        uses: felipementel/gh-actions/.github/actions/java/maven-test@main
+        uses: ./.github/actions/java/maven-test@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           tests_folder: ${{ inputs.tests_folder }}
@@ -218,7 +218,7 @@ jobs:
           run_id: ${{ github.run_id }}
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-java@main
+        uses: ./.github/actions/tools/code-quality/sonar-cloud-java@main
         with:
           has_tests: ${{ steps.maven_test.outputs.has_tests }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -231,13 +231,13 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.maven_test.outputs.has_tests == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        uses: ./.github/actions/tools/coverage-badge@main
         with:
           coverage_file: ${{ inputs.project_base_dir }}/target/site/jacoco/jacoco.xml
           coverage_format: jacoco
 
       - name: 🐳 Docker Build (local, for Security scan)
-        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        uses: ./.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -251,7 +251,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -265,7 +265,7 @@ jobs:
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -279,7 +279,7 @@ jobs:
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
           scan_type: 'image'
@@ -314,7 +314,7 @@ jobs:
 
       - name: 📤 Upload OpenAPI artifacts
         if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
           path: |
@@ -324,7 +324,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
+        uses: ./.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ${{ inputs.project_base_dir }}/target/${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
@@ -342,7 +342,7 @@ jobs:
       - name: 🏷️ Create Tag
         id: github_tag
         if: ${{ inputs.build_mode != 'Build' }}
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        uses: ./.github/actions/git/tag-create@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
 
@@ -358,7 +358,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
+        uses: ./.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -378,7 +378,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           fetch_depth: 0
           sparse_checkout: |
@@ -387,14 +387,14 @@ jobs:
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker login
-        uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
+        uses: ./.github/actions/tools/docker/login@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
           registry_password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Push Docker image
-        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        uses: ./.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
