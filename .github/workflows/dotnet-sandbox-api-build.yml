@@ -156,7 +156,7 @@ jobs:
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: 📥 Checkout
-        uses: ./.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -168,7 +168,7 @@ jobs:
 
       - name: 🔍 Get-Version from csproj
         id: get_version
-        uses: ./.github/actions/dotnet/get-version@main
+        uses: ./.github/actions/dotnet/get-version
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
           main_project: ${{ inputs.main_project }}
