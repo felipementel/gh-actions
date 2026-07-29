@@ -81,7 +81,7 @@ jobs:
     steps:
 
       - name: 🔐 Azure Login
-        uses: felipementel/gh-actions/.github/actions/azure/az-login@main
+        uses: ./.github/actions/azure/az-login@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -89,7 +89,7 @@ jobs:
 
       - name: 🧾 Compute Azure Container App names
         id: naming
-        uses: felipementel/gh-actions/.github/actions/azure/aca-naming@main
+        uses: ./.github/actions/azure/aca-naming@main
         with:
           environment: ${{ inputs.environment }}
           azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
@@ -98,7 +98,7 @@ jobs:
 
       - name: 🚀 Deploy to Azure Container App
         id: deploy
-        uses: felipementel/gh-actions/.github/actions/azure/aca-deploy@main
+        uses: ./.github/actions/azure/aca-deploy@main
         with:
           azure_client_id: ${{ secrets.AZURE_CLIENT_ID }}
           azure_tenant_id: ${{ secrets.AZURE_TENANT_ID }}
@@ -112,7 +112,7 @@ jobs:
           registry_pat: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🔬 OWASP ZAP Baseline
-        uses: felipementel/gh-actions/.github/actions/tools/security/owasp-zap@main
+        uses: ./.github/actions/tools/security/owasp-zap@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           allow_issue_writing: 'false'
@@ -120,13 +120,13 @@ jobs:
           artifact_name: zap-report-${{ inputs.environment }}
 
       - name: 🔬 Nuclei DAST Scan
-        uses: felipementel/gh-actions/.github/actions/tools/security/nuclei@main
+        uses: ./.github/actions/tools/security/nuclei@main
         with:
           url: https://${{ steps.deploy.outputs.FQDN }}
           artifact_name: nuclei-report-${{ inputs.environment }}
 
       - name: 📝 Deployment Summary
-        uses: felipementel/gh-actions/.github/actions/azure/aca-summary@main
+        uses: ./.github/actions/azure/aca-summary@main
         with:
           tag_version: ${{ inputs.tag_version }}
           now: ${{ github.run_id }}

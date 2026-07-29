@@ -37,7 +37,7 @@ runs:
 
     - name: 🔬📤 Upload Nuclei report
       if: ${{ always() }}
-      uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+      uses: ./.github/actions/_wrapper/github/upload-artifact@main
       with:
         name: ${{ inputs.artifact_name }}
         path: nuclei-results.sarif

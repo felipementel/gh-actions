@@ -135,7 +135,7 @@ jobs:
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: Sys - Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
             src
@@ -189,7 +189,7 @@ jobs:
           echo "VERSION_SUFFIX=$versionSuffix" >> "$GITHUB_OUTPUT"
 
       - name: Sys - Setup .NET version ${{ inputs.dotnet_version }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-dotnet@main
+        uses: ./.github/actions/_wrapper/github/setup-dotnet@main
         with:
           dotnet_version: ${{ inputs.dotnet_version }}
 
@@ -211,13 +211,13 @@ jobs:
 
       - name: 🔐 Set up JDK 23 to use with SonarCloud
         if: ${{ inputs.sonar_qube }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-java@main
+        uses: ./.github/actions/_wrapper/github/setup-java@main
         with:
           java_version: 23
           distribution: 'zulu'
 
       - name: 🔐 SonarCloud packages cache
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/cache@main
+        uses: ./.github/actions/_wrapper/github/cache@main
         if: ${{ inputs.sonar_qube }}
         with:
           path: ~/sonar/cache
@@ -227,7 +227,7 @@ jobs:
       - name: 🔐 SonarCloud scanner cache
         id: cache_sonar_scanner
         if: ${{ inputs.sonar_qube }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/cache@main
+        uses: ./.github/actions/_wrapper/github/cache@main
         with:
           path: ./.sonar/scanner
           key: ${{ runner.os }}-sonar-scanner
@@ -298,7 +298,7 @@ jobs:
 
       - name: Upload coverage report artifact
         if: ${{ inputs.unit_tests }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: CoverageReport
           path: coveragereport
@@ -343,7 +343,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
+        uses: ./.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
@@ -364,7 +364,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           fetch_depth: 0
           sparse_checkout: |
@@ -372,17 +372,17 @@ jobs:
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker Setup
-        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
+        uses: ./.github/actions/tools/docker/setup@main
 
       - name: 🐳 Docker Login
-        uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
+        uses: ./.github/actions/tools/docker/login@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}
           registry_password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Docker Build and Push
-        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
+        uses: ./.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ github.actor }}

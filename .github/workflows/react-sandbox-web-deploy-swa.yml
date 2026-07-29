@@ -184,7 +184,7 @@ jobs:
 
       # DAST/passive scan no site publicado
       - name: 🕷️ OWASP ZAP Baseline
-        uses: felipementel/gh-actions/.github/actions/owasp-zap@main
+        uses: ./.github/actions/owasp-zap@main
         with:
           url: ${{ inputs.url }}
           allow_issue_writing: ${{ inputs.allow_issue_writing }}

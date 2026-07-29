@@ -88,7 +88,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -100,7 +100,7 @@ jobs:
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/git-leaks@main
+        uses: ./.github/actions/git-leaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
@@ -110,7 +110,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - filesystem scan (deps, misconfig, secrets)
-        uses: felipementel/gh-actions/.github/actions/trivy-scan@main
+        uses: ./.github/actions/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}/dist'
@@ -122,7 +122,7 @@ jobs:
           trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🔎 Trivy - license scan
-        uses: felipementel/gh-actions/.github/actions/trivy-scan@main
+        uses: ./.github/actions/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -134,14 +134,14 @@ jobs:
           trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🏷️ Extract Application Version
-        uses: felipementel/gh-actions/.github/actions/react-get-package-data@main
+        uses: ./.github/actions/react-get-package-data@main
         id: get_package_data
         with:
           environment: ${{ inputs.environment }}
           project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Setup Node ${{ inputs.node_version }} (with npm cache)
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
+        uses: ./.github/actions/_wrapper/github/setup-node@main
         with:
           node_version: ${{ inputs.node_version }}
           cache: 'npm'
@@ -179,7 +179,7 @@ jobs:
       # ENV para o Data Processor
       - name: Create .env for Data Processor
         if: github.repository == 'felipementelgn-web-data-processor'
-        uses: felipementel/gh-actions/.github/actions/react-env-data-processor@main
+        uses: ./.github/actions/react-env-data-processor@main
         env:
           VITE_ADMIN_API_URL: ${{ vars.VITE_ADMIN_API_URL }}
           VITE_AUTH_API_URL: ${{ vars.VITE_AUTH_API_URL }}
@@ -201,7 +201,7 @@ jobs:
       # ENV para o Admin Plataforma
       - name: Create .env for Admin Plataforma
         if: github.repository == 'felipementelgn-web-admin-plataforma'
-        uses: felipementel/gh-actions/.github/actions/react-env-admin-plataforma@main
+        uses: ./.github/actions/react-env-admin-plataforma@main
         env:
           VITE_API_AUTH_URL: ${{ vars.VITE_API_AUTH_URL }}
           VITE_API_PROPERTY_URL: ${{ vars.VITE_API_PROPERTY_URL }}
@@ -214,7 +214,7 @@ jobs:
       # ENV para o Slider
       - name: Create .env for Slider
         if: github.repository == 'felipementelgn-web-slider'
-        uses: felipementel/gh-actions/.github/actions/react-env-slider@main
+        uses: ./.github/actions/react-env-slider@main
         env:
           VITE_IMGS_BASE_URL: ${{ vars.VITE_IMGS_BASE_URL }}
           AZURE_IMGS_CONTAINER_URL: ${{ vars.AZURE_IMGS_CONTAINER_URL }}
@@ -226,7 +226,7 @@ jobs:
       # ENV para o Plataforma (principal)
       - name: Create .env for Plataforma
         if: github.repository == 'felipementelgn-web-plataforma'
-        uses: felipementel/gh-actions/.github/actions/react-env-plataforma@main
+        uses: ./.github/actions/react-env-plataforma@main
         env:
           VITE_API_URL: ${{ vars.VITE_API_URL }}
           VITE_PROPERTY_SERVICE_URL: ${{ vars.VITE_PROPERTY_SERVICE_URL }}
@@ -258,7 +258,7 @@ jobs:
 
       - name: Create .env for Report Design
         if: github.repository == 'felipementelgn-web-report-design'
-        uses: felipementel/gh-actions/.github/actions/react-env-report-design@main
+        uses: ./.github/actions/react-env-report-design@main
         env:
           VITE_REPORT_DESIGN_API_URL: ${{ vars.VITE_REPORT_DESIGN_API_URL }}
           VITE_AUTH_SERVICE_URL: ${{ vars.VITE_AUTH_SERVICE_URL }}
@@ -299,7 +299,7 @@ jobs:
         working-directory: ${{ inputs.project_base_dir }}
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-node@main
+        uses: ./.github/actions/tools/code-quality/sonar-cloud-node@main
         with:
           has_tests: 'false'
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -310,7 +310,7 @@ jobs:
           project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Upload artifact for deployment job
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: static-website
           path: ${{ inputs.project_base_dir }}/dist
@@ -318,7 +318,7 @@ jobs:
 
       - name: 🏷️ Create Tag
         id: github_tag
-        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
+        uses: ./.github/actions/git/tag-create@main
         with:
           tag: ${{ needs.build.outputs.tag_version }}
 

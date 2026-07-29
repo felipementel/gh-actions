@@ -135,7 +135,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -147,7 +147,7 @@ jobs:
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
+        uses: ./.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
@@ -169,7 +169,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -181,7 +181,7 @@ jobs:
           exit_code: '1'
 
       - name: 🔎 Trivy - License Scan (vuln, secret, misconfig)
-        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
+        uses: ./.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -196,18 +196,26 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
-          cache: 'pip'
+          # cache: 'pip'
+
+      - name: 🚀 Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: '${{ inputs.project_base_dir }}/pyproject.toml'
 
       - name: Install dependencies
         env:
           REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
-          python -m pip install --upgrade pip
+          # python -m pip install --upgrade pip
           git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
-          pip install -e ".[dev]"
+          # pip install -e ".[dev]"
+          uv sync --extra dev
 
       - name: Code Quality
-        uses: felipementel/gh-actions/.github/actions/python/code-quality@main
+        uses: ./.github/actions/python/code-quality@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
 
@@ -219,7 +227,8 @@ jobs:
           fi
           export LOG_DIR="${{ github.workspace }}/.logs"
           mkdir -p "$LOG_DIR"
-          python - << 'EOF'
+          # python - << 'EOF'
+          uv run --project ${{ inputs.project_base_dir }} python - << 'EOF'
           from ${{ inputs.project_base_dir }}.main import app
           import json
           with open("openapi.json", "w") as f:
@@ -227,7 +236,7 @@ jobs:
           EOF
 
       - name: Upload OpenAPI spec artifact
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: openapi-${{ github.run_number }}.json
           path: |
@@ -253,7 +262,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
             source/
@@ -265,15 +274,23 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
-          cache: pip
+          # cache: pip
+
+      - name: 🚀 Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: '${{ inputs.project_base_dir }}/pyproject.toml'
 
       - name: Install dependencies
         env:
           REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
-          python -m pip install --upgrade pip
+          # python -m pip install --upgrade pip
           git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
-          pip install -e ".[dev]"
+          # pip install -e ".[dev]"
+          uv sync --extra dev
 
       - name: 🔍 Check for tests
         id: check_tests
@@ -295,7 +312,13 @@ jobs:
 
           # Run unit tests only with coverage
           echo -e "🧪${BLUE} Running unit tests with coverage..."
-          pytest -v \
+          # pytest -v \
+          #   --cov=${{ inputs.project_base_dir }} \
+          #   --cov-report=xml:tests/results/coverage.xml \
+          #   --cov-report=html:tests/results/htmlcov \
+          #   --cov-report=term-missing \
+          #   --cov-fail-under=${{ inputs.coverage_threshold }}
+          uv run --project ${{ inputs.project_base_dir }} pytest -v \
             --cov=${{ inputs.project_base_dir }} \
             --cov-report=xml:tests/results/coverage.xml \
             --cov-report=html:tests/results/htmlcov \
@@ -304,7 +327,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/codecov/codecov-action@main
+        uses: ./.github/actions/_wrapper/codecov/codecov-action@main
         with:
           files: ./tests/results/coverage.xml
           flags: unittests
@@ -314,21 +337,21 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: github.ref == 'refs/heads/main'
-        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
+        uses: ./.github/actions/tools/coverage-badge@main
         with:
           coverage_file: tests/results/coverage.xml
           coverage_format: cobertura
 
       - name: Archive coverage HTML report
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: coverage-report-unit
           path: tests/results/htmlcov/
           retention_days: 30
 
       - name: 📸 SonarCloud Analysis
-        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-python@main
+        uses: ./.github/actions/tools/code-quality/sonar-cloud-python@main
         with:
           has_tests: ${{ steps.check_tests.outputs.HAS_TESTS }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -348,10 +371,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: 🏷️ Extract Application Version
-        uses: felipementel/gh-actions/.github/actions/python/get-version@main
+        uses: ./.github/actions/python/get-version@main
         id: get_version
         with:
           environment: DEV
@@ -366,14 +389,14 @@ jobs:
           echo -e "${GREEN}✅ Version format is valid: $VERSION"
 
       - name: 🔍 Check if tag already exists
-        uses: felipementel/gh-actions/.github/actions/check-tag-exists@main
+        uses: ./.github/actions/check-tag-exists@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: pyproject.toml
 
       - name: 🔐 Log in to GHCR for image validation
         if: ${{ inputs.image_name != '' }}
-        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
+        uses: ./.github/actions/_wrapper/docker/login-action@main
         with:
           registry: ${{ inputs.registry }}
           username: ${{ github.actor }}
@@ -432,25 +455,35 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
-          cache: pip
+          # cache: pip
+
+      - name: 🚀 Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: '${{ inputs.project_base_dir }}/pyproject.toml'
 
       - name: Install dependencies
         env:
           REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
-          python -m pip install --upgrade pip
+          # python -m pip install --upgrade pip
           git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
-          pip install -e .
+          # pip install -e .
+          uv sync
 
       - name: Check dependencies
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
-          pip check
+          # pip check
+          uv pip check
 
       - name: Build summary
         run: |
@@ -469,33 +502,45 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
 
       - name: Set up Python
         uses: actions/setup-python@v6
         with:
           python-version: ${{ inputs.python_version }}
-          cache: pip
+          # cache: pip
+
+      - name: 🚀 Set up uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+          cache-dependency-glob: '${{ inputs.project_base_dir }}/pyproject.toml'
 
       - name: Install security tools
         env:
           REGISTRY_PAT: ${{ secrets.REGISTRY_PAT }}
+        working-directory: ${{ inputs.project_base_dir }}
         run: |
-          python -m pip install --upgrade pip
+          # python -m pip install --upgrade pip
           git config --global url."https://${REGISTRY_PAT}@github.com/".insteadOf "https://github.com/"
-          pip install -e ".[dev]"
+          # pip install -e ".[dev]"
+          uv sync --extra dev
 
       - name: Run Bandit security scan
         run: |
           # Check if .bandit config file exists
           if [ -f ".bandit" ]; then
             echo -e "${GREEN}Using .bandit configuration file"
-            bandit -r ${{ inputs.project_base_dir }} -c .bandit -f json -o bandit-report.json || true
-            bandit -r ${{ inputs.project_base_dir }} -c .bandit -f screen
+            # bandit -r ${{ inputs.project_base_dir }} -c .bandit -f json -o bandit-report.json || true
+            # bandit -r ${{ inputs.project_base_dir }} -c .bandit -f screen
+            uv run --project ${{ inputs.project_base_dir }} bandit -r ${{ inputs.project_base_dir }} -c .bandit -f json -o bandit-report.json || true
+            uv run --project ${{ inputs.project_base_dir }} bandit -r ${{ inputs.project_base_dir }} -c .bandit -f screen
           else
             echo -e "${YELLOW}No .bandit config found, using default settings"
-            bandit -r ${{ inputs.project_base_dir }} -f json -o bandit-report.json || true
-            bandit -r ${{ inputs.project_base_dir }} -f screen
+            # bandit -r ${{ inputs.project_base_dir }} -f json -o bandit-report.json || true
+            # bandit -r ${{ inputs.project_base_dir }} -f screen
+            uv run --project ${{ inputs.project_base_dir }} bandit -r ${{ inputs.project_base_dir }} -f json -o bandit-report.json || true
+            uv run --project ${{ inputs.project_base_dir }} bandit -r ${{ inputs.project_base_dir }} -f screen
           fi
 
       # https://www.getsafety.com/pricing
@@ -524,7 +569,7 @@ jobs:
       #     pip-audit
 
       - name: Upload security reports
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
+        uses: ./.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: security-reports
           path: |
@@ -552,7 +597,7 @@ jobs:
 
       - name: 🔍 Trivy - Scan Docker image
         if: ${{ inputs.image_name != '' && env.IMAGE_BUILT == 'true' }}
-        uses: felipementel/gh-actions/.github/actions/trivy-scan@main
+        uses: ./.github/actions/trivy-scan@main
         with:
           scan_type: 'image'
           image_ref: scan-image:pr-${{ github.event.pull_request.number }}
@@ -601,7 +646,7 @@ jobs:
           fi
 
       - name: Checkout code
-        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
+        uses: ./.github/actions/_wrapper/github/checkout@main
         with:
           sparse_checkout: |
             source/
