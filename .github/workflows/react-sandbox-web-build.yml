@@ -88,7 +88,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: ./.github/actions/_wrapper/github/checkout@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -100,7 +100,7 @@ jobs:
 
       - name: 🧱📤 Git Leaks
         if: ${{ !(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: ./.github/actions/git-leaks@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
@@ -110,7 +110,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - filesystem scan (deps, misconfig, secrets)
-        uses: ./.github/actions/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}/dist'
@@ -122,7 +122,7 @@ jobs:
           trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🔎 Trivy - license scan
-        uses: ./.github/actions/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -134,14 +134,14 @@ jobs:
           trivyignores: ${{ steps.check_trivyignore.outputs.path }}
 
       - name: 🏷️ Extract Application Version
-        uses: ./.github/actions/react-get-package-data@main
+        uses: felipementel/gh-actions/.github/actions/node/get-package-data@main
         id: get_package_data
         with:
           environment: ${{ inputs.environment }}
           project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Setup Node ${{ inputs.node_version }} (with npm cache)
-        uses: ./.github/actions/_wrapper/github/setup-node@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-node@main
         with:
           node_version: ${{ inputs.node_version }}
           cache: 'npm'
@@ -299,7 +299,7 @@ jobs:
         working-directory: ${{ inputs.project_base_dir }}
 
       - name: 📸 SonarCloud Analysis
-        uses: ./.github/actions/tools/code-quality/sonar-cloud-node@main
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-node@main
         with:
           has_tests: 'false'
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -310,7 +310,7 @@ jobs:
           project_base_dir: ${{ inputs.project_base_dir }}
 
       - name: Upload artifact for deployment job
-        uses: ./.github/actions/_wrapper/github/upload-artifact@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: static-website
           path: ${{ inputs.project_base_dir }}/dist
@@ -318,7 +318,7 @@ jobs:
 
       - name: 🏷️ Create Tag
         id: github_tag
-        uses: ./.github/actions/git/tag-create@main
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
           tag: ${{ needs.build.outputs.tag_version }}
 

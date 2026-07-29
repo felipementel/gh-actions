@@ -167,7 +167,7 @@ jobs:
           echo "NOW=$(date +'%Y-%m-%dT%H:%M:%S')" >> $GITHUB_OUTPUT
 
       - name: 📥 Checkout
-        uses: ./.github/actions/_wrapper/github/checkout@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           ref: ${{ github.ref }}
           fetch_depth: 0
@@ -178,7 +178,7 @@ jobs:
           sparse_checkout_cone_mode: false
 
       - name: 🏷️ Extract Application Version
-        uses: ./.github/actions/python/get-version@main
+        uses: felipementel/gh-actions/.github/actions/python/get-version@main
         id: get_version
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
@@ -186,7 +186,7 @@ jobs:
 
       - name: 🏷️ Check Tag
         id: tag_check
-        uses: ./.github/actions/git/tag-check@main
+        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/pyproject.toml
@@ -228,7 +228,7 @@ jobs:
 
       - name: 🧱📤 Git Leaks
         if: ${{!(github.event_name == 'pull_request' && github.actor == 'dependabot[bot]') }}
-        uses: ./.github/actions/tools/security/giteaks@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
@@ -237,7 +237,7 @@ jobs:
           notify_user_list: '@felipementel'
 
       - name: 🐋 Docker setup
-        uses: ./.github/actions/tools/docker/setup@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🔍 Check for tests
         id: check_tests
@@ -280,7 +280,7 @@ jobs:
 
       - name: 📊 Upload coverage to Codecov
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: ./.github/actions/_wrapper/codecov/codecov-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/codecov/codecov-action@main
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: ./tests/results/coverage.xml
@@ -289,7 +289,7 @@ jobs:
           fail_ci_if_error: false
 
       - name: 📸 SonarCloud Analysis
-        uses: ./.github/actions/tools/code-quality/sonar-cloud-python@main
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-python@main
         with:
           has_tests: ${{ steps.check_tests.outputs.HAS_TESTS }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -301,14 +301,14 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: ./.github/actions/tools/coverage-badge@main
+        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
         with:
           coverage_file: tests/results/coverage.xml
           coverage_format: cobertura
 
       - name: 🧪📤 Upload test coverage artifacts
         if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-        uses: ./.github/actions/_wrapper/github/upload-artifact@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: coverage-reports-${{ github.run_number }}
           path: |
@@ -318,12 +318,12 @@ jobs:
           retention_days: 30
 
       - name: Code Quality
-        uses: ./.github/actions/python/code-quality@main
+        uses: felipementel/gh-actions/.github/actions/python/code-quality@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
 
       - name:  Docker Build (local, for Security scan)
-        uses: ./.github/actions/tools/docker/buildx@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -336,13 +336,13 @@ jobs:
           load: 'true'
 
       - name: 🍵 Safety Python Dependency Check
-        uses: ./.github/actions/tools/security/safety-python@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/safety-python@main
         with:
           api_key: ${{ secrets.SAFETY_API_KEY }}
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -356,7 +356,7 @@ jobs:
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '.'
@@ -370,7 +370,7 @@ jobs:
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
           scan_type: 'image'
@@ -399,7 +399,7 @@ jobs:
 
       - name: 📤 Upload OpenAPI artifacts
         if: ${{ inputs.openapi_folder != '' }}
-        uses: ./.github/actions/_wrapper/github/upload-artifact@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
           path: |
@@ -410,7 +410,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
-        uses: ./.github/actions/tools/code-quality/spectral@main
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
@@ -436,7 +436,7 @@ jobs:
       - name: 🏷️ Create Tag
         id: github_tag
         if: ${{ inputs.build_mode != 'Build' }}
-        uses: ./.github/actions/git/tag-create@main
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
 
@@ -452,7 +452,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: ./.github/actions/tools/docker/check-image@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -472,7 +472,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout
-        uses: ./.github/actions/_wrapper/github/checkout@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           fetch_depth: 0
           sparse_checkout: |
@@ -481,16 +481,16 @@ jobs:
           sparse_checkout_cone_mode: false
 
       - name: 🏗️ Set up QEMU
-        uses: ./.github/actions/_wrapper/docker/setup-qemu-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/setup-qemu-action@main
 
       - name: 🏗️ Set up Docker Buildx
-        uses: ./.github/actions/_wrapper/docker/setup-buildx-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/setup-buildx-action@main
         with:
           version: latest
           platforms: linux/amd64,linux/arm64
 
       - name: 🔐 Log in to registry
-        uses: ./.github/actions/_wrapper/docker/login-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/login-action@main
         with:
           registry: ${{ inputs.registry }}
           username: ${{ inputs.registry_username || github.actor }}
@@ -498,13 +498,13 @@ jobs:
 
       - name: 🏷️ Extract metadata for Docker
         id: meta
-        uses: ./.github/actions/_wrapper/docker/metadata-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/metadata-action@main
         with:
           images: |
             ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}
 
       - name: 🐳 Push Docker image
-        uses: ./.github/actions/_wrapper/docker/build-push-action@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/docker/build-push-action@main
         with:
           context: ${{ inputs.docker_build_context || '.' }}
           file: ${{ inputs.dockerfile_folder }}/Dockerfile

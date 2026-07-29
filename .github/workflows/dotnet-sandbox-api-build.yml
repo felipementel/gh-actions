@@ -176,14 +176,14 @@ jobs:
 
       - name: 🔍 Check Tag
         id: tag_check
-        uses: ./.github/actions/git/tag-check@main
+        uses: felipementel/gh-actions/.github/actions/git/tag-check@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
           version_file: ${{ inputs.project_base_dir }}/${{ inputs.main_project }}/${{ inputs.main_project }}.csproj
           fail_on_exists: true
 
       - name: 🛠️ Setup .NET version ${{ inputs.dotnet_version }}
-        uses: ./.github/actions/_wrapper/github/setup-dotnet@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/setup-dotnet@main
         with:
           dotnet_version: ${{ inputs.dotnet_version }}
 
@@ -193,24 +193,24 @@ jobs:
           $DOTNET_ROOT/dotnet --info
 
       - name: 🧱📤 Git Leaks
-        uses: ./.github/actions/tools/security/giteaks@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/giteaks@main
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           gitleaks_license: ${{ secrets.GITLEAKS_LICENSE }}
 
       # - name: Owasp Dependency Check
-      #   uses: ./.github/actions/tools-owasp-zap@main
+      #   uses: felipementel/gh-actions/.github/actions/tools-owasp-zap@main
       #   with:
       #     projectBaseDir: ${{ inputs.project_base_dir }}
       #     mainProject: ${{ inputs.main_project }}
       #     solutionFileName: ${{ inputs.solution_file_name }}
 
       - name: 🐋 Docker setup
-        uses: ./.github/actions/tools/docker/setup@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/setup@main
 
       - name: 🧪 Dotnet Test & Coverage
         id: dotnet_test
-        uses: ./.github/actions/dotnet/dotnet-test@main
+        uses: felipementel/gh-actions/.github/actions/dotnet/dotnet-test@main
         with:
           tests_folder: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
@@ -219,7 +219,7 @@ jobs:
           run_id: ${{ github.run_id }}
 
       - name: 📸 SonarCloud Analysis
-        uses: ./.github/actions/tools/code-quality/sonar-cloud-dotnet@main
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/sonar-cloud-dotnet@main
         with:
           has_tests: ${{ steps.dotnet_test.outputs.has_tests }}
           sonar_project_key: ${{ secrets.SONAR_PROJECT_KEY }}
@@ -233,13 +233,13 @@ jobs:
 
       - name: 🎯 Generate coverage badge
         if: ${{ steps.dotnet_test.outputs.has_tests == 'true' }}
-        uses: ./.github/actions/tools/coverage-badge@main
+        uses: felipementel/gh-actions/.github/actions/tools/coverage-badge@main
         with:
           coverage_file: coveragereport/Cobertura.xml
           coverage_format: cobertura
 
       - name: 🐳 Docker Build (local, for Security scan)
-        uses: ./.github/actions/tools/docker/buildx@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -253,7 +253,7 @@ jobs:
 
       # Trivy no source/repo SAST scan (vulnerabilities, secrets, misconfigurations)
       - name: 🔎 Trivy - Filesystem Scan (vuln, secret, misconfig)
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -267,7 +267,7 @@ jobs:
           category: 'trivy-fs-vuln'
 
       - name: 🔎 Trivy - license scan
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           scan_type: 'fs'
           scan_ref: '${{ env.working_directory }}'
@@ -281,7 +281,7 @@ jobs:
           category: 'trivy-fs-license'
 
       - name: 🔎 Trivy - Image Scan (vuln, secret)
-        uses: ./.github/actions/tools/security/trivy-scan@main
+        uses: felipementel/gh-actions/.github/actions/tools/security/trivy-scan@main
         with:
           image_ref: ${{ inputs.registry }}/${{ inputs.registry_username || github.actor }}/${{ inputs.image_name }}:${{ steps.get_version.outputs.TAG }}
           scan_type: 'image'
@@ -319,7 +319,7 @@ jobs:
 
       - name: 📤 Upload OpenAPI artifacts
         if: ${{ inputs.openapi_folder != '' }}
-        uses: ./.github/actions/_wrapper/github/upload-artifact@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
         with:
           name: OpenAPI-Specs
           path: |
@@ -329,7 +329,7 @@ jobs:
 
       - name: 🚀 Spectral OpenAPI Lint
         if: ${{ inputs.openapi_folder != '' }}
-        uses: ./.github/actions/tools/code-quality/spectral@main
+        uses: felipementel/gh-actions/.github/actions/tools/code-quality/spectral@main
         with:
           openapi_files_path: ./output_build/${{ inputs.openapi_folder }}
           node_version: ${{ env.nodeVersion }}
@@ -347,7 +347,7 @@ jobs:
       - name: 🏷️ Create Tag
         id: github_tag
         if: ${{ inputs.build_mode != 'Build' }}
-        uses: ./.github/actions/git/tag-create@main
+        uses: felipementel/gh-actions/.github/actions/git/tag-create@main
         with:
           tag: ${{ steps.get_version.outputs.TAG }}
 
@@ -363,7 +363,7 @@ jobs:
     steps:
       - name: 🔍 Check if image exists in registry
         id: check_image
-        uses: ./.github/actions/tools/docker/check-image@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/check-image@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
@@ -384,7 +384,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: ./.github/actions/_wrapper/github/checkout@main
+        uses: felipementel/gh-actions/.github/actions/_wrapper/github/checkout@main
         with:
           fetch_depth: 0
           sparse_checkout: |
@@ -393,14 +393,14 @@ jobs:
           sparse_checkout_cone_mode: false
 
       - name: 🐳 Docker login
-        uses: ./.github/actions/tools/docker/login@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/login@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
           registry_password: ${{ secrets.REGISTRY_PAT }}
 
       - name: 🐳 Push Docker image
-        uses: ./.github/actions/tools/docker/buildx@main
+        uses: felipementel/gh-actions/.github/actions/tools/docker/buildx@main
         with:
           registry: ${{ inputs.registry }}
           registry_username: ${{ inputs.registry_username || github.actor }}
