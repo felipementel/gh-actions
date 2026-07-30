@@ -348,12 +348,12 @@ jobs:
 
   check_image:
     name: Check if image exists
+    needs: build
     if: ${{ inputs.build_mode == 'Build + Tag Validation' || inputs.build_mode == 'Build + Tag Validation + Deploy' }}
     # environment: ${{ inputs.environment }}
     runs-on: ubuntu-latest
     outputs:
       image_exists: ${{ steps.check_image.outputs.IMAGE_EXISTS }}
-    needs: build
 
     steps:
       - name: 🔍 Check if image exists in registry

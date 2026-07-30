@@ -49,7 +49,7 @@ runs:
 
     - name: 🧪📤 Upload coverage report artifact
       if: ${{ steps.check_tests.outputs.HAS_TESTS == 'true' }}
-      uses: ./.github/actions/_wrapper/github/upload-artifact@main
+      uses: felipementel/gh-actions/.github/actions/_wrapper/github/upload-artifact@main
       with:
         name: Coverage-Report-${{ inputs.run_number }}-${{ inputs.run_id }}
         path: ${{ inputs.project_base_dir }}/coverage/
