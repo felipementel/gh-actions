@@ -43,7 +43,7 @@ on:
         required: false
         type: string
         default: ''
-      tests_folder:
+      tests_dir:
         type: string
         description: 'The main test folder'
         required: false
@@ -62,12 +62,12 @@ on:
         type: string
         description: 'Docker image name'
         required: true
-      openapi_folder:
+      openapi_dir:
         description: 'Path to folder that will receive the exported OpenAPI JSON. Leave empty to skip Spectral linting.'
         required: false
         type: string
         default: ''
-      dockerfile_folder:
+      dockerfile_dir:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         type: string

@@ -39,12 +39,12 @@ jobs:
       environment: ${{ inputs.environment || 'development' }}
       node_version: ${{ vars.BUILD_VERSION }}
       project_base_dir: './source'
-      tests_folder: 'tests'
+      tests_dir: 'tests'
       report_title: 'My Project API'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: 'open-api'
-      dockerfile_folder: './docker'
+      openapi_dir: 'open-api'
+      dockerfile_dir: './docker'
       docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registry_username: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)

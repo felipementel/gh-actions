@@ -6,7 +6,7 @@ inputs:
     description: 'Path to the project base directory (containing pom.xml)'
     required: false
     default: './source'
-  tests_folder:
+  tests_dir:
     description: 'The main test folder (used to locate test classes)'
     required: false
     default: 'tests'

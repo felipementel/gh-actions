@@ -47,13 +47,13 @@ jobs:
       image_name: ${{ github.event.repository.name }}
       project_base_dir: './source'
       main_file: 'main.py'
-      openapi_folder: 'open-api'
+      openapi_dir: 'open-api'
       sparse_checkout: |
         source/
         docker/
         tests/
       coverage_threshold: 80
-      dockerfile_folder: './docker'
+      dockerfile_dir: './docker'
       docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
       # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)

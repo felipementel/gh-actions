@@ -24,12 +24,12 @@ jobs:
       environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'development' }}
       node_version: ${{ vars.BUILD_VERSION }}
       project_base_dir: './source'
-      tests_folder: 'tests'
+      tests_dir: 'tests'
       report_title: 'My Project API - PR'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: ''
-      dockerfile_folder: 'docker'
+      openapi_dir: ''
+      dockerfile_dir: 'docker'
     permissions:
       security-events: write
       contents: read

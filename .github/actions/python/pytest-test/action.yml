@@ -6,7 +6,7 @@ inputs:
     description: 'Application source directory to measure coverage (e.g. src)'
     required: false
     default: 'src'
-  tests_folder:
+  tests_dir:
     description: 'The main test folder (used to locate test files)'
     required: false
     default: 'tests'

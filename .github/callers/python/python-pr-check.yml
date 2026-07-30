@@ -30,7 +30,7 @@ jobs:
     uses: felipementel/gh-actions/.github/workflows/python-pr-check.yml@main
     with:
       environment: ${{ github.event_name == 'workflow_dispatch' && inputs.environment || 'development' }}
-      tests_folder: 'tests'
+      tests_dir: 'tests'
       python_version: ${{ vars.BUILD_VERSION }}
       project_base_dir: './source'
       solution_file_name: 'PortsAndAdapters.slnx'
@@ -38,8 +38,8 @@ jobs:
       report_title: 'Usuarios API - PR'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: 'open-api'
-      dockerfile_folder: './docker'
+      openapi_dir: 'open-api'
+      dockerfile_dir: './docker'
       docker_build_context: '.'
     permissions:
       security-events: write

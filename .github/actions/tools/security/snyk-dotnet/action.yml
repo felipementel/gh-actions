@@ -55,7 +55,7 @@ runs:
           ${{ inputs.image_name }} \
           --app-vulns \
           --exclude-base-image-vulns \
-          --file=${{ inputs.dockerfile_folder }}/Dockerfile 
+          --file=${{ inputs.dockerfile_dir}}/Dockerfile 
 
     - name: 🍵 Run Snyk to check for vulnerabilities
       shell: bash

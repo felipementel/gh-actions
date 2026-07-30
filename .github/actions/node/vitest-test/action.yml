@@ -6,7 +6,7 @@ inputs:
     description: 'Working directory where package.json and vitest.config.ts are located'
     required: false
     default: '.'
-  tests_folder:
+  tests_dir:
     description: 'The main test folder (used to locate test files)'
     required: false
     default: 'tests'

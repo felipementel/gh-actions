@@ -23,7 +23,7 @@ on:
         description: 'Working directory where package.json is located'
         required: false
         default: '.'
-      tests_folder:
+      tests_dir:
         type: string
         description: 'The main test folder'
         required: false
@@ -43,12 +43,12 @@ on:
         description: 'Docker image name'
         required: true
         default: ''
-      openapi_folder:
+      openapi_dir:
         type: string
         description: 'Path to folder containing OpenAPI specification files (leave empty to skip Spectral linting)'
         required: false
         default: ''
-      dockerfile_folder:
+      dockerfile_dir:
         type: string
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
@@ -218,7 +218,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/node/vitest-test@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
-          tests_folder: ${{ inputs.tests_folder }}
+          tests_dir: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
           run_number: ${{ github.run_number }}
           run_id: ${{ github.run_id }}

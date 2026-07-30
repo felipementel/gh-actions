@@ -40,12 +40,12 @@ jobs:
       project_base_dir: './src'
       solution_file_name: 'PortsAndAdapters.slnx'
       main_project: 'Usuarios.Api'
-      tests_folder: 'tests'
+      tests_dir: 'tests'
       report_title: 'My Project API'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: 'open-api'
-      dockerfile_folder: './docker'
+      openapi_dir: 'open-api'
+      dockerfile_dir: './docker'
       docker_build_context: '.'
       registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:
@@ -72,8 +72,6 @@ jobs:
       tag_version: ${{ needs.build.outputs.tag_version }}
       image_name: ${{ github.event.repository.name }}
       registry: ${{ vars.CONTAINER_REGISTRY }}
-      # registryUsername: ''  # Deixe vazio para usar github.actor (padrão ghcr.io)
-      # azure_resource_group: ${{ vars.AZURE_RESOURCE_GROUP_NAME }}
       acae_base_name: ${{ vars.AZURE_ACAE_BASE }}
       health_check_path: '/health/live'
       deploy_poll_max_attempts: '20'

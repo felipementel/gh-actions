@@ -2,7 +2,7 @@ name: 'Dotnet Test & Coverage'
 description: 'Checks for test projects, runs tests with coverage, generates reports, and uploads artifacts.'
 
 inputs:
-  tests_folder:
+  tests_dir:
     description: 'The main test folder'
     required: false
     default: ''

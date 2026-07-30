@@ -41,12 +41,12 @@ jobs:
       java_distribution: ${{ vars.JAVA_DISTRIBUTION || 'temurin' }}
       project_base_dir: './source'
       main_project: 'myproject-api'
-      tests_folder: 'tests'
+      tests_dir: 'tests'
       report_title: 'My Project API'
       sonar_exclusions: ''
       image_name: ${{ github.event.repository.name }}
-      openapi_folder: 'open-api'
-      dockerfile_folder: './docker'
+      openapi_dir: 'open-api'
+      dockerfile_dir: './docker'
       docker_build_context: './source'
       registry: ${{ vars.CONTAINER_REGISTRY }}
     permissions:

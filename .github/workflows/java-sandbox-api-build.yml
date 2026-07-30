@@ -13,7 +13,7 @@ on:
         type: string
         description: 'Environment to run the workflow'
         required: true
-      tests_folder:
+      tests_dir:
         type: string
         description: 'The main test folder'
         required: false
@@ -56,12 +56,12 @@ on:
         description: 'Image name to publish at github packages'
         required: true
         default: ""
-      openapi_folder:
+      openapi_dir:
         type: string
         description: 'Path to the folder containing OpenAPI specification files.'
         required: true
         default: ""
-      dockerfile_folder:
+      dockerfile_dir:
         description: 'Folder containing the Dockerfile (relative to repo root)'
         required: false
         type: string
@@ -211,7 +211,7 @@ jobs:
         uses: felipementel/gh-actions/.github/actions/java/maven-test@main
         with:
           project_base_dir: ${{ inputs.project_base_dir }}
-          tests_folder: ${{ inputs.tests_folder }}
+          tests_dir: ${{ inputs.tests_folder }}
           report_title: ${{ inputs.report_title }}
           sonar_exclusions: ${{ inputs.sonar_exclusions }}
           run_number: ${{ github.run_number }}
