@@ -79,3 +79,4 @@ updates:
       - "dependabot"
     commit-message:
       prefix: "[github actions composite] "
+
